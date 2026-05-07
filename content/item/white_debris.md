@@ -1,6 +1,6 @@
 +++
-title = "ホワイトデブリ"
-slug = "ホワイトデブリ"
+title = "ホワイドデブリ"
+slug = "ホワイドデブリ"
 image = "img/item/white_debris.png"
 weight = 67
 category = "通常素材"
