@@ -1,0 +1,78 @@
+{{ define "main" }}
+
+<h1>{{ .Title }}</h1>
+<link rel="stylesheet" href="{{ "css/integrated-tool.css" | relURL }}">
+
+<div class="tool-tabs" id="tool-tabs">
+  <button type="button" class="tool-tab-btn" data-tab="integrated" aria-pressed="true">統合計算機</button>
+  <button type="button" class="tool-tab-btn" data-tab="detail" aria-pressed="false">詳細計算機</button>
+</div>
+
+<div id="tab-integrated" class="tool-tab-panel">
+  {{ partial "calc-integrated.html" . }}
+</div>
+
+<div id="tab-detail" class="tool-tab-panel" hidden>
+  {{ partial "calc-detail.html" . }}
+</div>
+
+<style>
+.tool-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tool-tab-btn {
+  padding: 10px 20px;
+  border: 1px solid #000;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.tool-tab-btn[aria-pressed="true"] {
+  background: rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 2px #000 inset;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const TAB_KEY = "calc_active_tab";
+  const buttons = Array.from(document.querySelectorAll(".tool-tab-btn"));
+  const panels  = {
+    integrated: document.getElementById("tab-integrated"),
+    detail:     document.getElementById("tab-detail")
+  };
+
+  function switchTab(tabId) {
+    buttons.forEach(btn => {
+      btn.setAttribute("aria-pressed", btn.getAttribute("data-tab") === tabId ? "true" : "false");
+    });
+    Object.keys(panels).forEach(key => {
+      const el = panels[key];
+      if (!el) return;
+      const isHidden = key !== tabId;
+      el.hidden = isHidden;
+      el.style.setProperty("display", isHidden ? "none" : "", isHidden ? "important" : "");
+    });
+    try { localStorage.setItem(TAB_KEY, tabId); } catch (e) {}
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      switchTab(btn.getAttribute("data-tab"));
+    });
+  });
+
+  // ハッシュ or localStorage でタブ復元
+  const hash = location.hash.replace("#", "");
+  const saved = (() => { try { return localStorage.getItem(TAB_KEY); } catch(e) { return null; } })();
+  const initial = (hash && panels[hash]) ? hash : (saved && panels[saved]) ? saved : "integrated";
+  switchTab(initial);
+});
+</script>
+
+{{ end }}
