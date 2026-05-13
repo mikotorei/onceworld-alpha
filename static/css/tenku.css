@@ -194,9 +194,14 @@
 
 /* ---- テーブル ---- */
 .table-wrap {
-  overflow-x: auto;
   border-radius: 8px;
   border: 1px solid var(--color-border, #e0e0e0);
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.table-scroll {
+  width: 100%;
 }
 
 .tenku-table {
@@ -216,6 +221,31 @@
   letter-spacing: 0.06em;
   border-bottom: 2px solid var(--color-border, #e0e0e0);
   white-space: nowrap;
+}
+
+/* モンスター名列を左固定 */
+.tenku-table th:first-child,
+.tenku-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.08);
+}
+
+.tenku-table th:first-child {
+  background: var(--color-surface, #f0f0f0);
+}
+
+.tenku-table td:first-child {
+  background: #fff;
+}
+
+.tenku-table tbody tr:nth-child(even) td:first-child {
+  background: var(--color-surface, #fafafa);
+}
+
+.tenku-table tbody tr:hover td:first-child {
+  background: color-mix(in srgb, var(--color-accent, #e06c00) 5%, transparent);
 }
 
 .tenku-table th.col-highlight {
@@ -290,6 +320,217 @@ td.col-highlight {
 th:last-child,
 td:last-child {
   text-align: right;
+}
+
+/* ---- 魔法ワンパン入力 ---- */
+.magic-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.magic-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.magic-input-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--color-muted, #999);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.magic-input-row {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row !important;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.magic-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.magic-input-field input[type="number"] {
+  width: 100px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 6px;
+  font-size: 1rem;
+  text-align: right;
+  background: #fff;
+}
+
+.magic-input-field-btn {
+  justify-content: flex-end;
+}
+
+.bulk-btn {
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-accent, #e06c00);
+  background: #fff;
+  color: var(--color-accent, #e06c00);
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bulk-btn:hover {
+  background: var(--color-accent, #e06c00);
+  color: #fff;
+}
+
+.magic-input-field input[type="number"]:focus {
+  outline: none;
+  border-color: var(--color-accent, #e06c00);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent, #e06c00) 15%, transparent);
+}
+
+/* ---- 判定列 ---- */
+.judge-ok {
+  color: #2a9d2a;
+  font-weight: bold;
+  text-align: center;
+}
+
+.judge-ng {
+  color: #cc3333;
+  text-align: center;
+}
+
+/* ---- タブ ---- */
+.tenku-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--color-border, #e0e0e0);
+}
+
+.tenku-tab {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: var(--color-muted, #888);
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tenku-tab:hover {
+  color: var(--color-accent, #e06c00);
+}
+
+.tenku-tab.active {
+  color: var(--color-accent, #e06c00);
+  border-bottom-color: var(--color-accent, #e06c00);
+  font-weight: bold;
+}
+
+/* ---- 安全フロア判定 ---- */
+.safe-result {
+  margin-top: 1rem;
+}
+
+.safe-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-muted, #aaa);
+  background: var(--color-surface, #f8f8f8);
+  border-radius: 8px;
+  border: 1px dashed var(--color-border, #ddd);
+}
+
+.safe-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .safe-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.safe-stat-card {
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.safe-stat-card.safe-ok {
+  background: #f0faf0;
+  border-color: #2a9d2a;
+}
+
+.safe-stat-card.safe-danger {
+  background: #fff5f5;
+  border-color: #cc3333;
+}
+
+.safe-stat-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted, #888);
+  margin-bottom: 0.15rem;
+}
+
+.safe-stat-floor {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.safe-stat-card.safe-ok .safe-stat-floor {
+  color: #2a9d2a;
+}
+
+.safe-stat-card.safe-danger .safe-stat-floor {
+  color: #cc3333;
+}
+
+.safe-stat-lv {
+  font-size: 0.82rem;
+  color: var(--color-muted, #888);
+}
+
+.safe-stat-danger {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f0c0c0;
+}
+
+.safe-stat-danger-title {
+  font-size: 0.82rem;
+  color: #cc3333;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.safe-danger-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.safe-danger-list li {
+  margin-bottom: 0.1rem;
 }
 
 /* ---- レスポンシブ ---- */
