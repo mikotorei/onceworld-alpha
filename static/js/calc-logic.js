@@ -131,12 +131,13 @@ function clampAnalysisBonus(v) {
 
 function getSpellMultiplier(spell) {
   switch (normalizeElement(spell)) {
-    case "fire":  return 1.0;
-    case "water": return 1.0;
-    case "wood":  return 1.3;
-    case "light": return 2.0;
-    case "dark":  return 1.4;
-    default:      return 1.0;
+    case "fire":    return 1.0;
+    case "water":   return 1.0;
+    case "wood":    return 1.3;
+    case "light":   return 2.0;
+    case "dark":    return 1.4;
+    case "shingan": return 0.1;
+    default:        return 1.0;
   }
 }
 
