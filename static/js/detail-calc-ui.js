@@ -28,10 +28,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const outEnemyHp      = document.getElementById("detail-out-enemy-hp");
   const outPhyDmg       = document.getElementById("detail-out-phy-dmg");
   const outHits         = document.getElementById("detail-out-hits");
+  const outPhyMinAtk    = document.getElementById("detail-out-phy-min-atk");
   const outPhyNpan      = document.getElementById("detail-out-phy-npan");
   const outPhyOne       = document.getElementById("detail-out-phy-one");
   const outPhyOverkill  = document.getElementById("detail-out-phy-overkill");
   const outMagDmg       = document.getElementById("detail-out-mag-dmg");
+  const outMagMinInt    = document.getElementById("detail-out-mag-min-int");
   const outMagNpan      = document.getElementById("detail-out-mag-npan");
   const outMagOne       = document.getElementById("detail-out-mag-one");
   const outMagOverkill  = document.getElementById("detail-out-mag-overkill");
@@ -586,6 +588,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const phy = damageRangeTotal(hero.atk, enemyPhysDef, hits, elementModifier, criticalModifier);
       outPhyDmg.textContent = formatMinMax(phy.min, phy.max);
 
+      // 最小atk（ダメージ1以上になる最小値）
+      const minAtk = Math.floor(enemyPhysDef * 4 / 7) + 1;
+      outPhyMinAtk.textContent = `atk${fmt(minAtk)}以上`;
+
       const phyAvg = Math.floor((phy.min + phy.max) / 2);
       outPhyNpan.textContent = phyAvg > 0
         ? `${Math.ceil(enemyHp / phyAvg)}パン（平均ダメ: ${fmt(phyAvg)}）`
@@ -611,6 +617,13 @@ document.addEventListener("DOMContentLoaded", function () {
         ? `${Math.ceil(enemyHp / magAvg)}パン（平均ダメ: ${fmt(magAvg)}）`
         : "-";
       outMagDmg.textContent = `${formatMinMax(mag.min, mag.max)}（この範囲内）`;
+
+      // 最小int（ダメージ1以上になる最小値）
+      const analysisBonus    = calcAnalysisBonus(hero.analysisBook, hero.analysisBookAdvanced);
+      const spellMult        = getSpellMultiplier(state.spell);
+      const crystalMult      = getCrystalMultiplier(hero.crystalCount);
+      const minInt = Math.max(0, Math.ceil(enemyMagDef / (1.25 * spellMult * crystalMult) - analysisBonus));
+      outMagMinInt.textContent = `int${fmt(minInt)}以上`;
 
       outMagOne.textContent = `int${fmt(calcMagicOneShotRequiredInt({
         hp: enemyHp,
