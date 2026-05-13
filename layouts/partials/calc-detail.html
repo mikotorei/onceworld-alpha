@@ -246,93 +246,157 @@
   <h2>結果</h2>
 
   <div class="result-block">
-    <div class="result-title">敵情報</div>
-    <div class="result-row">
-      <div class="result-label">実体力</div>
-      <div class="result-value" id="detail-out-enemy-hp">-</div>
+    <button type="button" class="result-block-toggle" data-target="detail-block-enemy" aria-expanded="false">
+      <span>敵情報</span><span class="toggle-icon">▼</span>
+    </button>
+    <div id="detail-block-enemy" class="result-block-body" hidden>
+      <div class="result-row">
+        <div class="result-label">実体力</div>
+        <div class="result-value" id="detail-out-enemy-hp">-</div>
+      </div>
     </div>
   </div>
 
   <div class="result-block" id="detail-result-physical">
-    <div class="result-title">物理</div>
-    <div class="result-row">
-      <div class="result-label">ダメージ最小atk</div>
-      <div class="result-value" id="detail-out-phy-min-atk">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">与ダメ範囲</div>
-      <div class="result-value">
-        <span id="detail-out-phy-dmg">-</span>
-        <span class="muted">（多段: <span id="detail-out-hits">-</span>）</span>
+    <button type="button" class="result-block-toggle" data-target="detail-block-physical" aria-expanded="false">
+      <span>物理</span><span class="toggle-icon">▼</span>
+    </button>
+    <div id="detail-block-physical" class="result-block-body" hidden>
+      <div class="result-row">
+        <div class="result-label">最小atk</div>
+        <div class="result-value" id="detail-out-phy-min-atk">-</div>
       </div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">平均nパン</div>
-      <div class="result-value" id="detail-out-phy-npan">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">ワンパンライン</div>
-      <div class="result-value" id="detail-out-phy-one">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">オーバーキルライン</div>
-      <div class="result-value" id="detail-out-phy-overkill">-</div>
+      <div class="result-row">
+        <div class="result-label">与ダメ範囲</div>
+        <div class="result-value">
+          <span id="detail-out-phy-dmg">-</span>
+          <span class="muted">（多段: <span id="detail-out-hits">-</span>）</span>
+        </div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">平均nパン</div>
+        <div class="result-value" id="detail-out-phy-npan">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">ワンパンライン</div>
+        <div class="result-value" id="detail-out-phy-one">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">オーバーキルライン</div>
+        <div class="result-value" id="detail-out-phy-overkill">-</div>
+      </div>
     </div>
   </div>
 
   <div class="result-block" id="detail-result-magic">
-    <div class="result-title">魔法</div>
-    <div class="result-row">
-      <div class="result-label">ダメージ最小int</div>
-      <div class="result-value" id="detail-out-mag-min-int">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">与ダメ範囲</div>
-      <div class="result-value" id="detail-out-mag-dmg">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">平均nパン</div>
-      <div class="result-value" id="detail-out-mag-npan">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">ワンパンライン</div>
-      <div class="result-value" id="detail-out-mag-one">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">オーバーキルライン</div>
-      <div class="result-value" id="detail-out-mag-overkill">-</div>
-    </div>
-  </div>
-
-  <div class="result-block">
-    <div class="result-title">命中 / 回避</div>
-    <div class="result-row">
-      <div class="result-label">最低命中luk</div>
-      <div class="result-value" id="detail-out-hit-luk">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">安定命中luk</div>
-      <div class="result-value" id="detail-out-hit-luk-stable">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">回避luk</div>
-      <div class="result-value" id="detail-out-evade-luk">-</div>
+    <button type="button" class="result-block-toggle" data-target="detail-block-magic" aria-expanded="false">
+      <span>魔法</span><span class="toggle-icon">▼</span>
+    </button>
+    <div id="detail-block-magic" class="result-block-body" hidden>
+      <div class="result-row">
+        <div class="result-label">最小int</div>
+        <div class="result-value" id="detail-out-mag-min-int">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">与ダメ範囲</div>
+        <div class="result-value" id="detail-out-mag-dmg">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">平均nパン</div>
+        <div class="result-value" id="detail-out-mag-npan">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">ワンパンライン</div>
+        <div class="result-value" id="detail-out-mag-one">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">オーバーキルライン</div>
+        <div class="result-value" id="detail-out-mag-overkill">-</div>
+      </div>
     </div>
   </div>
 
   <div class="result-block">
-    <div class="result-title">
-      無効化 <span class="muted">（防御=def+0.1mdef / 魔法防御=mdef+0.1def）</span>
+    <button type="button" class="result-block-toggle" data-target="detail-block-hit" aria-expanded="false">
+      <span>命中 / 回避</span><span class="toggle-icon">▼</span>
+    </button>
+    <div id="detail-block-hit" class="result-block-body" hidden>
+      <div class="result-row">
+        <div class="result-label">最低命中luk</div>
+        <div class="result-value" id="detail-out-hit-luk">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">安定命中luk</div>
+        <div class="result-value" id="detail-out-hit-luk-stable">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">回避luk</div>
+        <div class="result-value" id="detail-out-evade-luk">-</div>
+      </div>
     </div>
-    <div class="result-row">
-      <div class="result-label">必要防御</div>
-      <div class="result-value" id="detail-out-null-def">-</div>
-    </div>
-    <div class="result-row">
-      <div class="result-label">必要魔法防御</div>
-      <div class="result-value" id="detail-out-null-mdef">-</div>
+  </div>
+
+  <div class="result-block">
+    <button type="button" class="result-block-toggle" data-target="detail-block-nullify" aria-expanded="false">
+      <span>無効化</span><span class="toggle-icon">▼</span>
+    </button>
+    <div id="detail-block-nullify" class="result-block-body" hidden>
+      <div class="result-row muted" style="font-size:12px; padding-bottom:4px;">
+        防御=def+0.1mdef / 魔法防御=mdef+0.1def
+      </div>
+      <div class="result-row">
+        <div class="result-label">必要防御</div>
+        <div class="result-value" id="detail-out-null-def">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">必要魔法防御</div>
+        <div class="result-value" id="detail-out-null-mdef">-</div>
+      </div>
     </div>
   </div>
 </section>
+
+<style>
+.result-block-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 4px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+.result-block-toggle .toggle-icon {
+  font-size: 12px;
+  transition: transform 0.2s;
+  color: #666;
+}
+.result-block-toggle[aria-expanded="true"] .toggle-icon {
+  transform: rotate(180deg);
+}
+.result-block-body {
+  padding-bottom: 4px;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".result-block-toggle").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const targetId = btn.getAttribute("data-target");
+      const body     = document.getElementById(targetId);
+      if (!body) return;
+      const isOpen = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+      body.hidden = isOpen;
+      body.style.setProperty("display", isOpen ? "none" : "", isOpen ? "important" : "");
+    });
+  });
+});
+</script>
 
 <script src="{{ "js/detail-calc-ui.js" | relURL }}"></script>
