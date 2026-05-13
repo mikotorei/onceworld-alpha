@@ -60,6 +60,10 @@
       <input id="detail-hero-luk" type="text" inputmode="numeric" value="0" autocomplete="off">
     </div>
 
+    <div class="hero-row" style="grid-column: 1 / -1; margin-top:4px;">
+      <button id="detail-hero-clear" type="button" class="clear-btn">入力クリア</button>
+    </div>
+
     <div class="hero-row hero-stat-row" id="detail-analysis-book-row" hidden>
       <span class="hero-label">解析書:</span>
       <input id="detail-analysis-book" type="text" inputmode="numeric" value="0" autocomplete="off">
@@ -176,6 +180,10 @@
       <input id="detail-enemy-luk" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-luk-scaled">→ 0</span>
     </div>
+
+    <div class="hero-row" style="grid-column: 1 / -1; margin-top:4px;">
+      <button id="detail-enemy-clear" type="button" class="clear-btn">入力クリア</button>
+    </div>
   </div>
 
 <style>
@@ -198,6 +206,17 @@
   white-space: nowrap;
   color: #666;
   font-size: 14px;
+}
+.clear-btn {
+  padding: 8px 16px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.clear-btn:active {
+  background: rgba(0,0,0,0.06);
 }
 </style>
 </section>
