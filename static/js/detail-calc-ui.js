@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const outEvadeLuk     = document.getElementById("detail-out-evade-luk");
   const outNullDef      = document.getElementById("detail-out-null-def");
   const outNullMdef     = document.getElementById("detail-out-null-mdef");
+  const outRecvDmg      = document.getElementById("detail-out-recv-dmg");
+  const nullDefRow      = document.getElementById("detail-null-def-row");
+  const nullMdefRow     = document.getElementById("detail-null-mdef-row");
 
   // --- 結果ブロック ---
   const resultPhysical = document.getElementById("detail-result-physical");
@@ -66,10 +69,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const selectedName = document.getElementById("detail-monster-selected-name");
   const lvInput      = document.getElementById("detail-enemy-lv");
 
-  const attackTypeButtons   = Array.from(document.querySelectorAll("[data-detail-attack-type]"));
-  const heroElementButtons  = Array.from(document.querySelectorAll("[data-detail-hero-element]"));
-  const spellButtons        = Array.from(document.querySelectorAll("[data-detail-spell]"));
-  const enemyElementButtons = Array.from(document.querySelectorAll("[data-detail-enemy-element]"));
+  const attackTypeButtons      = Array.from(document.querySelectorAll("[data-detail-attack-type]"));
+  const heroElementButtons     = Array.from(document.querySelectorAll("[data-detail-hero-element]"));
+  const spellButtons           = Array.from(document.querySelectorAll("[data-detail-spell]"));
+  const enemyElementButtons    = Array.from(document.querySelectorAll("[data-detail-enemy-element]"));
+  const enemyAttackTypeButtons = Array.from(document.querySelectorAll("[data-detail-enemy-attack-type]"));
 
   const debuffWoodBtn      = document.getElementById("detail-debuff-wood");
   const debuffDarkBtn      = document.getElementById("detail-debuff-dark");
@@ -79,14 +83,15 @@ document.addEventListener("DOMContentLoaded", function () {
   let pickedMonster = null;
 
   const state = {
-    heroElement:  "fire",
-    attackType:   "physical",
-    spell:        "fire",
-    enemyElement: "",
-    debuffWood:   false,
-    debuffDark:   false,
-    critical:     false,
-    godEyeCount:  0
+    heroElement:      "fire",
+    attackType:       "physical",
+    spell:            "fire",
+    enemyElement:     "",
+    enemyAttackType:  "physical",
+    debuffWood:       false,
+    debuffDark:       false,
+    critical:         false,
+    godEyeCount:      0
   };
 
   // --- UI ヘルパー ---
@@ -226,7 +231,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function applyMonsterToInputs(m, lv) {
-    // 基礎値をセット（補正後はupdateScaledDisplayで表示）
     setEnemyInputs({ vit: m.vit, spd: m.spd, atk: m.atk, int: m.int, def: m.def, mdef: m.mdef, luk: m.luk });
     lvInput.value = formatIntString(lv);
 
@@ -234,6 +238,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const el = normalizeElement(m.element);
     state.enemyElement = el;
     setPressed(enemyElementButtons, el, "data-detail-enemy-element");
+
+    // 攻撃タイプを反映
+    const at = (m.attack_type === "魔法" || m.attack_type === "magic") ? "magic" : "physical";
+    state.enemyAttackType = at;
+    setPressed(enemyAttackTypeButtons, at, "data-detail-enemy-attack-type");
 
     updateScaledDisplay();
   }
@@ -314,6 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (["physical","magic"].includes(st.state.attackType))                     state.attackType   = st.state.attackType;
         if (["fire","water","wood","light","dark","shingan"].includes(st.state.spell))        state.spell        = st.state.spell;
         if (["fire","water","wood","light","dark",""].includes(st.state.enemyElement)) state.enemyElement = st.state.enemyElement;
+        if (["physical","magic"].includes(st.state.enemyAttackType)) state.enemyAttackType = st.state.enemyAttackType;
         state.debuffWood  = !!st.state.debuffWood;
         state.debuffDark  = !!st.state.debuffDark;
         state.critical    = state.attackType === "physical" ? !!st.state.critical : false;
@@ -440,6 +450,14 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", () => {
       state.enemyElement = btn.getAttribute("data-detail-enemy-element") ?? "";
       setPressed(enemyElementButtons, state.enemyElement, "data-detail-enemy-element");
+      saveState();
+    });
+  });
+
+  enemyAttackTypeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.enemyAttackType = btn.getAttribute("data-detail-enemy-attack-type") || "physical";
+      setPressed(enemyAttackTypeButtons, state.enemyAttackType, "data-detail-enemy-attack-type");
       saveState();
     });
   });
@@ -651,8 +669,43 @@ document.addEventListener("DOMContentLoaded", function () {
     outHitLuk.textContent       = `${fmt(Math.floor(enemyLuk / 2))}以上`;
     outHitLukStable.textContent = `${fmt(enemyLuk)}以上`;
     outEvadeLuk.textContent     = `${fmt(Math.floor(enemyLuk * 3))}以上`;
-    outNullDef.textContent      = `${fmt(requiredDefenseForNullify(enemy.atk))}以上`;
-    outNullMdef.textContent     = `${fmt(requiredDefenseForNullify(enemy.int))}以上`;
+
+    // 防御ブロック：敵攻撃タイプで表示切替
+    const isEnemyPhysical = state.enemyAttackType === "physical";
+    setHiddenForce(nullDefRow,  !isEnemyPhysical);
+    setHiddenForce(nullMdefRow, isEnemyPhysical);
+
+    if (isEnemyPhysical) {
+      outNullDef.textContent = `${fmt(requiredDefenseForNullify(enemy.atk))}以上`;
+
+      // 被ダメ（敵物理→主人公）
+      const heroPhysDef = hero.def + hero.mdef * 0.1;
+      const enemyHits   = hitsFromSpd(enemy.spd);
+      const recvElemMod = getElementModifier(state.enemyElement, state.heroElement);
+      const recv        = damageRangeTotal(enemy.atk, heroPhysDef, enemyHits, recvElemMod, 1.0);
+      outRecvDmg.textContent = recv.min > 0
+        ? `${formatMinMax(recv.min, recv.max)}（多段: ${fmt(enemyHits)}）`
+        : "0（無効化）";
+    } else {
+      outNullMdef.textContent = `${fmt(requiredDefenseForNullify(enemy.int))}以上`;
+
+      // 被ダメ（敵魔法→主人公）
+      const heroMagDef  = hero.mdef + hero.def * 0.1;
+      const recvElemMod = getElementModifier(state.enemyElement, state.heroElement);
+      const recvMag     = calcMagicDamageRange({
+        heroInt: enemy.int,
+        analysisBook: 0,
+        analysisBookAdvanced: 0,
+        crystalCount: 0,
+        spell: state.enemyElement || "fire",
+        enemyMagDef: heroMagDef,
+        heroElement: state.enemyElement,
+        enemyElement: state.heroElement
+      });
+      outRecvDmg.textContent = recvMag.min > 0
+        ? `${formatMinMax(recvMag.min, recvMag.max)}`
+        : "0（無効化）";
+    }
   });
 
 })();
