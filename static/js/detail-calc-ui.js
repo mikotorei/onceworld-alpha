@@ -487,6 +487,28 @@ document.addEventListener("DOMContentLoaded", function () {
     calcBtn.click();
   });
 
+  // --- クリアボタン ---
+  document.getElementById("detail-hero-clear").addEventListener("click", () => {
+    ["detail-hero-vit", "detail-hero-spd", "detail-hero-atk",
+     "detail-hero-int", "detail-hero-def", "detail-hero-mdef", "detail-hero-luk"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "0";
+    });
+    saveState();
+  });
+
+  document.getElementById("detail-enemy-clear").addEventListener("click", () => {
+    ["detail-enemy-vit", "detail-enemy-spd", "detail-enemy-atk",
+     "detail-enemy-int", "detail-enemy-def", "detail-enemy-mdef", "detail-enemy-luk"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "0";
+    });
+    updateScaledDisplay();
+    saveState();
+  });
+
   // モンスター検索
   search.addEventListener("input", () => {
     const q = search.value;
