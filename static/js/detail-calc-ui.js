@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (st?.state) {
         if (["fire","water","wood","light","dark"].includes(st.state.heroElement))  state.heroElement  = st.state.heroElement;
         if (["physical","magic"].includes(st.state.attackType))                     state.attackType   = st.state.attackType;
-        if (["fire","water","wood","light","dark"].includes(st.state.spell))        state.spell        = st.state.spell;
+        if (["fire","water","wood","light","dark","shingan"].includes(st.state.spell))        state.spell        = st.state.spell;
         if (["fire","water","wood","light","dark",""].includes(st.state.enemyElement)) state.enemyElement = st.state.enemyElement;
         state.debuffWood  = !!st.state.debuffWood;
         state.debuffDark  = !!st.state.debuffDark;
