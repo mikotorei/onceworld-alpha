@@ -8,11 +8,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // 設定
   // ============================================================
 
+  // 天空に出現しないモンスターのID
   const EXCLUDED_IDS = [
     "201", "202", "203", "204", "205", "206", "207",
     "226", "227", "228",
     "241", "242", "243", "244", "245", "246", "247", "248", "249"
   ];
+
+  // 100の倍数Fのみ出現するモンスターのID（SGなど）
+  const SG_IDS = ["226"];
 
   const TOP_N      = 30;
   const SAFE_MAX_F = 99999;
@@ -45,6 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (n % 100 === 0) return 100 * n + 9900;
     if (n >= 10000)    return 100 * n;
     return 100 * n + 10000;
+  }
+
+  function isSgFloor(floor) {
+    return Math.floor(floor) % 100 === 0;
   }
 
   // ============================================================
@@ -186,13 +194,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // フィルタ
   // ============================================================
 
-  function getBaseMonsters() {
+  // フロアに応じたモンスターリストを返す（SG考慮）
+  function getMonstersForFloor(floor) {
     if (!window.MONSTERS || !Array.isArray(window.MONSTERS)) return [];
-    return window.MONSTERS.filter(m => !EXCLUDED_IDS.includes(m.id));
+    const sgFloor = isSgFloor(floor);
+    return window.MONSTERS.filter(m => {
+      if (EXCLUDED_IDS.includes(m.id)) {
+        // SGIDは100nフロアのみ含める
+        return sgFloor && SG_IDS.includes(m.id);
+      }
+      return true;
+    });
   }
 
-  function getFilteredMonsters(sortKey, rangedOnly) {
-    let list = getBaseMonsters();
+  // 計算表用（現在のフロアのモンスター + sortKeyフィルタ）
+  function getFilteredMonstersForFloor(floor, sortKey, rangedOnly) {
+    let list = getMonstersForFloor(floor);
     if (sortKey === "req_def") {
       list = list.filter(m => m.attack_type === "物理");
     } else if (sortKey === "req_mdef") {
@@ -222,9 +239,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // 安全フロア判定（各ステータス独立）
   // ============================================================
 
-  // 1フロアのDEF安全チェック（全モンスターのATKに対して）
-  function isFloorSafeDef(monsters, floor, heroDef) {
-    const lv = getLv(floor);
+  function isFloorSafeDef(floor, heroDef) {
+    const lv       = getLv(floor);
+    const monsters = getMonstersForFloor(floor);
     for (const m of monsters) {
       const atk = scaleStat(m.atk, lv);
       if (heroDef <= (atk * 7 - 10) / 4) return false;
@@ -232,9 +249,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return true;
   }
 
-  // 1フロアのMDEF安全チェック（全モンスターのINTに対して）
-  function isFloorSafeMdef(monsters, floor, heroMdef) {
-    const lv = getLv(floor);
+  function isFloorSafeMdef(floor, heroMdef) {
+    const lv       = getLv(floor);
+    const monsters = getMonstersForFloor(floor);
     for (const m of monsters) {
       const int_ = scaleStat(m.int, lv);
       if (heroMdef <= (int_ * 7 - 10) / 4) return false;
@@ -242,9 +259,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return true;
   }
 
-  // 1フロアのLUK安全チェック（全モンスターのLUKに対して）
-  function isFloorSafeLuk(monsters, floor, heroLuk) {
-    const lv = getLv(floor);
+  function isFloorSafeLuk(floor, heroLuk) {
+    const lv       = getLv(floor);
+    const monsters = getMonstersForFloor(floor);
     for (const m of monsters) {
       const luk = scaleStat(m.luk, lv);
       if (heroLuk < luk * 3) return false;
@@ -252,8 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return true;
   }
 
-  // 二分探索で安全な最大フロアを取得
-  function findMaxSafeFloorBy(monsters, checkFn) {
+  function findMaxSafeFloorBy(checkFn) {
     if (!checkFn(1)) return { maxFloor: 0, reachedLimit: false };
     if (checkFn(SAFE_MAX_F)) return { maxFloor: SAFE_MAX_F, reachedLimit: true };
 
@@ -265,12 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
       else              hi = mid;
     }
     return { maxFloor: lo, reachedLimit: false };
-  }
-
-  // 危険フロアで安全条件を満たせないモンスター一覧
-  function getDangerMonsters(monsters, floor, checkFn) {
-    const lv = getLv(floor);
-    return monsters.filter(m => !checkFn(m, lv));
   }
 
   // ============================================================
@@ -302,8 +312,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const safeLukInput  = document.getElementById("safe-luk");
   const safeResult    = document.getElementById("safe-result");
 
-  const tabBtns      = document.querySelectorAll(".tenku-tab");
-  const tabContents  = document.querySelectorAll(".tenku-tab-content");
+  const tabBtns     = document.querySelectorAll(".tenku-tab");
+  const tabContents = document.querySelectorAll(".tenku-tab-content");
 
   // ============================================================
   // UI状態取得
@@ -361,7 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {
     magicOneshotRow.style.display = viewGroup === "magic_oneshot" ? "" : "none";
 
     const sortKey  = viewGroup === "status" ? getStatusSortKey() : viewGroup;
-    const monsters = getFilteredMonsters(sortKey, rangedOnly);
+    const monsters = getFilteredMonstersForFloor(floor, sortKey, rangedOnly);
 
     if (monsters.length === 0) {
       noResult.style.display = "";
@@ -529,8 +539,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const monsters = getBaseMonsters();
-    if (monsters.length === 0) {
+    if (!window.MONSTERS || !Array.isArray(window.MONSTERS)) {
       safeResult.innerHTML = '<div class="safe-placeholder">モンスターデータが読み込まれていません</div>';
       return;
     }
@@ -538,19 +547,11 @@ document.addEventListener("DOMContentLoaded", function () {
     safeResult.innerHTML = '<div class="safe-placeholder">計算中...</div>';
 
     setTimeout(() => {
-      // 各ステータスを独立して計算
-      const defResult  = heroDef  > 0
-        ? findMaxSafeFloorBy(monsters, f => isFloorSafeDef(monsters,  f, heroDef))
-        : null;
-      const mdefResult = heroMdef > 0
-        ? findMaxSafeFloorBy(monsters, f => isFloorSafeMdef(monsters, f, heroMdef))
-        : null;
-      const lukResult  = heroLuk  > 0
-        ? findMaxSafeFloorBy(monsters, f => isFloorSafeLuk(monsters,  f, heroLuk))
-        : null;
+      const defResult  = heroDef  > 0 ? findMaxSafeFloorBy(f => isFloorSafeDef(f,  heroDef))  : null;
+      const mdefResult = heroMdef > 0 ? findMaxSafeFloorBy(f => isFloorSafeMdef(f, heroMdef)) : null;
+      const lukResult  = heroLuk  > 0 ? findMaxSafeFloorBy(f => isFloorSafeLuk(f,  heroLuk))  : null;
 
-      // 各ステータスのカードを生成
-      function makeCard(label, result, dangerCheckFn) {
+      function makeCard(label, result, getDangerList) {
         if (!result) return "";
 
         if (result.maxFloor === 0) {
@@ -571,8 +572,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const dangerFloor   = result.maxFloor + 1;
-        const dangerLv      = getLv(dangerFloor);
-        const dangerMonsters = dangerCheckFn(dangerFloor);
+        const dangerMonsters = getDangerList(dangerFloor);
         const list = dangerMonsters.slice(0, 5).map(m => `<li>${m.title}</li>`).join("");
         const more = dangerMonsters.length > 5 ? `<li>他 ${dangerMonsters.length - 5} 体...</li>` : "";
 
@@ -582,30 +582,26 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="safe-stat-floor">${result.maxFloor.toLocaleString()}階まで安全</div>
             <div class="safe-stat-lv">Lv ${getLv(result.maxFloor).toLocaleString()}</div>
             <div class="safe-stat-danger">
-              <span class="safe-stat-danger-title">⚠ ${dangerFloor.toLocaleString()}階（Lv ${dangerLv.toLocaleString()}）から危険</span>
+              <span class="safe-stat-danger-title">⚠ ${dangerFloor.toLocaleString()}階（Lv ${getLv(dangerFloor).toLocaleString()}）から危険</span>
               <ul class="safe-danger-list">${list}${more}</ul>
             </div>
           </div>`;
       }
 
-      const defCard  = makeCard("DEF（物理無効化）",  defResult,
-        f => monsters.filter(m => {
-          const atk = scaleStat(m.atk, getLv(f));
-          return heroDef <= (atk * 7 - 10) / 4;
-        })
-      );
-      const mdefCard = makeCard("MDEF（魔法無効化）", mdefResult,
-        f => monsters.filter(m => {
-          const int_ = scaleStat(m.int, getLv(f));
-          return heroMdef <= (int_ * 7 - 10) / 4;
-        })
-      );
-      const lukCard  = makeCard("LUK（回避）",        lukResult,
-        f => monsters.filter(m => {
-          const luk = scaleStat(m.luk, getLv(f));
-          return heroLuk < luk * 3;
-        })
-      );
+      const defCard = makeCard("DEF（物理無効化）", defResult, f => {
+        const lv = getLv(f);
+        return getMonstersForFloor(f).filter(m => heroDef <= (scaleStat(m.atk, lv) * 7 - 10) / 4);
+      });
+
+      const mdefCard = makeCard("MDEF（魔法無効化）", mdefResult, f => {
+        const lv = getLv(f);
+        return getMonstersForFloor(f).filter(m => heroMdef <= (scaleStat(m.int, lv) * 7 - 10) / 4);
+      });
+
+      const lukCard = makeCard("LUK（回避）", lukResult, f => {
+        const lv = getLv(f);
+        return getMonstersForFloor(f).filter(m => heroLuk < scaleStat(m.luk, lv) * 3);
+      });
 
       safeResult.innerHTML = `<div class="safe-stat-grid">${defCard}${mdefCard}${lukCard}</div>`;
     }, 0);
