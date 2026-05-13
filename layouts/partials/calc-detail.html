@@ -153,7 +153,12 @@
     </div>
   </div>
 
-  <div class="hero-grid detail-stat-grid" style="margin-top:12px;">
+  <div class="stat-grid-header">
+    <span class="stat-grid-header-base">基礎ステータス</span>
+    <span class="stat-grid-header-scaled" id="detail-scaled-header">Lv1でのステータス</span>
+  </div>
+
+  <div class="hero-grid detail-stat-grid" style="margin-top:4px;">
     <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">VIT:</span>
       <input id="detail-enemy-vit" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
@@ -196,7 +201,27 @@
   </div>
 
 <style>
-.detail-enemy-stat-row {
+.stat-grid-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+}
+.stat-grid-header-base {
+  flex: 0 0 calc(30% - 26px);
+  text-align: right;
+  white-space: nowrap;
+}
+.stat-grid-header-scaled {
+  flex: 0 0 70%;
+  white-space: nowrap;
+  font-size: 12px;
+}
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
@@ -204,21 +229,18 @@
   flex-wrap: nowrap !important;
 }
 .detail-base-input {
-  flex: 0 0 calc(50% - 32px) !important;
-  width: calc(50% - 32px) !important;
+  flex: 0 0 calc(30% - 32px) !important;
+  width: calc(30% - 32px) !important;
   min-width: 0 !important;
   text-align: right;
   box-sizing: border-box;
 }
 .scaled-value {
-  flex: 0 0 50%;
-  width: 50%;
+  flex: 0 0 70%;
+  width: 70%;
   min-width: 0;
   white-space: nowrap;
-  color: #666;
   font-size: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .clear-btn {
   padding: 6px 12px;
