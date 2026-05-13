@@ -8,20 +8,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // 設定
   // ============================================================
 
-  // 天空に出現しないモンスターのID
   const EXCLUDED_IDS = [
     "201", "202", "203", "204", "205", "206", "207",
     "226", "227", "228",
     "241", "242", "243", "244", "245", "246", "247", "248", "249"
   ];
 
-  // 100の倍数Fのみ出現するモンスターのID（SGなど）
-  const SG_IDS = ["226"];
-
+  const SG_IDS     = ["226"];
   const TOP_N      = 30;
   const SAFE_MAX_F = 99999;
 
-  // ステータス列定義
   const STATUS_COLUMNS = [
     { key: "vit",  label: "VIT"  },
     { key: "spd",  label: "SPD"  },
@@ -137,24 +133,46 @@ document.addEventListener("DOMContentLoaded", function () {
     return Math.min(11.0, 1 + c * 0.01);
   }
 
-  function calcMagicOneshotRequired(row, params) {
+  function calcMagicDamage(row, params) {
     const enemyMagDef     = row.mdef + Math.floor(row.def * 0.1);
     const enemyHp         = row.vit * 18 + 100;
     const analysisBonus   = calcAnalysisBonus(params.book, params.bookAdv);
     const spellMultiplier = getSpellMultiplier(params.spell);
     const crystalMult     = getCrystalMultiplier(params.crystal);
     const elementModifier = getElementModifier(params.heroElement, row.element);
+    const heroInt         = Math.max(0, Math.floor(Number(params.heroInt) || 0));
 
+    const preDefense   = (heroInt + analysisBonus) * 1.25 * spellMultiplier * crystalMult;
+    const afterDefense = preDefense - enemyMagDef;
+    const finalBase    = afterDefense * 4 * elementModifier;
+
+    const avgDamage  = finalBase > 0 ? Math.floor(finalBase) : 0;
+    const required   = finalBase > 0
+      ? Math.ceil(((heroInt + analysisBonus) * 1.25 * spellMultiplier * crystalMult - enemyMagDef) <= 0
+          ? Infinity
+          : enemyHp / (0.9 * 4 * elementModifier * (preDefense - enemyMagDef) / (preDefense - enemyMagDef))
+        )
+      : Infinity;
+
+    // ワンパン必要INT
     const totalMod = 0.9 * 4 * elementModifier;
-    if (totalMod <= 0 || spellMultiplier <= 0 || crystalMult <= 0) return { required: 0, canOneshot: false };
+    let oneshotRequired = 0;
+    if (totalMod > 0 && spellMultiplier > 0 && crystalMult > 0) {
+      const neededAfterDef = enemyHp / totalMod;
+      const neededPreDef   = neededAfterDef + enemyMagDef;
+      const neededInt      = Math.ceil(neededPreDef / (1.25 * spellMultiplier * crystalMult) - analysisBonus);
+      oneshotRequired      = Math.max(0, neededInt);
+    }
 
-    const neededAfterDef = enemyHp / totalMod;
-    const neededPreDef   = neededAfterDef + enemyMagDef;
-    const neededInt      = Math.ceil(neededPreDef / (1.25 * spellMultiplier * crystalMult) - analysisBonus);
-    const required       = Math.max(0, neededInt);
-    const heroInt        = Math.max(0, Math.floor(Number(params.heroInt) || 0));
+    // nパン（平均ダメージで割る）
+    let nPan = 0;
+    if (avgDamage > 0) {
+      nPan = Math.ceil(enemyHp / avgDamage);
+    }
 
-    return { required, canOneshot: heroInt >= required, enemyHp, enemyMagDef, elementModifier };
+    const canOneshot = heroInt >= oneshotRequired;
+
+    return { oneshotRequired, canOneshot, nPan, enemyHp, enemyMagDef, avgDamage, elementModifier };
   }
 
   // ============================================================
@@ -194,20 +212,17 @@ document.addEventListener("DOMContentLoaded", function () {
   // フィルタ
   // ============================================================
 
-  // フロアに応じたモンスターリストを返す（SG考慮）
   function getMonstersForFloor(floor) {
     if (!window.MONSTERS || !Array.isArray(window.MONSTERS)) return [];
     const sgFloor = isSgFloor(floor);
     return window.MONSTERS.filter(m => {
       if (EXCLUDED_IDS.includes(m.id)) {
-        // SGIDは100nフロアのみ含める
         return sgFloor && SG_IDS.includes(m.id);
       }
       return true;
     });
   }
 
-  // 計算表用（現在のフロアのモンスター + sortKeyフィルタ）
   function getFilteredMonstersForFloor(floor, sortKey, rangedOnly) {
     let list = getMonstersForFloor(floor);
     if (sortKey === "req_def") {
@@ -228,15 +243,15 @@ document.addEventListener("DOMContentLoaded", function () {
   function calcAndSortMagicOneshot(monsters, lv, debuffDark, magicParams) {
     const rows = monsters.map(m => {
       const row    = calcMonsterRow(m, lv, debuffDark);
-      const result = calcMagicOneshotRequired(row, magicParams);
+      const result = calcMagicDamage(row, magicParams);
       return { ...row, ...result };
     });
-    rows.sort((a, b) => b.required - a.required);
+    rows.sort((a, b) => b.oneshotRequired - a.oneshotRequired);
     return rows.slice(0, TOP_N);
   }
 
   // ============================================================
-  // 安全フロア判定（各ステータス独立）
+  // 安全フロア判定
   // ============================================================
 
   function isFloorSafeDef(floor, heroDef) {
@@ -306,6 +321,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const analysisBookInput = document.getElementById("analysis-book");
   const analysisAdvInput  = document.getElementById("analysis-book-adv");
   const crystalInput      = document.getElementById("crystal-count");
+  const bulk1000Btn       = document.getElementById("bulk-1000-btn");
 
   const safeDefInput  = document.getElementById("safe-def");
   const safeMdefInput = document.getElementById("safe-mdef");
@@ -381,7 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // 魔法ワンパン表示
+    // ---- 魔法ワンパン表示 ----
     if (viewGroup === "magic_oneshot") {
       const magicParams = getMagicParams();
       const rows = calcAndSortMagicOneshot(monsters, lv, debuffDark, magicParams);
@@ -390,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
       resultMeta.textContent = `${floor}階（Lv ${lv.toLocaleString()}）／ 必要INT 降順`;
 
       theadRow.innerHTML = "";
-      ["モンスター", "HP", "必要INT", "判定"].forEach((label, i) => {
+      ["モンスター", "HP", "必要INT", "nパン", "判定"].forEach((label, i) => {
         const th = document.createElement("th");
         th.textContent = label;
         if (i === 2) th.className = "col-highlight";
@@ -402,6 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const tr = document.createElement("tr");
         tr.className = rankClass(i);
 
+        // モンスター名
         const tdName = document.createElement("td");
         const nameWrap = document.createElement("span");
         nameWrap.className = "monster-name-cell";
@@ -413,17 +430,30 @@ document.addEventListener("DOMContentLoaded", function () {
         tdName.appendChild(nameWrap);
         tr.appendChild(tdName);
 
+        // HP
         const tdHp = document.createElement("td");
         tdHp.textContent = fmt(row.enemyHp);
         tr.appendChild(tdHp);
 
+        // 必要INT
         const tdReq = document.createElement("td");
         tdReq.className = "col-highlight";
-        tdReq.textContent = fmt(row.required);
+        tdReq.textContent = fmt(row.oneshotRequired);
         tr.appendChild(tdReq);
 
+        // nパン
+        const tdNpan = document.createElement("td");
+        if (row.avgDamage <= 0) {
+          tdNpan.textContent = "—";
+        } else {
+          tdNpan.textContent = row.nPan === 1 ? "ワンパン" : `${row.nPan}パン`;
+          tdNpan.className   = row.nPan === 1 ? "judge-ok" : "";
+        }
+        tr.appendChild(tdNpan);
+
+        // 判定（ワンパン可否）
         const tdJudge = document.createElement("td");
-        tdJudge.textContent = row.canOneshot ? "✓ ワンパン" : "✗ 不可";
+        tdJudge.textContent = row.canOneshot ? "✓" : "✗";
         tdJudge.className   = row.canOneshot ? "judge-ok" : "judge-ng";
         tr.appendChild(tdJudge);
 
@@ -432,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // 通常表示
+    // ---- 通常表示 ----
     const rows = calcAndSort(monsters, lv, sortKey, debuffDark);
     noResult.style.display = "none";
 
@@ -571,7 +601,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>`;
         }
 
-        const dangerFloor   = result.maxFloor + 1;
+        const dangerFloor    = result.maxFloor + 1;
         const dangerMonsters = getDangerList(dangerFloor);
         const list = dangerMonsters.slice(0, 5).map(m => `<li>${m.title}</li>`).join("");
         const more = dangerMonsters.length > 5 ? `<li>他 ${dangerMonsters.length - 5} 体...</li>` : "";
@@ -633,6 +663,14 @@ document.addEventListener("DOMContentLoaded", function () {
   analysisBookInput.addEventListener("input", renderTable);
   analysisAdvInput.addEventListener("input", renderTable);
   crystalInput.addEventListener("input", renderTable);
+
+  // 一括1000入力ボタン
+  bulk1000Btn.addEventListener("click", function () {
+    analysisBookInput.value = 1000;
+    analysisAdvInput.value  = 1000;
+    crystalInput.value      = 1000;
+    renderTable();
+  });
 
   safeDefInput.addEventListener("input",  renderSafe);
   safeMdefInput.addEventListener("input", renderSafe);
