@@ -159,7 +159,34 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // --- 敵入力欄に値をセット ---
+  // --- 補正後ステータス表示 ---
+  const scaledSpans = {
+    vit:  document.getElementById("detail-enemy-vit-scaled"),
+    spd:  document.getElementById("detail-enemy-spd-scaled"),
+    atk:  document.getElementById("detail-enemy-atk-scaled"),
+    int:  document.getElementById("detail-enemy-int-scaled"),
+    def:  document.getElementById("detail-enemy-def-scaled"),
+    mdef: document.getElementById("detail-enemy-mdef-scaled"),
+    luk:  document.getElementById("detail-enemy-luk-scaled")
+  };
+
+  function updateScaledDisplay() {
+    const lv = Math.max(1, parseFormattedInt(lvInput, 1));
+    const statIds = {
+      vit:  "detail-enemy-vit",
+      spd:  "detail-enemy-spd",
+      atk:  "detail-enemy-atk",
+      int:  "detail-enemy-int",
+      def:  "detail-enemy-def",
+      mdef: "detail-enemy-mdef",
+      luk:  "detail-enemy-luk"
+    };
+    Object.keys(statIds).forEach(key => {
+      const base   = parseFormattedInt(document.getElementById(statIds[key]), 0);
+      const scaled = scaleStat(base, lv);
+      if (scaledSpans[key]) scaledSpans[key].textContent = `→ ${fmt(scaled)}`;
+    });
+  }
   function setEnemyInputs(vals) {
     const map = {
       "detail-enemy-vit":  "vit",
@@ -197,19 +224,16 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function applyMonsterToInputs(m, lv) {
-    const scaledVit  = Math.floor(m.vit  * (1 + lv * 0.1));
-    const scaledSpd  = Math.floor(m.spd  * (1 + lv * 0.1));
-    const scaledAtk  = Math.floor(m.atk  * (1 + lv * 0.1));
-    const scaledInt  = Math.floor(m.int  * (1 + lv * 0.1));
-    const scaledDef  = Math.floor(m.def  * (1 + lv * 0.1));
-    const scaledMdef = Math.floor(m.mdef * (1 + lv * 0.1));
-    const scaledLuk  = Math.floor(m.luk  * (1 + lv * 0.1));
-    setEnemyInputs({ vit: scaledVit, spd: scaledSpd, atk: scaledAtk, int: scaledInt, def: scaledDef, mdef: scaledMdef, luk: scaledLuk });
+    // 基礎値をセット（補正後はupdateScaledDisplayで表示）
+    setEnemyInputs({ vit: m.vit, spd: m.spd, atk: m.atk, int: m.int, def: m.def, mdef: m.mdef, luk: m.luk });
+    lvInput.value = formatIntString(lv);
 
     // 属性を反映
     const el = normalizeElement(m.element);
     state.enemyElement = el;
     setPressed(enemyElementButtons, el, "data-detail-enemy-element");
+
+    updateScaledDisplay();
   }
 
   function openSuggest(items) {
@@ -360,6 +384,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- 初期化 ---
   loadState();
   applyModeUI();
+  updateScaledDisplay();
   initBuildImport();
 
   // blurでsaveState
@@ -373,6 +398,13 @@ document.addEventListener("DOMContentLoaded", function () {
   allInputIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("blur", saveState);
+  });
+
+  // 敵ステータス入力欄の変更で補正後表示を更新
+  ["detail-enemy-vit", "detail-enemy-spd", "detail-enemy-atk",
+   "detail-enemy-int", "detail-enemy-def", "detail-enemy-mdef", "detail-enemy-luk"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", updateScaledDisplay);
   });
 
   // --- イベントリスナー ---
@@ -486,17 +518,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Lv変更で敵ステータス再適用
   lvInput.addEventListener("blur", () => {
-    if (!pickedMonster) return;
     const lv = Math.max(1, parseFormattedInt(lvInput, 1));
     lvInput.value = formatIntString(lv);
-    applyMonsterToInputs(pickedMonster, lv);
+    if (pickedMonster) {
+      applyMonsterToInputs(pickedMonster, lv);
+    }
+    updateScaledDisplay();
     saveState();
   });
 
   // --- 計算ボタン ---
   calcBtn.addEventListener("click", () => {
     const hero  = getHeroInputs();
-    const enemy = getEnemyInputs();
+    const base  = getEnemyInputs();
+    const lv    = Math.max(1, parseFormattedInt(lvInput, 1));
+
+    // レベル補正後の値を使用
+    const enemy = {
+      vit:  scaleStat(base.vit,  lv),
+      spd:  scaleStat(base.spd,  lv),
+      atk:  scaleStat(base.atk,  lv),
+      int:  scaleStat(base.int,  lv),
+      def:  scaleStat(base.def,  lv),
+      mdef: scaleStat(base.mdef, lv),
+      luk:  scaleStat(base.luk,  lv)
+    };
 
     // デバフ適用
     const enemyDef  = state.debuffWood ? Math.floor(enemy.def  / 2) : enemy.def;
