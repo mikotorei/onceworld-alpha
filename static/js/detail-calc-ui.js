@@ -188,6 +188,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function updateScaledDisplay() {
     const lv = Math.max(1, parseFormattedInt(lvInput, 1));
+
+    // ヘッダーのLv表記を更新
+    const header = document.getElementById("detail-scaled-header");
+    if (header) header.textContent = `Lv${fmt(lv)}でのステータス`;
     const statIds = {
       vit:  "detail-enemy-vit",
       spd:  "detail-enemy-spd",
