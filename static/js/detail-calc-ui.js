@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const outPhyNpan      = document.getElementById("detail-out-phy-npan");
   const outPhyOne       = document.getElementById("detail-out-phy-one");
   const outPhyOverkill  = document.getElementById("detail-out-phy-overkill");
+  const outCriticalRate = document.getElementById("detail-out-critical-rate");
   const outMagDmg       = document.getElementById("detail-out-mag-dmg");
   const outMagMinInt    = document.getElementById("detail-out-mag-min-int");
   const outMagNpan      = document.getElementById("detail-out-mag-npan");
@@ -164,6 +165,14 @@ document.addEventListener("DOMContentLoaded", function () {
       analysisBookAdvanced: Math.max(0, parseFormattedInt(document.getElementById("detail-analysis-book-advanced"), 0)),
       crystalCount:        Math.max(0, parseFormattedInt(document.getElementById("detail-crystal-count"), 0))
     };
+  }
+
+  function calcCriticalRate(heroLuk, enemyLuk) {
+    if (enemyLuk <= 0) return heroLuk > 0 ? 90 : 0;
+    const ratio = heroLuk / enemyLuk;
+    if (ratio <= 1) return 0;
+    const rate = (ratio - 1) * 12.5;
+    return Math.min(90, Math.floor(rate * 10) / 10);
   }
 
   // --- 補正後ステータス表示 ---
@@ -617,6 +626,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       outPhyOne.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp, elementModifier, criticalModifier))}以上`;
       outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp * 10, elementModifier, criticalModifier))}以上`;
+
+      // クリティカル発生率
+      const critRate = calcCriticalRate(hero.luk, enemyLuk);
+      outCriticalRate.textContent = critRate === 0
+        ? `0%（主人公luk不足）`
+        : `約${critRate}%（主人公luk: ${fmt(hero.luk)} / 敵luk: ${fmt(enemyLuk)}）`;
 
     } else {
       const mag = calcMagicDamageRange({
