@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (["physical", "magic"].includes(st.state.attackType)) {
           state.attackType = st.state.attackType;
         }
-        if (["fire", "water", "wood", "light", "dark"].includes(st.state.spell)) {
+        if (["fire", "water", "wood", "light", "dark", "shingan"].includes(st.state.spell)) {
           state.spell = st.state.spell;
         }
         state.debuffWood = !!st.state.debuffWood;
