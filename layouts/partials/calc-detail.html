@@ -143,6 +143,14 @@
         <button type="button" class="chip-btn" data-detail-enemy-element=""      aria-pressed="true">なし</button>
       </div>
     </div>
+
+    <div class="enemy-row mt">
+      <span class="enemy-label">攻撃:</span>
+      <div class="chip-group" aria-label="detail enemy attack type">
+        <button type="button" class="chip-btn" data-detail-enemy-attack-type="physical" aria-pressed="true">物理</button>
+        <button type="button" class="chip-btn" data-detail-enemy-attack-type="magic"    aria-pressed="false">魔法</button>
+      </div>
+    </div>
   </div>
 
   <div class="hero-grid detail-stat-grid" style="margin-top:12px;">
@@ -337,20 +345,24 @@
   </div>
 
   <div class="result-block">
-    <button type="button" class="result-block-toggle" data-target="detail-block-nullify" aria-expanded="false">
-      <span>無効化</span><span class="toggle-icon">▼</span>
+    <button type="button" class="result-block-toggle" data-target="detail-block-defense" aria-expanded="false">
+      <span>防御</span><span class="toggle-icon">▼</span>
     </button>
-    <div id="detail-block-nullify" class="result-block-body" hidden>
+    <div id="detail-block-defense" class="result-block-body" hidden>
       <div class="result-row muted" style="font-size:12px; padding-bottom:4px;">
         防御=def+0.1mdef / 魔法防御=mdef+0.1def
       </div>
-      <div class="result-row">
-        <div class="result-label">必要防御</div>
+      <div class="result-row" id="detail-null-def-row">
+        <div class="result-label">無効化def</div>
         <div class="result-value" id="detail-out-null-def">-</div>
       </div>
-      <div class="result-row">
-        <div class="result-label">必要魔法防御</div>
+      <div class="result-row" id="detail-null-mdef-row">
+        <div class="result-label">無効化mdef</div>
         <div class="result-value" id="detail-out-null-mdef">-</div>
+      </div>
+      <div class="result-row">
+        <div class="result-label">被ダメ範囲</div>
+        <div class="result-value" id="detail-out-recv-dmg">-</div>
       </div>
     </div>
   </div>
