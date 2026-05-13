@@ -195,17 +195,21 @@
   flex-wrap: nowrap !important;
 }
 .detail-base-input {
-  flex: 0 0 auto !important;
-  width: 6ch !important;
+  flex: 0 0 calc(50% - 32px) !important;
+  width: calc(50% - 32px) !important;
   min-width: 0 !important;
   text-align: right;
+  box-sizing: border-box;
 }
 .scaled-value {
-  flex: 1 1 auto;
+  flex: 0 0 50%;
+  width: 50%;
   min-width: 0;
   white-space: nowrap;
   color: #666;
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .clear-btn {
   padding: 8px 16px;
