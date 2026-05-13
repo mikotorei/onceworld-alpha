@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
     Object.keys(statIds).forEach(key => {
       const base   = parseFormattedInt(document.getElementById(statIds[key]), 0);
-      const scaled = scaleStat(base, lv);
+      const scaled = lv === 1 ? base : scaleStat(base, lv);
       if (scaledSpans[key]) scaledSpans[key].textContent = `→ ${fmt(scaled)}`;
     });
   }
@@ -533,15 +533,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const base  = getEnemyInputs();
     const lv    = Math.max(1, parseFormattedInt(lvInput, 1));
 
-    // レベル補正後の値を使用
+    // レベル補正後の値を使用（Lv1はスケールなし）
     const enemy = {
-      vit:  scaleStat(base.vit,  lv),
-      spd:  scaleStat(base.spd,  lv),
-      atk:  scaleStat(base.atk,  lv),
-      int:  scaleStat(base.int,  lv),
-      def:  scaleStat(base.def,  lv),
-      mdef: scaleStat(base.mdef, lv),
-      luk:  scaleStat(base.luk,  lv)
+      vit:  lv === 1 ? base.vit  : scaleStat(base.vit,  lv),
+      spd:  lv === 1 ? base.spd  : scaleStat(base.spd,  lv),
+      atk:  lv === 1 ? base.atk  : scaleStat(base.atk,  lv),
+      int:  lv === 1 ? base.int  : scaleStat(base.int,  lv),
+      def:  lv === 1 ? base.def  : scaleStat(base.def,  lv),
+      mdef: lv === 1 ? base.mdef : scaleStat(base.mdef, lv),
+      luk:  lv === 1 ? base.luk  : scaleStat(base.luk,  lv)
     };
 
     // デバフ適用
