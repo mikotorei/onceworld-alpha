@@ -8,13 +8,24 @@ document.addEventListener("DOMContentLoaded", function () {
   // 設定
   // ============================================================
 
+  // 天空に出現しないモンスターのID
   const EXCLUDED_IDS = [
     "201", "202", "203", "204", "205", "206", "207",
     "226", "227", "228",
     "241", "242", "243", "244", "245", "246", "247", "248", "249"
   ];
 
-  const SG_IDS     = ["226"];
+  // 100の倍数Fのみ出現するモンスターのID（SGなど）
+  const SG_IDS = ["226"];
+
+  // 魔法が効かないモンスターのID（魔法ワンパン表示から除外）
+  const MAGIC_IMMUNE_IDS = [
+    "130",
+    "152",
+    "223",
+    "226",
+  ];
+
   const TOP_N      = 30;
   const SAFE_MAX_F = 99999;
 
@@ -146,13 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const afterDefense = preDefense - enemyMagDef;
     const finalBase    = afterDefense * 4 * elementModifier;
 
-    const avgDamage  = finalBase > 0 ? Math.floor(finalBase) : 0;
-    const required   = finalBase > 0
-      ? Math.ceil(((heroInt + analysisBonus) * 1.25 * spellMultiplier * crystalMult - enemyMagDef) <= 0
-          ? Infinity
-          : enemyHp / (0.9 * 4 * elementModifier * (preDefense - enemyMagDef) / (preDefense - enemyMagDef))
-        )
-      : Infinity;
+    const avgDamage = finalBase > 0 ? Math.floor(finalBase) : 0;
 
     // ワンパン必要INT
     const totalMod = 0.9 * 4 * elementModifier;
@@ -165,11 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // nパン（平均ダメージで割る）
-    let nPan = 0;
-    if (avgDamage > 0) {
-      nPan = Math.ceil(enemyHp / avgDamage);
-    }
-
+    const nPan       = avgDamage > 0 ? Math.ceil(enemyHp / avgDamage) : 0;
     const canOneshot = heroInt >= oneshotRequired;
 
     return { oneshotRequired, canOneshot, nPan, enemyHp, enemyMagDef, avgDamage, elementModifier };
@@ -241,11 +242,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function calcAndSortMagicOneshot(monsters, lv, debuffDark, magicParams) {
-    const rows = monsters.map(m => {
-      const row    = calcMonsterRow(m, lv, debuffDark);
-      const result = calcMagicDamage(row, magicParams);
-      return { ...row, ...result };
-    });
+    const rows = monsters
+      .filter(m => !MAGIC_IMMUNE_IDS.includes(m.id))
+      .map(m => {
+        const row    = calcMonsterRow(m, lv, debuffDark);
+        const result = calcMagicDamage(row, magicParams);
+        return { ...row, ...result };
+      });
     rows.sort((a, b) => b.oneshotRequired - a.oneshotRequired);
     return rows.slice(0, TOP_N);
   }
@@ -418,7 +421,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const tr = document.createElement("tr");
         tr.className = rankClass(i);
 
-        // モンスター名
         const tdName = document.createElement("td");
         const nameWrap = document.createElement("span");
         nameWrap.className = "monster-name-cell";
@@ -430,18 +432,15 @@ document.addEventListener("DOMContentLoaded", function () {
         tdName.appendChild(nameWrap);
         tr.appendChild(tdName);
 
-        // HP
         const tdHp = document.createElement("td");
         tdHp.textContent = fmt(row.enemyHp);
         tr.appendChild(tdHp);
 
-        // 必要INT
         const tdReq = document.createElement("td");
         tdReq.className = "col-highlight";
         tdReq.textContent = fmt(row.oneshotRequired);
         tr.appendChild(tdReq);
 
-        // nパン
         const tdNpan = document.createElement("td");
         if (row.avgDamage <= 0) {
           tdNpan.textContent = "—";
@@ -451,7 +450,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         tr.appendChild(tdNpan);
 
-        // 判定（ワンパン可否）
         const tdJudge = document.createElement("td");
         tdJudge.textContent = row.canOneshot ? "✓" : "✗";
         tdJudge.className   = row.canOneshot ? "judge-ok" : "judge-ng";
@@ -664,7 +662,6 @@ document.addEventListener("DOMContentLoaded", function () {
   analysisAdvInput.addEventListener("input", renderTable);
   crystalInput.addEventListener("input", renderTable);
 
-  // 一括1000入力ボタン
   bulk1000Btn.addEventListener("click", function () {
     analysisBookInput.value = 1000;
     analysisAdvInput.value  = 1000;
