@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const outEvadeLuk     = document.getElementById("out-evade-luk");
   const outNullDef     = document.getElementById("out-null-def");
   const outNullMdef    = document.getElementById("out-null-mdef");
+  const nullDefRow     = document.getElementById("null-def-row");
+  const nullMdefRow    = document.getElementById("null-mdef-row");
 
   // --- 結果ブロック ---
   const resultPhysical = document.getElementById("result-physical");
@@ -579,6 +581,10 @@ document.addEventListener("DOMContentLoaded", function () {
     outHitLukStable.textContent = `${fmt(enemyScaled.luk)}以上`;
     outEvadeLuk.textContent    = `${fmt(Math.floor(enemyScaled.luk * 3))}以上`;
 
+    // 無効化：敵攻撃タイプで表示切替
+    const isEnemyPhysical = (picked.attack_type !== "魔法" && picked.attack_type !== "magic");
+    setHiddenForce(nullDefRow,  !isEnemyPhysical);
+    setHiddenForce(nullMdefRow, isEnemyPhysical);
     outNullDef.textContent  = `${fmt(requiredDefenseForNullify(enemyScaled.atk))}以上`;
     outNullMdef.textContent = `${fmt(requiredDefenseForNullify(enemyScaled.int))}以上`;
   });
