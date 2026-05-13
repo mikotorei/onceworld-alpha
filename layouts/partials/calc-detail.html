@@ -1,4 +1,276 @@
+<div class="hero-build-import">
+  <label class="hero-top-label">ビルド引用:</label>
+  <div class="build-import-row">
+    <select id="detail-build-import-select"></select>
+    <button id="detail-build-import-btn" type="button">ステータスを反映</button>
+  </div>
+</div>
+
 <section>
-  <h2>詳細計算機</h2>
-  <p>準備中です。</p>
+  <h2>主人公ステータス</h2>
+
+  <div class="hero-top-block">
+    <div class="hero-top-row">
+      <span class="hero-top-label">属性:</span>
+      <div class="chip-group" aria-label="detail hero element">
+        <button type="button" class="chip-btn" data-detail-hero-element="fire"  aria-pressed="true">火</button>
+        <button type="button" class="chip-btn" data-detail-hero-element="water" aria-pressed="false">水</button>
+        <button type="button" class="chip-btn" data-detail-hero-element="wood"  aria-pressed="false">木</button>
+        <button type="button" class="chip-btn" data-detail-hero-element="light" aria-pressed="false">光</button>
+        <button type="button" class="chip-btn" data-detail-hero-element="dark"  aria-pressed="false">闇</button>
+      </div>
+    </div>
+
+    <div class="hero-top-row">
+      <span class="hero-top-label">攻撃:</span>
+      <div class="chip-group" aria-label="detail attack type">
+        <button type="button" class="chip-btn" data-detail-attack-type="physical" aria-pressed="true">物理</button>
+        <button type="button" class="chip-btn" data-detail-attack-type="magic"    aria-pressed="false">魔法</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-grid detail-stat-grid">
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">VIT:</span>
+      <input id="detail-hero-vit" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">SPD:</span>
+      <input id="detail-hero-spd" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">ATK:</span>
+      <input id="detail-hero-atk" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">INT:</span>
+      <input id="detail-hero-int" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">DEF:</span>
+      <input id="detail-hero-def" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">M-DEF:</span>
+      <input id="detail-hero-mdef" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">LUCK:</span>
+      <input id="detail-hero-luk" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+
+    <div class="hero-row hero-stat-row" id="detail-analysis-book-row" hidden>
+      <span class="hero-label">解析書:</span>
+      <input id="detail-analysis-book" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row" id="detail-analysis-book-advanced-row" hidden>
+      <span class="hero-label">解析書の解析書:</span>
+      <input id="detail-analysis-book-advanced" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row" id="detail-crystal-row" hidden>
+      <span class="hero-label">魔晶立方体:</span>
+      <input id="detail-crystal-count" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="mode-panels">
+    <div class="mode-panel" id="detail-physical-panel">
+      <div class="mode-row">
+        <span class="mode-label">物理補助:</span>
+        <div class="chip-group" aria-label="detail physical debuffs">
+          <button id="detail-debuff-wood" type="button" class="chip-btn" aria-pressed="false">木魔法(def半減)</button>
+          <button id="detail-debuff-dark" type="button" class="chip-btn" aria-pressed="false">闇魔法(luk半減)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-panel" id="detail-magic-panel" hidden>
+      <div class="mode-row">
+        <span class="mode-label">使用魔法:</span>
+        <div class="chip-group" aria-label="detail spell select">
+          <button type="button" class="chip-btn" data-detail-spell="fire"  aria-pressed="true">火魔法</button>
+          <button type="button" class="chip-btn" data-detail-spell="water" aria-pressed="false">水魔法</button>
+          <button type="button" class="chip-btn" data-detail-spell="wood"  aria-pressed="false">木魔法</button>
+          <button type="button" class="chip-btn" data-detail-spell="light" aria-pressed="false">光魔法</button>
+          <button type="button" class="chip-btn" data-detail-spell="dark"  aria-pressed="false">闇魔法</button>
+        </div>
+      </div>
+      <div class="mode-row">
+        <span class="mode-label">魔法補助:</span>
+        <div class="chip-group" aria-label="detail magic debuffs">
+          <button id="detail-debuff-wood-magic" type="button" class="chip-btn" aria-pressed="false">木魔法(def半減)</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
+<section class="enemy-section">
+  <h2>敵ステータス</h2>
+
+  <div class="enemy-picker">
+    <div class="enemy-row">
+      <span class="enemy-label">name:</span>
+      <div class="enemy-input-wrap">
+        <input id="detail-monster-search" type="text" placeholder="名前で検索して選択" autocomplete="off">
+        <div id="detail-monster-suggest" class="suggest" hidden></div>
+      </div>
+    </div>
+
+    <div class="enemy-selected" id="detail-monster-selected" hidden>
+      選択中: <strong id="detail-monster-selected-name"></strong>
+    </div>
+
+    <div class="enemy-row mt">
+      <span class="enemy-label">Lv:</span>
+      <input id="detail-enemy-lv" class="lv-input" type="text" inputmode="numeric" value="1" autocomplete="off">
+    </div>
+
+    <div class="enemy-row mt">
+      <span class="enemy-label">属性:</span>
+      <div class="chip-group" aria-label="detail enemy element">
+        <button type="button" class="chip-btn" data-detail-enemy-element="fire"  aria-pressed="false">火</button>
+        <button type="button" class="chip-btn" data-detail-enemy-element="water" aria-pressed="false">水</button>
+        <button type="button" class="chip-btn" data-detail-enemy-element="wood"  aria-pressed="false">木</button>
+        <button type="button" class="chip-btn" data-detail-enemy-element="light" aria-pressed="false">光</button>
+        <button type="button" class="chip-btn" data-detail-enemy-element="dark"  aria-pressed="false">闇</button>
+        <button type="button" class="chip-btn" data-detail-enemy-element=""      aria-pressed="true">なし</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-grid detail-stat-grid" style="margin-top:12px;">
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">VIT:</span>
+      <input id="detail-enemy-vit" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">SPD:</span>
+      <input id="detail-enemy-spd" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">ATK:</span>
+      <input id="detail-enemy-atk" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">INT:</span>
+      <input id="detail-enemy-int" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">DEF:</span>
+      <input id="detail-enemy-def" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">M-DEF:</span>
+      <input id="detail-enemy-mdef" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+    <div class="hero-row hero-stat-row">
+      <span class="hero-label">LUCK:</span>
+      <input id="detail-enemy-luk" type="text" inputmode="numeric" value="0" autocomplete="off">
+    </div>
+  </div>
+</section>
+
+<section class="action-section">
+  <div class="action-row">
+    <button id="detail-calc-btn" type="button">計算</button>
+    <button id="detail-critical-toggle" type="button" class="side-toggle" aria-pressed="false">クリティカルOFF</button>
+  </div>
+  <div id="detail-god-eye-row" hidden>
+    <div class="mode-row" style="margin-top:10px;">
+      <span class="mode-label">ゴッドオブデビルアイ:</span>
+      <div class="chip-group" aria-label="detail god eye count">
+        <button id="detail-god-eye-0"    type="button" class="chip-btn" aria-pressed="true">0個</button>
+        <button id="detail-god-eye-1000" type="button" class="chip-btn" aria-pressed="false">1000個</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="result-section">
+  <h2>結果</h2>
+
+  <div class="result-block">
+    <div class="result-title">敵情報</div>
+    <div class="result-row">
+      <div class="result-label">実体力</div>
+      <div class="result-value" id="detail-out-enemy-hp">-</div>
+    </div>
+  </div>
+
+  <div class="result-block" id="detail-result-physical">
+    <div class="result-title">物理</div>
+    <div class="result-row">
+      <div class="result-label">与ダメ範囲</div>
+      <div class="result-value">
+        <span id="detail-out-phy-dmg">-</span>
+        <span class="muted">（多段: <span id="detail-out-hits">-</span>）</span>
+      </div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">平均nパン</div>
+      <div class="result-value" id="detail-out-phy-npan">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">ワンパンライン</div>
+      <div class="result-value" id="detail-out-phy-one">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">オーバーキルライン</div>
+      <div class="result-value" id="detail-out-phy-overkill">-</div>
+    </div>
+  </div>
+
+  <div class="result-block" id="detail-result-magic">
+    <div class="result-title">魔法</div>
+    <div class="result-row">
+      <div class="result-label">与ダメ範囲</div>
+      <div class="result-value" id="detail-out-mag-dmg">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">平均nパン</div>
+      <div class="result-value" id="detail-out-mag-npan">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">ワンパンライン</div>
+      <div class="result-value" id="detail-out-mag-one">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">オーバーキルライン</div>
+      <div class="result-value" id="detail-out-mag-overkill">-</div>
+    </div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-title">命中 / 回避</div>
+    <div class="result-row">
+      <div class="result-label">最低命中luk</div>
+      <div class="result-value" id="detail-out-hit-luk">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">安定命中luk</div>
+      <div class="result-value" id="detail-out-hit-luk-stable">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">回避luk</div>
+      <div class="result-value" id="detail-out-evade-luk">-</div>
+    </div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-title">
+      無効化 <span class="muted">（防御=def+0.1mdef / 魔法防御=mdef+0.1def）</span>
+    </div>
+    <div class="result-row">
+      <div class="result-label">必要防御</div>
+      <div class="result-value" id="detail-out-null-def">-</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">必要魔法防御</div>
+      <div class="result-value" id="detail-out-null-mdef">-</div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ "js/detail-calc-ui.js" | relURL }}"></script>
