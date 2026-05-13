@@ -141,42 +141,67 @@
   </div>
 
   <div class="hero-grid detail-stat-grid" style="margin-top:12px;">
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">VIT:</span>
-      <input id="detail-enemy-vit" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-vit" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-vit-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">SPD:</span>
-      <input id="detail-enemy-spd" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-spd" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-spd-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">ATK:</span>
-      <input id="detail-enemy-atk" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-atk" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-atk-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">INT:</span>
-      <input id="detail-enemy-int" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-int" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-int-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">DEF:</span>
-      <input id="detail-enemy-def" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-def" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-def-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">M-DEF:</span>
-      <input id="detail-enemy-mdef" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-mdef" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-mdef-scaled">→ 0</span>
     </div>
-    <div class="hero-row hero-stat-row">
+    <div class="hero-row hero-stat-row detail-enemy-stat-row">
       <span class="hero-label">LUCK:</span>
-      <input id="detail-enemy-luk" type="text" inputmode="numeric" value="0" autocomplete="off">
+      <input id="detail-enemy-luk" class="detail-base-input" type="text" inputmode="numeric" value="0" autocomplete="off">
       <span class="scaled-value" id="detail-enemy-luk-scaled">→ 0</span>
     </div>
   </div>
+
+<style>
+.detail-enemy-stat-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: nowrap !important;
+}
+.detail-base-input {
+  flex: 0 0 auto !important;
+  width: 7ch !important;
+  min-width: 0 !important;
+  text-align: right;
+}
+.scaled-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #666;
+  font-size: 14px;
+}
+</style>
 </section>
 
 <section class="action-section">
