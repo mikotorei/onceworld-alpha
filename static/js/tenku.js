@@ -18,6 +18,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // 100の倍数Fのみ出現するモンスターのID（SGなど）
   const SG_IDS = ["226"];
 
+  // 特定フロアのみ出現するモンスター { id, floor }
+  const SPECIAL_IDS = [
+    { id: "223", floor: 1000000 },
+  ];
+
   // 魔法が効かないモンスターのID（魔法ワンパン表示から除外）
   const MAGIC_IMMUNE_IDS = [
     "130",
@@ -216,9 +221,15 @@ document.addEventListener("DOMContentLoaded", function () {
   function getMonstersForFloor(floor) {
     if (!window.MONSTERS || !Array.isArray(window.MONSTERS)) return [];
     const sgFloor = isSgFloor(floor);
+    const n = Math.floor(floor);
     return window.MONSTERS.filter(m => {
       if (EXCLUDED_IDS.includes(m.id)) {
-        return sgFloor && SG_IDS.includes(m.id);
+        // SGは100の倍数Fのみ
+        if (SG_IDS.includes(m.id)) return sgFloor;
+        // 特定フロア専用モンスター
+        const special = SPECIAL_IDS.find(s => s.id === m.id);
+        if (special) return n === special.floor;
+        return false;
       }
       return true;
     });
