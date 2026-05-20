@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function appendWeaponRow(item, isG) {
     const tr = document.createElement("tr");
-    const isFixed = item.id === "bare_hands";
+    const isFixed = item.id === "bare_hands" || item.no_enhance === true;
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
