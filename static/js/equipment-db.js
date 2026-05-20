@@ -274,6 +274,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const armors = allItems.filter((i) => i.category === "armor");
     sortArmors(armors).forEach((item) => appendArmorRow(item, isG));
+
+    updateTfoot("weaponTfoot", isG);
+    updateTfoot("armorTfoot", isG);
+  }
+
+  function updateTfoot(tfootId, isG) {
+    const tfoot = document.getElementById(tfootId);
+    if (!tfoot) return;
+    const thead = document.getElementById(tfootId.replace("Tfoot", "Thead"));
+    if (!thead) return;
+    const tr = document.createElement("tr");
+    thead.querySelectorAll("th").forEach((th) => {
+      const td = document.createElement("th");
+      td.textContent = th.textContent;
+      td.className = th.className;
+      if (th.classList.contains("g-cost-col")) {
+        td.style.display = isG ? "" : "none";
+      }
+      tr.appendChild(td);
+    });
+    tfoot.innerHTML = "";
+    tfoot.appendChild(tr);
   }
 
   function sortArmors(items) {
@@ -476,6 +498,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     sortArmors(armors).forEach((item) => appendArmorRow(item, isG));
 
     allItems.filter((i) => i.category === "accessory").forEach((item) => appendAccessoryRow(item));
+
+    updateTfoot("weaponTfoot", isG);
+    updateTfoot("armorTfoot", isG);
 
   } catch (e) {
     console.error("装備DB読み込み失敗", e);
