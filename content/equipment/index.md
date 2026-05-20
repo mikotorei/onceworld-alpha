@@ -39,6 +39,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
         </tr>
       </thead>
       <tbody id="weaponBody"></tbody>
+      <tfoot id="weaponTfoot"></tfoot>
     </table>
   </div>
   <div class="equip-table" id="tab-armor">
@@ -61,6 +62,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
         </tr>
       </thead>
       <tbody id="armorBody"></tbody>
+      <tfoot id="armorTfoot"></tfoot>
     </table>
   </div>
   <div class="equip-table" id="tab-accessory">
