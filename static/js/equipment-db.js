@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const tabs = document.querySelectorAll(".equip-tab");
   const tables = document.querySelectorAll(".equip-table");
+  const enhanceTabs = document.querySelectorAll(".enhance-tab");
+  const enhanceTabsWrapper = document.getElementById("enhanceTabs");
+  const gEnhanceControl = document.getElementById("gEnhanceControl");
+  const gInput = document.getElementById("gLevelInput");
+  const gSlider = document.getElementById("gLevelSlider");
+  const gDisplay = document.getElementById("gLevelDisplay");
 
   const slotLabelMap = {
     head: "頭",
@@ -42,17 +48,104 @@ document.addEventListener("DOMContentLoaded", async () => {
     recovery: "回復"
   };
 
+  let enhanceMode = "base";
+  let gLevel = 100;
+  let currentTab = "weapon";
+
+  // ========== 強化計算 ==========
+
+  function calcStat(baseVal, stat, mode, gLv) {
+    if (baseVal === 0) return 0;
+    if (stat === "mov") return baseVal;
+
+    if (mode === "base") {
+      return baseVal;
+    } else if (mode === "plus1100") {
+      return baseVal * 111;
+    } else if (mode === "genhance") {
+      const at1100 = baseVal * 111;
+      return at1100 + (at1100 * 25 + 10000) * gLv;
+    }
+    return baseVal;
+  }
+
+  function formatStat(val) {
+    if (val === 0) return "";
+    return Number.isInteger(val) ? String(val) : val.toFixed(1);
+  }
+
+  // ========== 強化UI表示制御 ==========
+
+  function updateEnhanceUI() {
+    if (!enhanceTabsWrapper) return;
+    const isAccessory = currentTab === "accessory";
+    enhanceTabsWrapper.style.display = isAccessory ? "none" : "";
+    if (gEnhanceControl) {
+      gEnhanceControl.style.display = (!isAccessory && enhanceMode === "genhance") ? "flex" : "none";
+    }
+  }
+
+  // ========== カテゴリタブ切り替え ==========
+
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       tabs.forEach((t) => t.classList.remove("active"));
       tables.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
-      document.getElementById("tab-" + tab.dataset.tab)?.classList.add("active");
+      currentTab = tab.dataset.tab;
+      document.getElementById("tab-" + currentTab)?.classList.add("active");
+      updateEnhanceUI();
     });
   });
 
-  function getBaseUrl() {
-    return window.location.origin + window.location.pathname.split("/equipment")[0];
+  // ========== 強化モード切り替え ==========
+
+  enhanceTabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      enhanceTabs.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      enhanceMode = btn.dataset.enhance;
+      updateEnhanceUI();
+      refreshTables();
+    });
+  });
+
+  if (gInput) {
+    gInput.addEventListener("input", () => {
+      let v = parseInt(gInput.value, 10);
+      if (isNaN(v)) v = 1;
+      v = Math.min(100, Math.max(1, v));
+      gLevel = v;
+      if (gSlider) gSlider.value = v;
+      if (gDisplay) gDisplay.textContent = v;
+      refreshTables();
+    });
+  }
+
+  if (gSlider) {
+    gSlider.addEventListener("input", () => {
+      gLevel = parseInt(gSlider.value, 10);
+      if (gInput) gInput.value = gLevel;
+      if (gDisplay) gDisplay.textContent = gLevel;
+      refreshTables();
+    });
+  }
+
+  // ========== テーブル描画 ==========
+
+  let allItems = [];
+
+  function refreshTables() {
+    if (weaponBody) weaponBody.innerHTML = "";
+    if (armorBody) armorBody.innerHTML = "";
+
+    allItems.forEach((item) => {
+      if (item.category === "weapon") {
+        appendWeaponRow(item);
+      } else if (item.category === "armor") {
+        appendArmorRow(item);
+      }
+    });
   }
 
   function appendWeaponRow(item) {
@@ -64,8 +157,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     statList.forEach((stat) => {
       const td = document.createElement("td");
-      const add = Number(item.base_add?.[stat] ?? 0);
-      td.textContent = add !== 0 ? String(add) : "";
+      const base = Number(item.base_add?.[stat] ?? 0);
+      const val = calcStat(base, stat, enhanceMode, gLevel);
+      td.textContent = formatStat(val);
       tr.appendChild(td);
     });
 
@@ -89,8 +183,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     statList.forEach((stat) => {
       const td = document.createElement("td");
-      const add = Number(item.base_add?.[stat] ?? 0);
-      td.textContent = add !== 0 ? String(add) : "";
+      const base = Number(item.base_add?.[stat] ?? 0);
+      const val = calcStat(base, stat, enhanceMode, gLevel);
+      td.textContent = formatStat(val);
       tr.appendChild(td);
     });
 
@@ -121,10 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
 
-      return {
-        names: effectNames,
-        values: effectValues
-      };
+      return { names: effectNames, values: effectValues };
     }
 
     statList.forEach((stat) => {
@@ -141,10 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    return {
-      names: effectNames,
-      values: effectValues
-    };
+    return { names: effectNames, values: effectValues };
   }
 
   function appendAccessoryRow(item) {
@@ -177,15 +266,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     accessoryBody?.appendChild(tr);
   }
 
+  // ========== データ読み込み ==========
+
+  function getBaseUrl() {
+    return window.location.origin + window.location.pathname.split("/equipment")[0];
+  }
+
   try {
     const url = getBaseUrl() + "/db/equipment.json";
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    const items = Array.isArray(data.items) ? data.items : [];
+    allItems = Array.isArray(data.items) ? data.items : [];
 
-    items.forEach((item) => {
+    allItems.forEach((item) => {
       if (item.category === "weapon") {
         appendWeaponRow(item);
       } else if (item.category === "armor") {
