@@ -106,7 +106,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_weapon" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -121,7 +121,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_head" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_head" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -136,7 +136,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_body" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_body" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -151,7 +151,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_hands" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -166,7 +166,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_feet" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -181,7 +181,7 @@ let lastFinalTotal = null;
         </div>
       </div>
       <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_shield" type="number" min="0" value="0"></div>
+      <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0"></div>
       <div class="lvtag">G</div>
       <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="100" value="0"></div>
     </div>
@@ -420,6 +420,7 @@ const x = Number(v);
 return Number.isFinite(x) ? x : fb;
 }
 function clamp0(v)     { return Math.max(0, n(v, 0)); }
+function clampLv(v)    { return Math.max(0, Math.min(1100, Math.floor(n(v, 0)))); }
 function clamp1(v)     { return Math.max(1, n(v, 1)); }
 function clampStage(v) { return Math.max(0, Math.min(4, n(v, 0))); }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
@@ -840,12 +841,12 @@ base:    Object.fromEntries(BASE_STATS.map((k) => [k, clamp0($("base_"    + k)?.
 shaker:  clamp0($("shakerCount")?.value),
 protein: Object.fromEntries(BASE_STATS.map((k) => [k, clamp0($("protein_" + k)?.value)])),
 equip: {
-weapon:     { id: $("select_weapon")?.value     || "", lv: clamp0($("level_weapon")?.value), glv: clampG($("glevel_weapon")?.value) },
-head:       { id: $("select_head")?.value       || "", lv: clamp0($("level_head")?.value), glv: clampG($("glevel_head")?.value) },
-body:       { id: $("select_body")?.value       || "", lv: clamp0($("level_body")?.value), glv: clampG($("glevel_body")?.value) },
-hands:      { id: $("select_hands")?.value      || "", lv: clamp0($("level_hands")?.value), glv: clampG($("glevel_hands")?.value) },
-feet:       { id: $("select_feet")?.value       || "", lv: clamp0($("level_feet")?.value), glv: clampG($("glevel_feet")?.value) },
-shield:     { id: $("select_shield")?.value     || "", lv: clamp0($("level_shield")?.value), glv: clampG($("glevel_shield")?.value) },
+weapon:     { id: $("select_weapon")?.value     || "", lv: clampLv($("level_weapon")?.value), glv: clampG($("glevel_weapon")?.value) },
+head:       { id: $("select_head")?.value       || "", lv: clampLv($("level_head")?.value), glv: clampG($("glevel_head")?.value) },
+body:       { id: $("select_body")?.value       || "", lv: clampLv($("level_body")?.value), glv: clampG($("glevel_body")?.value) },
+hands:      { id: $("select_hands")?.value      || "", lv: clampLv($("level_hands")?.value), glv: clampG($("glevel_hands")?.value) },
+feet:       { id: $("select_feet")?.value       || "", lv: clampLv($("level_feet")?.value), glv: clampG($("glevel_feet")?.value) },
+shield:     { id: $("select_shield")?.value     || "", lv: clampLv($("level_shield")?.value), glv: clampG($("glevel_shield")?.value) },
 accessory1: { id: $("select_accessory1")?.value || "", lv: clamp1($("level_accessory1")?.value) },
 accessory2: { id: $("select_accessory2")?.value || "", lv: clamp1($("level_accessory2")?.value) },
 accessory3: { id: $("select_accessory3")?.value || "", lv: clamp1($("level_accessory3")?.value) },
@@ -870,7 +871,7 @@ if ($("shakerCount")) $("shakerCount").value = String(clamp0(saved.shaker || 0))
 
 Object.entries(saved.equip || {}).forEach(([k, v]) => {
 if ($("select_" + k)) $("select_" + k).value = String(v?.id || "");
-if ($("level_"  + k)) $("level_"  + k).value = String(k.startsWith("accessory") ? clamp1(v?.lv || 1) : clamp0(v?.lv || 0));
+if ($("level_"  + k)) $("level_"  + k).value = String(k.startsWith("accessory") ? clamp1(v?.lv || 1) : clampLv(v?.lv || 0));
 if ($("glevel_" + k)) $("glevel_" + k).value = String(clampG(v?.glv || 0));
 setEquipInputFromSelected(k, v?.id || "");
 });
@@ -1146,8 +1147,22 @@ applyState(loadAutoState());
 
 // 数値inputとステージselectのみ recalc を登録（検索inputは wireEquipSearch/wirePetSearch で管理）
 document.querySelectorAll("input[type=number], select:not([hidden])").forEach((el) => {
-el.addEventListener("input",  recalc);
-el.addEventListener("change", recalc);
+el.addEventListener("input", () => {
+if (el.type === "number" && el.max !== "" && el.value !== "") {
+const max = Number(el.max);
+const val = Number(el.value);
+if (Number.isFinite(val) && Number.isFinite(max) && val > max) el.value = String(max);
+}
+recalc();
+});
+el.addEventListener("change", () => {
+if (el.type === "number" && el.max !== "" && el.value !== "") {
+const max = Number(el.max);
+const val = Number(el.value);
+if (Number.isFinite(val) && Number.isFinite(max) && val > max) el.value = String(max);
+}
+recalc();
+});
 });
 
 // 外クリックで全サジェストを閉じる
