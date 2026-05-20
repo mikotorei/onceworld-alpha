@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const isG = enhanceMode === "genhance";
 
     const weapons = allItems.filter((i) => i.category === "weapon");
-    const sortedWeapons = sortItems(weapons, weaponSort, enhanceMode, gLevel, (i) => i.id === "bare_hands");
+    const sortedWeapons = sortItems(weapons, weaponSort, enhanceMode, gLevel, (i) => i.id === "bare_hands" || i.no_enhance === true);
     sortedWeapons.forEach((item) => appendWeaponRow(item, isG));
 
     const armors = allItems.filter((i) => i.category === "armor");
