@@ -54,7 +54,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gLevel = 0;
   let currentTab = "weapon";
 
-  // ソート状態: { key: string|null, dir: "asc"|"desc" }
   let weaponSort = { key: null, dir: "asc" };
   let armorSort = { key: null, dir: "asc" };
 
@@ -77,19 +76,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     return baseVal;
   }
 
+  function calcTotalPower(item, mode, gLv, isFixed) {
+    return statList.reduce((sum, stat) => {
+      const base = Number(item.base_add?.[stat] ?? 0);
+      return sum + calcStat(base, stat, mode, gLv, isFixed);
+    }, 0);
+  }
+
   function formatStat(val) {
     if (val === 0) return "";
     return val.toLocaleString("ja-JP");
   }
 
-  function calcRequiredG(item) {
+  // 1強化あたりの必要G（基礎値合計ベース・固定）
+  function calcRequiredGPerLevel(item) {
     const total = statList.reduce((sum, stat) => {
       return sum + Number(item.base_add?.[stat] ?? 0);
     }, 0);
     return Math.floor(total / 10 * 100000000);
   }
 
+  // N回分の合計必要G
+  function calcTotalRequiredG(item, gLv) {
+    if (gLv === 0) return 0;
+    return calcRequiredGPerLevel(item) * gLv;
+  }
+
   function formatRequiredG(val) {
+    if (val === 0) return "0G";
     if (val >= 100000000) {
       return (val / 100000000).toFixed(2) + "億G";
     } else if (val >= 10000) {
@@ -107,7 +121,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const idx = seriesOrder.indexOf(item.series);
       return idx === -1 ? 999 : idx;
     }
-    if (key === "gcost") return calcRequiredG(item);
+    if (key === "gcost") return calcTotalRequiredG(item, gLv);
+    if (key === "power") return calcTotalPower(item, mode, gLv, isFixed);
     if (statList.includes(key)) {
       const base = Number(item.base_add?.[key] ?? 0);
       return calcStat(base, key, mode, gLv, isFixed);
@@ -255,9 +270,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return [...items].sort((a, b) => {
       const ia = seriesOrder.indexOf(a.series);
       const ib = seriesOrder.indexOf(b.series);
-      const sa = ia === -1 ? 999 : ia;
-      const sb = ib === -1 ? 999 : ib;
-      return sa - sb;
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
   }
 
@@ -277,10 +290,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       tr.appendChild(td);
     });
 
+    const powerTd = document.createElement("td");
+    powerTd.className = "power-col";
+    powerTd.textContent = calcTotalPower(item, enhanceMode, gLevel, isFixed).toLocaleString("ja-JP");
+    tr.appendChild(powerTd);
+
     const gCostTd = document.createElement("td");
     gCostTd.className = "g-cost-col";
     gCostTd.style.display = isG ? "" : "none";
-    gCostTd.textContent = isFixed ? "" : formatRequiredG(calcRequiredG(item));
+    gCostTd.textContent = isFixed ? "" : formatRequiredG(calcTotalRequiredG(item, gLevel));
     tr.appendChild(gCostTd);
 
     weaponBody?.appendChild(tr);
@@ -309,10 +327,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       tr.appendChild(td);
     });
 
+    const powerTd = document.createElement("td");
+    powerTd.className = "power-col";
+    powerTd.textContent = calcTotalPower(item, enhanceMode, gLevel, false).toLocaleString("ja-JP");
+    tr.appendChild(powerTd);
+
     const gCostTd = document.createElement("td");
     gCostTd.className = "g-cost-col";
     gCostTd.style.display = isG ? "" : "none";
-    gCostTd.textContent = formatRequiredG(calcRequiredG(item));
+    gCostTd.textContent = formatRequiredG(calcTotalRequiredG(item, gLevel));
     tr.appendChild(gCostTd);
 
     armorBody?.appendChild(tr);
@@ -402,28 +425,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await res.json();
     allItems = Array.isArray(data.items) ? data.items : [];
 
-    // ソートヘッダーのバインド（データ読み込み後）
     bindSortHeaders("weaponThead", weaponSort, () => refreshTables());
     bindSortHeaders("armorThead", armorSort, () => refreshTables());
 
     const isG = enhanceMode === "genhance";
 
-    allItems.forEach((item) => {
-      if (item.category === "weapon") {
-        appendWeaponRow(item, isG);
-      } else if (item.category === "armor") {
-        appendArmorRow(item, isG);
-      } else if (item.category === "accessory") {
-        appendAccessoryRow(item);
-      }
-    });
+    const weapons = allItems.filter((i) => i.category === "weapon");
+    weapons.forEach((item) => appendWeaponRow(item, isG));
 
-    // 防具の初期表示はシリーズ順
-    if (armorBody) {
-      armorBody.innerHTML = "";
-      const armors = allItems.filter((i) => i.category === "armor");
-      seriesSortArmors(armors).forEach((item) => appendArmorRow(item, isG));
-    }
+    const armors = allItems.filter((i) => i.category === "armor");
+    seriesSortArmors(armors).forEach((item) => appendArmorRow(item, isG));
+
+    allItems.filter((i) => i.category === "accessory").forEach((item) => appendAccessoryRow(item));
 
   } catch (e) {
     console.error("装備DB読み込み失敗", e);
