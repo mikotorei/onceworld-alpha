@@ -15,6 +15,17 @@ description = "武器・防具・アクセサリーの装備データ一覧"
   <button class="equip-tab" data-tab="accessory">アクセ</button>
 </div>
 
+<div class="enhance-tabs" id="enhanceTabs">
+  <button class="enhance-tab active" data-enhance="base">基礎値</button>
+  <button class="enhance-tab" data-enhance="plus1100">+1100</button>
+  <button class="enhance-tab" data-enhance="genhance">G強化</button>
+</div>
+
+<div id="gEnhanceControl" style="display:none;">
+  <label>G強化値：+<input id="gLevelInput" type="number" min="1" max="100" value="100"><span id="gLevelDisplay">100</span></label>
+  <input id="gLevelSlider" type="range" min="1" max="100" value="100">
+</div>
+
 <div id="equipTables">
 
   <div class="equip-table active" id="tab-weapon">
