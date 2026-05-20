@@ -1,4 +1,5 @@
-+++
++
+  let lastFinalTotal = null;++
 title = "主人公ステータス・シミュレーター"
 home = true
 weight = 50
@@ -106,6 +107,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_weapon" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row">
@@ -119,6 +122,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_head" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row">
@@ -132,6 +137,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_body" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row">
@@ -145,6 +152,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_hands" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row">
@@ -158,6 +167,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_feet" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row">
@@ -171,6 +182,8 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       </div>
       <div class="lvtag">+</div>
       <div class="lvbox"><input id="level_shield" type="number" min="0" value="0"></div>
+      <div class="lvtag">G</div>
+      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="100" value="0"></div>
     </div>
 
   <div class="equip-row accessory-row">
@@ -376,30 +389,6 @@ row-gap: 8px;
 .accessory-row .lvbox    { grid-area: lvbox; }
 .accessory-row .effectbox{ grid-area: effect; }
 }
-.build-preview {
-padding: 10px 14px;
-border: 1px solid rgba(0,0,0,.12);
-border-radius: 12px;
-background: rgba(0,0,0,.02);
-font-size: 13px;
-line-height: 1.7;
-margin: 4px 0;
-}
-.build-preview dl {
-display: grid;
-grid-template-columns: 4em 1fr;
-gap: 0 10px;
-margin: 0;
-}
-.build-preview dt {
-color: #888;
-font-size: 12px;
-align-self: start;
-padding-top: 2px;
-}
-.build-preview dd {
-margin: 0;
-}
 </style>
 
 <script>
@@ -495,11 +484,12 @@ tbody.innerHTML = "";
 STATS.forEach((stat) => {
 const tr = document.createElement("tr");
 tr.dataset.stat = stat;
-var td0 = document.createElement("td"); td0.textContent = stat;
-var td1 = document.createElement("td"); td1.className = "num"; td1.dataset.col = "base";
-var td2 = document.createElement("td"); td2.className = "num"; td2.dataset.col = "equip";
-var td3 = document.createElement("td"); td3.className = "num"; td3.dataset.col = "total";
-tr.appendChild(td0); tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+tr.innerHTML = `
+<td>${stat}</td>
+<td class="num" data-col="base"></td>
+<td class="num" data-col="equip"></td>
+<td class="num" data-col="total"></td>
+`;
 tbody.appendChild(tr);
 });
 }
@@ -540,6 +530,26 @@ else out[k] = floorSafe((baseAdd?.[k] || 0) * mul);
 return out;
 }
 
+
+function clampG(v) { return Math.max(0, Math.min(100, Math.floor(Number(v) || 0))); }
+function scaleEquipBaseAddG(baseAdd, glv, canUpgrade) {
+const out = zeroStats();
+if (!canUpgrade) {
+STATS.forEach((k) => { out[k] = Number(baseAdd?.[k] || 0); });
+return out;
+}
+const g = clampG(glv);
+STATS.forEach((k) => {
+if (k === "mov") { out[k] = Number(baseAdd?.[k] || 0); return; }
+const base = Number(baseAdd?.[k] || 0);
+if (g === 0) {
+out[k] = floorSafe(base * 111);
+} else {
+out[k] = floorSafe(base * 111 + (base * 25 + 10000) * g);
+}
+});
+return out;
+}
 function scaleAccessoryBaseAdd(baseAdd, lv) {
 const internal = clamp1(lv) - 1;
 const mul = 1 + internal * 0.1;
@@ -830,12 +840,12 @@ base:    Object.fromEntries(BASE_STATS.map((k) => [k, clamp0($("base_"    + k)?.
 shaker:  clamp0($("shakerCount")?.value),
 protein: Object.fromEntries(BASE_STATS.map((k) => [k, clamp0($("protein_" + k)?.value)])),
 equip: {
-weapon:     { id: $("select_weapon")?.value     || "", lv: clamp0($("level_weapon")?.value) },
-head:       { id: $("select_head")?.value       || "", lv: clamp0($("level_head")?.value) },
-body:       { id: $("select_body")?.value       || "", lv: clamp0($("level_body")?.value) },
-hands:      { id: $("select_hands")?.value      || "", lv: clamp0($("level_hands")?.value) },
-feet:       { id: $("select_feet")?.value       || "", lv: clamp0($("level_feet")?.value) },
-shield:     { id: $("select_shield")?.value     || "", lv: clamp0($("level_shield")?.value) },
+weapon:     { id: $("select_weapon")?.value     || "", lv: clamp0($("level_weapon")?.value), glv: clampG($("glevel_weapon")?.value) },
+head:       { id: $("select_head")?.value       || "", lv: clamp0($("level_head")?.value), glv: clampG($("glevel_head")?.value) },
+body:       { id: $("select_body")?.value       || "", lv: clamp0($("level_body")?.value), glv: clampG($("glevel_body")?.value) },
+hands:      { id: $("select_hands")?.value      || "", lv: clamp0($("level_hands")?.value), glv: clampG($("glevel_hands")?.value) },
+feet:       { id: $("select_feet")?.value       || "", lv: clamp0($("level_feet")?.value), glv: clampG($("glevel_feet")?.value) },
+shield:     { id: $("select_shield")?.value     || "", lv: clamp0($("level_shield")?.value), glv: clampG($("glevel_shield")?.value) },
 accessory1: { id: $("select_accessory1")?.value || "", lv: clamp1($("level_accessory1")?.value) },
 accessory2: { id: $("select_accessory2")?.value || "", lv: clamp1($("level_accessory2")?.value) },
 accessory3: { id: $("select_accessory3")?.value || "", lv: clamp1($("level_accessory3")?.value) },
@@ -861,7 +871,8 @@ if ($("shakerCount")) $("shakerCount").value = String(clamp0(saved.shaker || 0))
 Object.entries(saved.equip || {}).forEach(([k, v]) => {
 if ($("select_" + k)) $("select_" + k).value = String(v?.id || "");
 if ($("level_"  + k)) $("level_"  + k).value = String(k.startsWith("accessory") ? clamp1(v?.lv || 1) : clamp0(v?.lv || 0));
-setEquipInputFromSelected(k, v?.id || "");  // 検索inputに名前を復元
+if ($("glevel_" + k)) $("glevel_" + k).value = String(clampG(v?.glv || 0));
+setEquipInputFromSelected(k, v?.id || "");
 });
 
 Object.entries(saved.pets || {}).forEach(([k, v]) => {
@@ -892,13 +903,6 @@ select.appendChild(new Option("（未選択）", ""));
 names.forEach((name) => { select.appendChild(new Option(name, name)); });
 }
 
-const SLOT_LABEL = {
-weapon: "武器", head: "頭", body: "体", hands: "手",
-feet: "脚", shield: "盾",
-accessory1: "アクセ1", accessory2: "アクセ2",
-accessory3: "アクセ3", accessory4: "アクセ4",
-};
-let lastFinalTotal = null;
 
 function renderBuildPreview(name) {
 const box = $("buildPreview");
@@ -907,46 +911,33 @@ if (!name) { box.hidden = true; box.innerHTML = ""; return; }
 const builds = loadBuildSlots();
 const state  = builds[name];
 if (!state)  { box.hidden = true; box.innerHTML = ""; return; }
-
 const equipLines = EQUIP_KEYS.map((k) => {
 const id    = state.equip?.[k]?.id || "";
 const lv    = state.equip?.[k]?.lv ?? (k.startsWith("accessory") ? 1 : 0);
-const label = id ? (equipNameMap.get(String(id)) || `ID:${id}`) : "（なし）";
-const lvStr = id ? `  +${lv}` : "";
-return `${SLOT_LABEL[k]}：${label}${lvStr}`;
+const label = id ? (equipNameMap.get(String(id)) || "ID:" + id) : "（なし）";
+const lvStr = id ? "  +" + lv : "";
+return SLOT_LABEL[k] + "：" + label + lvStr;
 }).join("\n");
-
 const petLines = PET_KEYS.map((k, i) => {
 const id    = state.pets?.[k]?.id || "";
 const stage = state.pets?.[k]?.stage ?? 0;
-const label = id ? (petNameMap.get(String(id)) || `ID:${id}`) : "（なし）";
-return `ペット${i + 1}：${label}${id ? `  段階${stage}` : ""}`;
+const label = id ? (petNameMap.get(String(id)) || "ID:" + id) : "（なし）";
+return "ペット" + (i + 1) + "：" + label + (id ? "  段階" + stage : "");
 }).join("\n");
-
 var dl = document.createElement("dl");
-var dt1 = document.createElement("dt");
-dt1.textContent = "装備";
+var dt1 = document.createElement("dt"); dt1.textContent = "装備";
 var dd1 = document.createElement("dd");
-var pre1 = document.createElement("pre");
-pre1.style.cssText = "margin:0;font:inherit;white-space:pre-wrap";
-pre1.textContent = equipLines;
+var pre1 = document.createElement("pre"); pre1.style.cssText = "margin:0;font:inherit;white-space:pre-wrap"; pre1.textContent = equipLines;
 dd1.appendChild(pre1);
-var dt2 = document.createElement("dt");
-dt2.textContent = "ペット";
+var dt2 = document.createElement("dt"); dt2.textContent = "ペット";
 var dd2 = document.createElement("dd");
-var pre2 = document.createElement("pre");
-pre2.style.cssText = "margin:0;font:inherit;white-space:pre-wrap";
-pre2.textContent = petLines;
+var pre2 = document.createElement("pre"); pre2.style.cssText = "margin:0;font:inherit;white-space:pre-wrap"; pre2.textContent = petLines;
 dd2.appendChild(pre2);
-dl.appendChild(dt1);
-dl.appendChild(dd1);
-dl.appendChild(dt2);
-dl.appendChild(dd2);
+dl.appendChild(dt1); dl.appendChild(dd1); dl.appendChild(dt2); dl.appendChild(dd2);
 box.innerHTML = "";
 box.appendChild(dl);
 box.hidden = false;
 }
-
 function saveNamedBuild() {
 const input = $("buildNameInput");
 if (!input) return;
@@ -959,9 +950,7 @@ snap.finalTotal = lastFinalTotal ? Object.assign({}, lastFinalTotal) : null;
 builds[name] = snap;
 saveBuildSlots(builds);
 refreshBuildSelect();
-const sel = $("buildSlotSelect");
-if (sel) sel.value = name;
-renderBuildPreview(name);
+$("buildSlotSelect").value = name;
 setErr(`ビルド「${name}」を保存しました`);
 window.setTimeout(() => setErr(""), 1200);
 }
@@ -974,6 +963,7 @@ if (!name) { setErr("読込するビルドを選択してください"); return;
 const builds = loadBuildSlots();
 const state  = builds[name];
 if (!state)  { setErr("ビルドが見つかりません"); return; }
+if ($("buildNameInput")) $("buildNameInput").value = name;
 applyState(state);
 recalc();
 setErr(`ビルド「${name}」を読込みました`);
@@ -984,14 +974,13 @@ function deleteNamedBuild() {
 const select = $("buildSlotSelect");
 if (!select) return;
 const name = String(select.value || "").trim();
-if (!name)         { setErr("削除するビルドを選択してください"); return; }
+if (!name)           { setErr("削除するビルドを選択してください"); return; }
 const builds = loadBuildSlots();
-if (!builds[name]) { setErr("ビルドが見つかりません"); return; }
-if (!window.confirm(`「${name}」を削除しますか？`)) return;
+if (!builds[name])   { setErr("ビルドが見つかりません"); return; }
 delete builds[name];
 saveBuildSlots(builds);
 refreshBuildSelect();
-renderBuildPreview("");
+if ($("buildNameInput")) $("buildNameInput").value = "";
 setErr(`ビルド「${name}」を削除しました`);
 window.setTimeout(() => setErr(""), 1200);
 }
@@ -1016,7 +1005,13 @@ const picked = state.equip[key];
 if (!picked?.id) return;
 const item = equipmentMap.get(String(picked.id));
 if (!item) return;
+const canUpgrade = !item.no_upgrade;
+const glv = picked.glv ?? 0;
+if (glv > 0 && canUpgrade) {
+weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAddG(item.base_add || {}, glv, canUpgrade));
+} else {
 weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAdd(item.base_add || {}, picked.lv));
+}
 });
 
 const armorSetSeries = getArmorSetSeries(state.equip);
@@ -1176,11 +1171,11 @@ closeAllPetSuggests();
 }
 });
 
-if ($("recalcBtn"))         $("recalcBtn").addEventListener("click", recalc);
+if ($("recalcBtn"))       $("recalcBtn").addEventListener("click", recalc);
 if ($("proteinAll1000Btn")) $("proteinAll1000Btn").addEventListener("click", setProteinAll1000);
-if ($("saveBuildBtn"))      $("saveBuildBtn").addEventListener("click", saveNamedBuild);
-if ($("loadBuildBtn"))      $("loadBuildBtn").addEventListener("click", loadNamedBuild);
-if ($("deleteBuildBtn"))    $("deleteBuildBtn").addEventListener("click", deleteNamedBuild);
+if ($("saveBuildBtn"))    $("saveBuildBtn").addEventListener("click", saveNamedBuild);
+if ($("loadBuildBtn"))    $("loadBuildBtn").addEventListener("click", loadNamedBuild);
+if ($("deleteBuildBtn"))  $("deleteBuildBtn").addEventListener("click", deleteNamedBuild);
 
 if ($("buildSlotSelect")) {
 $("buildSlotSelect").addEventListener("change", () => {
@@ -1201,6 +1196,7 @@ if ($("protein_" + k)) $("protein_" + k).value = "0";
 EQUIP_KEYS.forEach((k) => {
 if ($("select_" + k)) $("select_" + k).value = "";
 if ($("level_"  + k)) $("level_"  + k).value = k.startsWith("accessory") ? "1" : "0";
+if ($("glevel_" + k)) $("glevel_" + k).value = "0";
 if ($("effect_" + k)) $("effect_" + k).textContent = "-";
 const input = $(equipSearchId(k));
 if (input) input.value = "";
