@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     inferno: "獄炎",
     dragon: "ドラゴン",
     tyrant: "暴君",
+    Demon: "悪魔"
   };
 
   const seriesOrder = ["cloth", "leather", "metal", "platinum", "mage", "inferno", "dragon", "tyrant"];
