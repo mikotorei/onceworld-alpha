@@ -656,6 +656,7 @@ const g = clampG(glv);
 STATS.forEach((k) => {
 if (k === "mov") { out[k] = Number(baseAdd?.[k] || 0); return; }
 const base = Number(baseAdd?.[k] || 0);
+if (base === 0) return;
 if (g === 0) {
 out[k] = floorSafe(base * 111);
 } else {
