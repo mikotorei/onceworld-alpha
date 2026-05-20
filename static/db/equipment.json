@@ -6,6 +6,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {"vit": 0, "spd": 0, "atk": 12, "int": 0, "def": 0, "mdef": 0, "luk": 0, "mov": 0},
       "base_rate": {}
     },
@@ -240,6 +241,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {"vit": 0, "spd": 0, "atk": 7777, "int": 0, "def": 0, "mdef": 0, "luk": 77777, "mov": 0},
       "base_rate": {}
     },
@@ -258,6 +260,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {"vit": 0, "spd": 0, "atk": 0, "int": 0, "def": 0, "mdef": 0, "luk": 0, "mov": 0},
       "base_rate": {}
     },
@@ -267,6 +270,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {"vit": 0, "spd": 0, "atk": 100, "int": 0, "def": 0, "mdef": 0, "luk": 0, "mov": 5},
       "base_rate": {}
     },
@@ -510,6 +514,7 @@
       "category": "armor",
       "slot": "shield",
       "series": "tyrant",
+      "no_enhance": true,
       "base_add": {"vit": 99000, "spd": 0, "atk": 99000, "int": 0, "def": 99000, "mdef": 99000, "luk": 0, "mov": 0},
       "base_rate": {}
     },
