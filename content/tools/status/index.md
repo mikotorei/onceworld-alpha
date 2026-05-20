@@ -1,11 +1,11 @@
-+
-  let lastFinalTotal = null;++
++++
 title = "主人公ステータス・シミュレーター"
 home = true
 weight = 50
 description = "主人公の装備・ペット・ステータスを確認できるシミュレーター"
 +++
 
+let lastFinalTotal = null;
 <div class="status-sim">
 
 <h1>主人公ステータス・シミュレーター</h1>
@@ -977,10 +977,11 @@ const name = String(select.value || "").trim();
 if (!name)           { setErr("削除するビルドを選択してください"); return; }
 const builds = loadBuildSlots();
 if (!builds[name])   { setErr("ビルドが見つかりません"); return; }
+if (!window.confirm(`「${name}」を削除しますか？`)) return;
 delete builds[name];
 saveBuildSlots(builds);
 refreshBuildSelect();
-if ($("buildNameInput")) $("buildNameInput").value = "";
+renderBuildPreview("");
 setErr(`ビルド「${name}」を削除しました`);
 window.setTimeout(() => setErr(""), 1200);
 }
