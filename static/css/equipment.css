@@ -93,6 +93,19 @@
   height: 1px;
 }
 
+.equip-table tfoot th {
+  position: sticky;
+  bottom: 0;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  border-top: 1px solid rgba(0,0,0,.18);
+  border-bottom: none;
+}
+.equip-table tfoot th:first-child {
+  z-index: 3;
+}
+
 .equip-table {
   display: none;
 }
