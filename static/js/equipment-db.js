@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function calcStat(baseVal, stat, mode, gLv, isFixed) {
     if (baseVal === 0) return 0;
+    // MOVは全モードで補正なし
     if (stat === "mov") return baseVal;
     if (isFixed) return baseVal;
 
@@ -76,6 +77,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return Number.isInteger(val) ? String(val) : val.toFixed(1);
   }
 
+  // 必要G計算（基礎値合計 / 10 × 1億）
+  function calcRequiredG(item) {
+    const total = statList.reduce((sum, stat) => {
+      return sum + Number(item.base_add?.[stat] ?? 0);
+    }, 0);
+    return Math.floor(total / 10 * 100000000);
+  }
+
+  function formatRequiredG(val) {
+    if (val >= 100000000) {
+      return (val / 100000000).toFixed(2) + "億G";
+    } else if (val >= 10000) {
+      return (val / 10000).toFixed(2) + "万G";
+    }
+    return val.toLocaleString() + "G";
+  }
+
   // ========== 強化UI表示制御 ==========
 
   function updateEnhanceUI() {
@@ -85,6 +103,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (gEnhanceControl) {
       gEnhanceControl.style.display = (!isAccessory && enhanceMode === "genhance") ? "flex" : "none";
     }
+  }
+
+  // G強化モード時のテーブルヘッダー管理
+  function updateTableHeaders() {
+    const isG = enhanceMode === "genhance";
+
+    const weaponGTh = document.getElementById("weaponGCostTh");
+    if (weaponGTh) weaponGTh.style.display = isG ? "" : "none";
+
+    const armorGTh = document.getElementById("armorGCostTh");
+    if (armorGTh) armorGTh.style.display = isG ? "" : "none";
   }
 
   // ========== カテゴリタブ切り替え ==========
@@ -108,11 +137,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       btn.classList.add("active");
       enhanceMode = btn.dataset.enhance;
       updateEnhanceUI();
+      updateTableHeaders();
       refreshTables();
     });
   });
 
-  // G強化値の同期・更新
   function applyGLevel(v) {
     v = Math.min(100, Math.max(0, isNaN(v) ? 0 : v));
     gLevel = v;
@@ -158,6 +187,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function appendWeaponRow(item) {
     const tr = document.createElement("tr");
     const isFixed = item.id === "bare_hands";
+    const isG = enhanceMode === "genhance";
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -171,11 +201,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       tr.appendChild(td);
     });
 
+    const gCostTd = document.createElement("td");
+    gCostTd.className = "g-cost";
+    gCostTd.style.display = isG ? "" : "none";
+    if (!isFixed) {
+      gCostTd.textContent = formatRequiredG(calcRequiredG(item));
+    }
+    tr.appendChild(gCostTd);
+
     weaponBody?.appendChild(tr);
   }
 
   function appendArmorRow(item) {
     const tr = document.createElement("tr");
+    const isG = enhanceMode === "genhance";
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -196,6 +235,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       td.textContent = formatStat(val);
       tr.appendChild(td);
     });
+
+    const gCostTd = document.createElement("td");
+    gCostTd.className = "g-cost";
+    gCostTd.style.display = isG ? "" : "none";
+    gCostTd.textContent = formatRequiredG(calcRequiredG(item));
+    tr.appendChild(gCostTd);
 
     armorBody?.appendChild(tr);
   }
