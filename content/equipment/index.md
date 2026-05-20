@@ -34,6 +34,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
           <th data-sort="mdef">MDEF</th>
           <th data-sort="luk">LUK</th>
           <th data-sort="mov">MOV</th>
+          <th data-sort="power">種族値</th>
           <th data-sort="gcost" class="g-cost-col" style="display:none;">必要G</th>
         </tr>
       </thead>
@@ -55,6 +56,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
           <th data-sort="mdef">MDEF</th>
           <th data-sort="luk">LUK</th>
           <th data-sort="mov">MOV</th>
+          <th data-sort="power">種族値</th>
           <th data-sort="gcost" class="g-cost-col" style="display:none;">必要G</th>
         </tr>
       </thead>
