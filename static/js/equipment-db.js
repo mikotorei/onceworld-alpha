@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const idx = seriesOrder.indexOf(item.series);
       return idx === -1 ? 999 : idx;
     }
-    if (key === "gcost") return isFixed ? 0 : calcTotalRequiredG(item, gLv);
+    if (key === "gcost") return calcTotalRequiredG(item, gLv);
     if (key === "power") return calcTotalPower(item, mode, gLv, isFixed);
     if (statList.includes(key)) {
       const base = Number(item.base_add?.[key] ?? 0);
@@ -137,8 +137,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   function sortItems(items, sortState, mode, gLv, isFixedFn) {
     if (!sortState.key || !sortState.dir) return items;
     return [...items].sort((a, b) => {
-      const va = getSortValue(a, sortState.key, mode, gLv, isFixedFn(a));
-      const vb = getSortValue(b, sortState.key, mode, gLv, isFixedFn(b));
+      const aFixed = isFixedFn(a);
+      const bFixed = isFixedFn(b);
+      // gcostソート時はisFixed装備を常に末尾
+      if (sortState.key === "gcost") {
+        if (aFixed && !bFixed) return 1;
+        if (!aFixed && bFixed) return -1;
+        if (aFixed && bFixed) return 0;
+      }
+      const va = getSortValue(a, sortState.key, mode, gLv, aFixed);
+      const vb = getSortValue(b, sortState.key, mode, gLv, bFixed);
       if (typeof va === "string" && typeof vb === "string") {
         return sortState.dir === "asc" ? va.localeCompare(vb, "ja") : vb.localeCompare(va, "ja");
       }
@@ -416,7 +424,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     accessoryBody?.appendChild(tr);
   }
 
-  // ========== データ読み込み ==========
+  // ========== 横スクロールミラー ==========
+
+  function setupMirrorScroll() {
+    document.querySelectorAll(".equip-table").forEach((table) => {
+      const mirror = document.createElement("div");
+      mirror.className = "scroll-mirror";
+      const inner = document.createElement("div");
+      inner.className = "scroll-mirror-inner";
+      mirror.appendChild(inner);
+      table.parentNode.insertBefore(mirror, table);
+
+      function syncInnerWidth() {
+        inner.style.width = table.scrollWidth + "px";
+      }
+      syncInnerWidth();
+      new ResizeObserver(syncInnerWidth).observe(table);
+
+      mirror.addEventListener("scroll", () => {
+        table.scrollLeft = mirror.scrollLeft;
+      });
+      table.addEventListener("scroll", () => {
+        mirror.scrollLeft = table.scrollLeft;
+      });
+    });
+  }
+
+  setupMirrorScroll();
 
   function getBaseUrl() {
     return window.location.origin + window.location.pathname.split("/equipment")[0];
