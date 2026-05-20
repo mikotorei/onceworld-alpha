@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (mode === "genhance") {
       const at1100 = baseVal * 111;
       if (gLv === 0) return at1100;
-      return at1100 + (at1100 * 25 + 10000) * gLv;
+      return at1100 + (baseVal * 25 + 10000) * gLv;
     }
     return baseVal;
   }
@@ -112,24 +112,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  // G強化値の同期・更新
+  function applyGLevel(v) {
+    v = Math.min(100, Math.max(0, isNaN(v) ? 0 : v));
+    gLevel = v;
+    if (gInput) gInput.value = v;
+    if (gSlider) gSlider.value = v;
+    if (gDisplay) gDisplay.textContent = v;
+    refreshTables();
+  }
+
   if (gInput) {
+    gInput.addEventListener("change", () => {
+      applyGLevel(parseInt(gInput.value, 10));
+    });
     gInput.addEventListener("input", () => {
-      let v = parseInt(gInput.value, 10);
-      if (isNaN(v)) v = 0;
-      v = Math.min(100, Math.max(0, v));
-      gLevel = v;
-      if (gSlider) gSlider.value = v;
-      if (gDisplay) gDisplay.textContent = v;
-      refreshTables();
+      const v = parseInt(gInput.value, 10);
+      if (!isNaN(v)) applyGLevel(v);
     });
   }
 
   if (gSlider) {
     gSlider.addEventListener("input", () => {
-      gLevel = parseInt(gSlider.value, 10);
-      if (gInput) gInput.value = gLevel;
-      if (gDisplay) gDisplay.textContent = gLevel;
-      refreshTables();
+      applyGLevel(parseInt(gSlider.value, 10));
     });
   }
 
