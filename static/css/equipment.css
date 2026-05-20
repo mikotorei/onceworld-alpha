@@ -3,19 +3,16 @@
   margin: 0 auto;
   padding: 12px;
 }
-
 .equip-db h1 {
   margin: 0 0 10px;
   font-size: 1.25rem;
 }
-
 .equip-tabs {
   display: flex;
   gap: 8px;
   margin: 10px 0 10px;
   flex-wrap: wrap;
 }
-
 .equip-tab {
   border: 1px solid rgba(0,0,0,.18);
   background: #fff;
@@ -25,22 +22,75 @@
   cursor: pointer;
   white-space: nowrap;
 }
-
 .equip-tab.active {
   background: rgba(0,0,0,.06);
+}
+
+/* 強化モードタブ */
+.enhance-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 10px;
+  flex-wrap: wrap;
+}
+.enhance-tab {
+  border: 1px solid rgba(0,0,0,.18);
+  background: #fff;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.enhance-tab.active {
+  background: #e8f0fe;
+  border-color: #4a7cf7;
+  color: #2a5bd7;
+  font-weight: 600;
+}
+
+/* G強化コントロール */
+#gEnhanceControl {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+#gEnhanceControl label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+#gLevelInput {
+  width: 56px;
+  padding: 3px 6px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: right;
+}
+#gLevelSlider {
+  width: 160px;
+  accent-color: #4a7cf7;
+}
+#gLevelDisplay {
+  font-weight: 600;
+  min-width: 2em;
+  text-align: left;
 }
 
 .equip-table {
   display: none;
 }
-
 .equip-table.active {
   display: block;
   overflow: auto;
   border: 1px solid rgba(0,0,0,.14);
   border-radius: 12px;
 }
-
 .equip-table table {
   border-collapse: separate;
   border-spacing: 0;
@@ -49,7 +99,6 @@
   font-size: 13px;
   line-height: 1.25;
 }
-
 .equip-table th,
 .equip-table td {
   padding: 8px 10px;
@@ -58,11 +107,9 @@
   border-right: 1px solid rgba(0,0,0,.12);
   vertical-align: middle;
 }
-
 .equip-table tr > *:first-child {
   border-left: 1px solid rgba(0,0,0,.12);
 }
-
 .equip-table thead th {
   position: sticky;
   top: 0;
@@ -71,7 +118,6 @@
   z-index: 2;
   border-bottom: 1px solid rgba(0,0,0,.18);
 }
-
 .equip-table th:first-child,
 .equip-table td:first-child {
   position: sticky;
@@ -79,23 +125,19 @@
   background: rgba(255,255,255,.98);
   z-index: 1;
 }
-
 .equip-table thead th:first-child {
   z-index: 3;
 }
-
 .equip-table td:first-child {
   min-width: 160px;
   text-align: left;
 }
-
 .equip-table th:not(:first-child),
 .equip-table td:not(:first-child) {
   text-align: right;
   font-variant-numeric: tabular-nums;
   min-width: 68px;
 }
-
 #tab-armor th:nth-child(2),
 #tab-armor td:nth-child(2),
 #tab-armor th:nth-child(3),
@@ -104,45 +146,64 @@
   min-width: 72px;
 }
 
+/* ソートヘッダー */
+.equip-table th[data-sort] {
+  user-select: none;
+}
+.equip-table th[data-sort]:hover {
+  background: rgba(0,0,0,.04);
+}
+.equip-table th[data-sort]::after {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  margin-left: 4px;
+  opacity: 0.3;
+  font-size: 0.75em;
+}
+.equip-table th.sort-asc::after {
+  content: "▲";
+  opacity: 1;
+  color: #4a7cf7;
+}
+.equip-table th.sort-desc::after {
+  content: "▼";
+  opacity: 1;
+  color: #4a7cf7;
+}
+
 /* アクセ専用 */
 .accessory-list-table {
   width: 100%;
   min-width: 100%;
 }
-
 .accessory-list-table th,
 .accessory-list-table td {
   white-space: normal;
 }
-
 .accessory-list-table th:first-child,
 .accessory-list-table td:first-child {
   min-width: 180px;
 }
-
 .accessory-list-table th:nth-child(2),
 .accessory-list-table td:nth-child(2) {
   min-width: 120px;
   text-align: left;
 }
-
 .accessory-list-table th:nth-child(3),
 .accessory-list-table td:nth-child(3) {
   min-width: 220px;
   text-align: left;
 }
-
 .accessory-list-table th:nth-child(4),
 .accessory-list-table td:nth-child(4) {
   min-width: 90px;
   text-align: center;
 }
-
 .accessory-list-table td.acc-effect div,
 .accessory-list-table td.acc-value div {
   line-height: 1.5;
 }
-
 .accessory-list-table td.acc-level {
   white-space: nowrap;
 }
@@ -151,41 +212,36 @@
   .equip-db {
     padding: 10px;
   }
-
   .equip-db h1 {
     font-size: 1.15rem;
   }
-
   .equip-table table {
     font-size: 12.5px;
   }
-
   .equip-table th,
   .equip-table td {
     padding: 6px 8px;
   }
-
   .equip-table td:first-child {
     min-width: 150px;
   }
-
   .equip-table th:not(:first-child),
   .equip-table td:not(:first-child) {
     min-width: 60px;
   }
-
   .accessory-list-table th:first-child,
   .accessory-list-table td:first-child {
     min-width: 150px;
   }
-
   .accessory-list-table th:nth-child(2),
   .accessory-list-table td:nth-child(2) {
     min-width: 100px;
   }
-
   .accessory-list-table th:nth-child(3),
   .accessory-list-table td:nth-child(3) {
     min-width: 180px;
+  }
+  #gLevelSlider {
+    width: 120px;
   }
 }
