@@ -277,6 +277,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     updateTfoot("weaponTfoot", isG);
     updateTfoot("armorTfoot", isG);
+    // ミラースクロール幅を再同期
+    requestAnimationFrame(syncAllMirrors);
   }
 
   function updateTfoot(tfootId, isG) {
@@ -448,6 +450,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ========== 横スクロールミラー ==========
 
+  const mirrorSyncFns = [];
+
   function setupMirrorScroll() {
     document.querySelectorAll(".equip-table").forEach((table) => {
       const mirror = document.createElement("div");
@@ -461,7 +465,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         inner.style.width = table.scrollWidth + "px";
       }
       syncInnerWidth();
-      new ResizeObserver(syncInnerWidth).observe(table);
+      mirrorSyncFns.push(syncInnerWidth);
 
       mirror.addEventListener("scroll", () => {
         table.scrollLeft = mirror.scrollLeft;
@@ -470,6 +474,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         mirror.scrollLeft = table.scrollLeft;
       });
     });
+  }
+
+  function syncAllMirrors() {
+    mirrorSyncFns.forEach((fn) => fn());
   }
 
   setupMirrorScroll();
