@@ -356,7 +356,7 @@
       "name": "悪魔ヘルム",
       "category": "armor",
       "slot": "head",
-      "series": "Demon",
+      "series": "demon",
       "base_add": {"vit": 0, "spd": 0, "atk": 2555, "int": 0, "def": 1555, "mdef": 3555, "luk": 555, "mov": 0},
       "base_rate": {}
     },
@@ -437,7 +437,7 @@
       "name": "悪魔の鎧",
       "category": "armor",
       "slot": "body",
-      "series": "Demon",
+      "series": "demon",
       "base_add": {"vit": 7555, "spd": 0, "atk": 0, "int": 0, "def": 955, "mdef": 0, "luk": 955, "mov": 0},
       "base_rate": {}
     },
@@ -518,7 +518,7 @@
       "name": "悪魔の盾",
       "category": "armor",
       "slot": "shield",
-      "series": "Demon",
+      "series": "demon",
       "base_add": {"vit": 0, "spd": 0, "atk": 0, "int": 0, "def": 6565, "mdef": 2555, "luk": 0, "mov": 0},
       "base_rate": {}
     },
@@ -599,7 +599,7 @@
       "name": "悪魔の小手",
       "category": "armor",
       "slot": "hands",
-      "series": "Demon",
+      "series": "demon",
       "base_add": {"vit": 0, "spd": 0, "atk": 0, "int": 2555, "def": 0, "mdef": 1655, "luk": 4655, "mov": 0},
       "base_rate": {}
     },
@@ -680,7 +680,7 @@
       "name": "悪魔の靴",
       "category": "armor",
       "slot": "feet",
-      "series": "Demon",
+      "series": "demon",
       "base_add": {"vit": 0, "spd": 5515, "atk": 0, "int": 0, "def": 3315, "mdef": 0, "luk": 0, "mov": 5},
       "base_rate": {}
     },
