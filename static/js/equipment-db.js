@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
     if (!armorSort.key || armorSort.key === "series") return seriesBased;
-    return sortItems(seriesBased, armorSort, enhanceMode, gLevel, () => false);
+    return sortItems(seriesBased, armorSort, enhanceMode, gLevel, (i) => i.no_enhance === true);
   }
 
   function appendWeaponRow(item, isG) {
@@ -301,6 +301,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function appendArmorRow(item, isG) {
     const tr = document.createElement("tr");
+    const isFixed = item.no_enhance === true;
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -317,20 +318,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     statList.forEach((stat) => {
       const td = document.createElement("td");
       const base = Number(item.base_add?.[stat] ?? 0);
-      const val = calcStat(base, stat, enhanceMode, gLevel, false);
+      const val = calcStat(base, stat, enhanceMode, gLevel, isFixed);
       td.textContent = formatStat(val);
       tr.appendChild(td);
     });
 
     const powerTd = document.createElement("td");
     powerTd.className = "power-col";
-    powerTd.textContent = calcTotalPower(item, enhanceMode, gLevel, false).toLocaleString("ja-JP");
+    powerTd.textContent = calcTotalPower(item, enhanceMode, gLevel, isFixed).toLocaleString("ja-JP");
     tr.appendChild(powerTd);
 
     const gCostTd = document.createElement("td");
     gCostTd.className = "g-cost-col";
     gCostTd.style.display = isG ? "" : "none";
-    gCostTd.textContent = formatRequiredG(calcTotalRequiredG(item, gLevel));
+    gCostTd.textContent = isFixed ? "" : formatRequiredG(calcTotalRequiredG(item, gLevel));
     tr.appendChild(gCostTd);
 
     armorBody?.appendChild(tr);
