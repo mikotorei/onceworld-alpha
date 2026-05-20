@@ -105,10 +105,12 @@ let lastFinalTotal = null;
           <select id="select_weapon" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row">
@@ -120,10 +122,12 @@ let lastFinalTotal = null;
           <select id="select_head" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_head" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row">
@@ -135,10 +139,12 @@ let lastFinalTotal = null;
           <select id="select_body" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_body" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row">
@@ -150,10 +156,12 @@ let lastFinalTotal = null;
           <select id="select_hands" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row">
@@ -165,10 +173,12 @@ let lastFinalTotal = null;
           <select id="select_feet" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row">
@@ -180,10 +190,12 @@ let lastFinalTotal = null;
           <select id="select_shield" hidden></select>
         </div>
       </div>
-      <div class="lvtag">+</div>
-      <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0"></div>
-      <div class="lvtag">G</div>
-      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="100" value="0"></div>
+      <div class="lv-row">
+        <span class="lvtag">+</span>
+        <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0"></div>
+        <span class="lvtag">G</span>
+        <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="100" value="0"></div>
+      </div>
     </div>
 
   <div class="equip-row accessory-row">
@@ -195,8 +207,10 @@ let lastFinalTotal = null;
           <select id="select_accessory1" hidden></select>
         </div>
       </div>
-      <div class="lvtag">Lv</div>
-      <div class="lvbox"><input id="level_accessory1" type="number" min="1" value="1"></div>
+      <div class="lv-row">
+        <span class="lvtag">Lv</span>
+        <div class="lvbox"><input id="level_accessory1" type="number" min="1" value="1"></div>
+      </div>
       <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory1">-</div></div>
     </div>
 
@@ -209,8 +223,10 @@ let lastFinalTotal = null;
           <select id="select_accessory2" hidden></select>
         </div>
       </div>
-      <div class="lvtag">Lv</div>
-      <div class="lvbox"><input id="level_accessory2" type="number" min="1" value="1"></div>
+      <div class="lv-row">
+        <span class="lvtag">Lv</span>
+        <div class="lvbox"><input id="level_accessory2" type="number" min="1" value="1"></div>
+      </div>
       <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory2">-</div></div>
     </div>
 
@@ -223,8 +239,10 @@ let lastFinalTotal = null;
           <select id="select_accessory3" hidden></select>
         </div>
       </div>
-      <div class="lvtag">Lv</div>
-      <div class="lvbox"><input id="level_accessory3" type="number" min="1" value="1"></div>
+      <div class="lv-row">
+        <span class="lvtag">Lv</span>
+        <div class="lvbox"><input id="level_accessory3" type="number" min="1" value="1"></div>
+      </div>
       <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory3">-</div></div>
     </div>
 
@@ -237,8 +255,10 @@ let lastFinalTotal = null;
           <select id="select_accessory4" hidden></select>
         </div>
       </div>
-      <div class="lvtag">Lv</div>
-      <div class="lvbox"><input id="level_accessory4" type="number" min="1" value="1"></div>
+      <div class="lv-row">
+        <span class="lvtag">Lv</span>
+        <div class="lvbox"><input id="level_accessory4" type="number" min="1" value="1"></div>
+      </div>
       <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory4">-</div></div>
     </div>
 
@@ -259,15 +279,17 @@ let lastFinalTotal = null;
           <select id="select_pet1" hidden></select>
         </div>
       </div>
-      <div class="lvtag">段階</div>
-      <div class="lvbox">
-        <select id="stage_pet1">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
+      <div class="lv-row">
+        <span class="lvtag">段階</span>
+        <div class="lvbox">
+          <select id="stage_pet1">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -280,15 +302,17 @@ let lastFinalTotal = null;
           <select id="select_pet2" hidden></select>
         </div>
       </div>
-      <div class="lvtag">段階</div>
-      <div class="lvbox">
-        <select id="stage_pet2">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
+      <div class="lv-row">
+        <span class="lvtag">段階</span>
+        <div class="lvbox">
+          <select id="stage_pet2">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -301,15 +325,17 @@ let lastFinalTotal = null;
           <select id="select_pet3" hidden></select>
         </div>
       </div>
-      <div class="lvtag">段階</div>
-      <div class="lvbox">
-        <select id="stage_pet3">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
+      <div class="lv-row">
+        <span class="lvtag">段階</span>
+        <div class="lvbox">
+          <select id="stage_pet3">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -358,15 +384,73 @@ font-size: 16px;
 .pet-suggest button:active {
 background: rgba(0,0,0,.06);
 }
-.accessory-row {
-grid-template-columns: 72px minmax(0, 1fr) 44px 110px minmax(180px, 1.2fr);
+.equip-row {
+grid-template-columns: 64px 1fr;
+grid-template-areas:
+"slot main"
+"slot lv";
+row-gap: 6px;
 }
-.effectbox {
+.equip-row .slot {
+grid-area: slot;
+align-self: start;
+padding-top: 10px;
+}
+.equip-row .main {
+grid-area: main;
+}
+.equip-row .lv-row {
+grid-area: lv;
+display: flex;
+align-items: center;
+gap: 6px;
+flex-wrap: nowrap;
+}
+.equip-row .lvtag {
+opacity: .65;
+white-space: nowrap;
+flex-shrink: 0;
+font-size: 13px;
+}
+.equip-row .lvbox {
+flex-shrink: 0;
+}
+.equip-row .lvbox input,
+.equip-row .lvbox select {
+width: 80px;
+}
+@media (min-width: 521px) {
+.equip-row {
+grid-template-columns: 72px 1fr auto;
+grid-template-areas: "slot main lv";
+align-items: center;
+}
+.equip-row .slot {
+align-self: center;
+padding-top: 0;
+}
+}
+.accessory-row {
+grid-template-columns: 64px 1fr;
+grid-template-areas:
+"slot main"
+"slot lv"
+"slot effect";
+}
+.accessory-row .effectbox {
+grid-area: effect;
 min-width: 0;
 }
+@media (min-width: 521px) {
+.accessory-row {
+grid-template-columns: 72px 1fr auto minmax(140px, 1.2fr);
+grid-template-areas: "slot main lv effect";
+align-items: center;
+}
+}
 .acc-effect-preview {
-min-height: 40px;
-padding: 8px 10px;
+min-height: 36px;
+padding: 6px 10px;
 border: 1px solid rgba(0,0,0,.12);
 border-radius: 12px;
 background: rgba(0,0,0,.02);
@@ -374,20 +458,49 @@ font-size: 12px;
 line-height: 1.35;
 overflow-wrap: anywhere;
 }
-@media (max-width: 800px) {
-.accessory-row {
-grid-template-columns: 72px 1fr;
+.pet-row {
+grid-template-columns: 64px 1fr;
 grid-template-areas:
 "slot main"
-"lvtag lvbox"
-"effect effect";
-row-gap: 8px;
+"slot lv";
+row-gap: 6px;
 }
-.accessory-row .slot     { grid-area: slot; }
-.accessory-row .main     { grid-area: main; }
-.accessory-row .lvtag    { grid-area: lvtag; text-align: left; padding-left: 2px; }
-.accessory-row .lvbox    { grid-area: lvbox; }
-.accessory-row .effectbox{ grid-area: effect; }
+.pet-row .lv-row {
+grid-area: lv;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+@media (min-width: 521px) {
+.pet-row {
+grid-template-columns: 72px 1fr auto;
+grid-template-areas: "slot main lv";
+align-items: center;
+}
+}
+.build-preview {
+padding: 10px 14px;
+border: 1px solid rgba(0,0,0,.12);
+border-radius: 12px;
+background: rgba(0,0,0,.02);
+font-size: 13px;
+line-height: 1.7;
+margin: 4px 0;
+}
+.build-preview dl {
+display: grid;
+grid-template-columns: 4em 1fr;
+gap: 0 10px;
+margin: 0;
+}
+.build-preview dt {
+color: #888;
+font-size: 12px;
+align-self: start;
+padding-top: 2px;
+}
+.build-preview dd {
+margin: 0;
 }
 </style>
 
