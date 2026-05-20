@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     tyrant: "暴君",
   };
 
+  const seriesOrder = ["cloth", "leather", "metal", "platinum", "mage", "inferno", "dragon", "tyrant"];
+
   const statLabelMap = {
     vit: "VIT",
     spd: "SPD",
@@ -52,11 +54,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gLevel = 0;
   let currentTab = "weapon";
 
+  // ソート状態: { key: string|null, dir: "asc"|"desc" }
+  let weaponSort = { key: null, dir: "asc" };
+  let armorSort = { key: null, dir: "asc" };
+
   // ========== 強化計算 ==========
 
   function calcStat(baseVal, stat, mode, gLv, isFixed) {
     if (baseVal === 0) return 0;
-    // MOVは全モードで補正なし
     if (stat === "mov") return baseVal;
     if (isFixed) return baseVal;
 
@@ -74,10 +79,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function formatStat(val) {
     if (val === 0) return "";
-    return Number.isInteger(val) ? String(val) : val.toFixed(1);
+    return val.toLocaleString("ja-JP");
   }
 
-  // 必要G計算（基礎値合計 / 10 × 1億）
   function calcRequiredG(item) {
     const total = statList.reduce((sum, stat) => {
       return sum + Number(item.base_add?.[stat] ?? 0);
@@ -91,7 +95,65 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (val >= 10000) {
       return (val / 10000).toFixed(2) + "万G";
     }
-    return val.toLocaleString() + "G";
+    return val.toLocaleString("ja-JP") + "G";
+  }
+
+  // ========== ソート ==========
+
+  function getSortValue(item, key, mode, gLv, isFixed) {
+    if (key === "name") return item.name || "";
+    if (key === "slot") return item.slot || "";
+    if (key === "series") {
+      const idx = seriesOrder.indexOf(item.series);
+      return idx === -1 ? 999 : idx;
+    }
+    if (key === "gcost") return calcRequiredG(item);
+    if (statList.includes(key)) {
+      const base = Number(item.base_add?.[key] ?? 0);
+      return calcStat(base, key, mode, gLv, isFixed);
+    }
+    return 0;
+  }
+
+  function sortItems(items, sortState, mode, gLv, isFixedFn) {
+    if (!sortState.key) return items;
+    return [...items].sort((a, b) => {
+      const va = getSortValue(a, sortState.key, mode, gLv, isFixedFn(a));
+      const vb = getSortValue(b, sortState.key, mode, gLv, isFixedFn(b));
+      if (typeof va === "string" && typeof vb === "string") {
+        return sortState.dir === "asc" ? va.localeCompare(vb, "ja") : vb.localeCompare(va, "ja");
+      }
+      return sortState.dir === "asc" ? va - vb : vb - va;
+    });
+  }
+
+  function updateSortIndicators(theadId, sortState) {
+    const thead = document.getElementById(theadId);
+    if (!thead) return;
+    thead.querySelectorAll("th[data-sort]").forEach((th) => {
+      th.classList.remove("sort-asc", "sort-desc");
+      if (th.dataset.sort === sortState.key) {
+        th.classList.add(sortState.dir === "asc" ? "sort-asc" : "sort-desc");
+      }
+    });
+  }
+
+  function bindSortHeaders(theadId, sortState, callback) {
+    const thead = document.getElementById(theadId);
+    if (!thead) return;
+    thead.querySelectorAll("th[data-sort]").forEach((th) => {
+      th.style.cursor = "pointer";
+      th.addEventListener("click", () => {
+        if (sortState.key === th.dataset.sort) {
+          sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
+        } else {
+          sortState.key = th.dataset.sort;
+          sortState.dir = "asc";
+        }
+        updateSortIndicators(theadId, sortState);
+        callback();
+      });
+    });
   }
 
   // ========== 強化UI表示制御 ==========
@@ -105,15 +167,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // G強化モード時のテーブルヘッダー管理
-  function updateTableHeaders() {
+  function updateGCostVisibility() {
     const isG = enhanceMode === "genhance";
-
-    const weaponGTh = document.getElementById("weaponGCostTh");
-    if (weaponGTh) weaponGTh.style.display = isG ? "" : "none";
-
-    const armorGTh = document.getElementById("armorGCostTh");
-    if (armorGTh) armorGTh.style.display = isG ? "" : "none";
+    document.querySelectorAll(".g-cost-col").forEach((el) => {
+      el.style.display = isG ? "" : "none";
+    });
   }
 
   // ========== カテゴリタブ切り替え ==========
@@ -137,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       btn.classList.add("active");
       enhanceMode = btn.dataset.enhance;
       updateEnhanceUI();
-      updateTableHeaders();
+      updateGCostVisibility();
       refreshTables();
     });
   });
@@ -175,19 +233,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (weaponBody) weaponBody.innerHTML = "";
     if (armorBody) armorBody.innerHTML = "";
 
-    allItems.forEach((item) => {
-      if (item.category === "weapon") {
-        appendWeaponRow(item);
-      } else if (item.category === "armor") {
-        appendArmorRow(item);
-      }
+    const isG = enhanceMode === "genhance";
+
+    const weapons = allItems.filter((i) => i.category === "weapon");
+    const sortedWeapons = sortItems(weapons, weaponSort, enhanceMode, gLevel, (i) => i.id === "bare_hands");
+    sortedWeapons.forEach((item) => appendWeaponRow(item, isG));
+
+    const armors = allItems.filter((i) => i.category === "armor");
+    const sortedArmors = sortItems(
+      seriesSortArmors(armors),
+      armorSort,
+      enhanceMode,
+      gLevel,
+      () => false
+    );
+    sortedArmors.forEach((item) => appendArmorRow(item, isG));
+  }
+
+  function seriesSortArmors(items) {
+    if (armorSort.key) return items;
+    return [...items].sort((a, b) => {
+      const ia = seriesOrder.indexOf(a.series);
+      const ib = seriesOrder.indexOf(b.series);
+      const sa = ia === -1 ? 999 : ia;
+      const sb = ib === -1 ? 999 : ib;
+      return sa - sb;
     });
   }
 
-  function appendWeaponRow(item) {
+  function appendWeaponRow(item, isG) {
     const tr = document.createElement("tr");
     const isFixed = item.id === "bare_hands";
-    const isG = enhanceMode === "genhance";
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -202,19 +278,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const gCostTd = document.createElement("td");
-    gCostTd.className = "g-cost";
+    gCostTd.className = "g-cost-col";
     gCostTd.style.display = isG ? "" : "none";
-    if (!isFixed) {
-      gCostTd.textContent = formatRequiredG(calcRequiredG(item));
-    }
+    gCostTd.textContent = isFixed ? "" : formatRequiredG(calcRequiredG(item));
     tr.appendChild(gCostTd);
 
     weaponBody?.appendChild(tr);
   }
 
-  function appendArmorRow(item) {
+  function appendArmorRow(item, isG) {
     const tr = document.createElement("tr");
-    const isG = enhanceMode === "genhance";
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -237,7 +310,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const gCostTd = document.createElement("td");
-    gCostTd.className = "g-cost";
+    gCostTd.className = "g-cost-col";
     gCostTd.style.display = isG ? "" : "none";
     gCostTd.textContent = formatRequiredG(calcRequiredG(item));
     tr.appendChild(gCostTd);
@@ -253,7 +326,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (effects.length > 0) {
       effects.forEach((ef) => {
         const target = statLabelMap[String(ef.target || "").toLowerCase()] || String(ef.target || "");
-
         if (ef.type === "flat") {
           effectNames.push(target);
           effectValues.push(`${ef.initial} → ${ef.max}`);
@@ -268,14 +340,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           effectValues.push(`${ef.initial} → ${ef.max}`);
         }
       });
-
       return { names: effectNames, values: effectValues };
     }
 
     statList.forEach((stat) => {
       const add = Number(item.base_add?.[stat] ?? 0);
       const rate = Number(item.base_rate?.[stat] ?? 0);
-
       if (add !== 0) {
         effectNames.push(statLabelMap[stat]);
         effectValues.push(String(add));
@@ -307,7 +377,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     levelTd.textContent = item.max_level ? `Lv.${item.max_level}` : "";
 
     const lines = buildAccessoryLines(item);
-
     effectTd.innerHTML = lines.names.map(v => `<div>${v}</div>`).join("");
     valueTd.innerHTML = lines.values.map(v => `<div>${v}</div>`).join("");
 
@@ -333,15 +402,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await res.json();
     allItems = Array.isArray(data.items) ? data.items : [];
 
+    // ソートヘッダーのバインド（データ読み込み後）
+    bindSortHeaders("weaponThead", weaponSort, () => refreshTables());
+    bindSortHeaders("armorThead", armorSort, () => refreshTables());
+
+    const isG = enhanceMode === "genhance";
+
     allItems.forEach((item) => {
       if (item.category === "weapon") {
-        appendWeaponRow(item);
+        appendWeaponRow(item, isG);
       } else if (item.category === "armor") {
-        appendArmorRow(item);
+        appendArmorRow(item, isG);
       } else if (item.category === "accessory") {
         appendAccessoryRow(item);
       }
     });
+
+    // 防具の初期表示はシリーズ順
+    if (armorBody) {
+      armorBody.innerHTML = "";
+      const armors = allItems.filter((i) => i.category === "armor");
+      seriesSortArmors(armors).forEach((item) => appendArmorRow(item, isG));
+    }
+
   } catch (e) {
     console.error("装備DB読み込み失敗", e);
   }
