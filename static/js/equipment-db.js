@@ -55,8 +55,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   let gLevel = 0;
   let currentTab = "weapon";
 
-  let weaponSort = { key: null, dir: "asc" };
-  let armorSort = { key: null, dir: "asc" };
+  // dir: null=通常 / "asc"=昇順 / "desc"=降順
+  let weaponSort = { key: null, dir: null };
+  let armorSort = { key: null, dir: null };
 
   // ========== 強化計算 ==========
 
@@ -132,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function sortItems(items, sortState, mode, gLv, isFixedFn) {
-    if (!sortState.key) return items;
+    if (!sortState.key || !sortState.dir) return items;
     return [...items].sort((a, b) => {
       const va = getSortValue(a, sortState.key, mode, gLv, isFixedFn(a));
       const vb = getSortValue(b, sortState.key, mode, gLv, isFixedFn(b));
@@ -148,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!thead) return;
     thead.querySelectorAll("th[data-sort]").forEach((th) => {
       th.classList.remove("sort-asc", "sort-desc");
-      if (th.dataset.sort === sortState.key) {
+      if (th.dataset.sort === sortState.key && sortState.dir) {
         th.classList.add(sortState.dir === "asc" ? "sort-asc" : "sort-desc");
       }
     });
@@ -160,11 +161,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     thead.querySelectorAll("th[data-sort]").forEach((th) => {
       th.style.cursor = "pointer";
       th.addEventListener("click", () => {
-        if (sortState.key === th.dataset.sort) {
-          sortState.dir = sortState.dir === "asc" ? "desc" : "asc";
-        } else {
-          sortState.key = th.dataset.sort;
+        const key = th.dataset.sort;
+        if (sortState.key !== key) {
+          // 別の列をクリック → 昇順から開始
+          sortState.key = key;
           sortState.dir = "asc";
+        } else if (sortState.dir === "asc") {
+          sortState.dir = "desc";
+        } else if (sortState.dir === "desc") {
+          // 降順の次は通常に戻す
+          sortState.key = null;
+          sortState.dir = null;
         }
         updateSortIndicators(theadId, sortState);
         callback();
