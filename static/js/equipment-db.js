@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const idx = seriesOrder.indexOf(item.series);
       return idx === -1 ? 999 : idx;
     }
-    if (key === "gcost") return calcTotalRequiredG(item, gLv);
+    if (key === "gcost") return isFixed ? 0 : calcTotalRequiredG(item, gLv);
     if (key === "power") return calcTotalPower(item, mode, gLv, isFixed);
     if (statList.includes(key)) {
       const base = Number(item.base_add?.[key] ?? 0);
