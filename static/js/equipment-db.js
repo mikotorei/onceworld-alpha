@@ -106,7 +106,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function formatRequiredG(val) {
     if (val === 0) return "0G";
-    if (val >= 100000000) {
+    if (val >= 1000000000000) {
+      return (val / 1000000000000).toFixed(2) + "兆G";
+    } else if (val >= 100000000) {
       return (val / 100000000).toFixed(2) + "億G";
     } else if (val >= 10000) {
       return (val / 10000).toFixed(2) + "万G";
