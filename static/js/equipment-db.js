@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     inferno: "獄炎",
     dragon: "ドラゴン",
     tyrant: "暴君",
-    Demon: "悪魔"
   };
 
   const seriesOrder = ["cloth", "leather", "metal", "platinum", "mage", "inferno", "dragon", "tyrant"];
@@ -256,23 +255,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     sortedWeapons.forEach((item) => appendWeaponRow(item, isG));
 
     const armors = allItems.filter((i) => i.category === "armor");
-    const sortedArmors = sortItems(
-      seriesSortArmors(armors),
-      armorSort,
-      enhanceMode,
-      gLevel,
-      () => false
-    );
-    sortedArmors.forEach((item) => appendArmorRow(item, isG));
+    sortArmors(armors).forEach((item) => appendArmorRow(item, isG));
   }
 
-  function seriesSortArmors(items) {
-    if (armorSort.key) return items;
-    return [...items].sort((a, b) => {
+  function sortArmors(items) {
+    const seriesBased = [...items].sort((a, b) => {
       const ia = seriesOrder.indexOf(a.series);
       const ib = seriesOrder.indexOf(b.series);
       return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
+    if (!armorSort.key || armorSort.key === "series") return seriesBased;
+    return sortItems(seriesBased, armorSort, enhanceMode, gLevel, () => false);
   }
 
   function appendWeaponRow(item, isG) {
@@ -435,7 +428,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     weapons.forEach((item) => appendWeaponRow(item, isG));
 
     const armors = allItems.filter((i) => i.category === "armor");
-    seriesSortArmors(armors).forEach((item) => appendArmorRow(item, isG));
+    sortArmors(armors).forEach((item) => appendArmorRow(item, isG));
 
     allItems.filter((i) => i.category === "accessory").forEach((item) => appendAccessoryRow(item));
 
