@@ -49,14 +49,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   let enhanceMode = "base";
-  let gLevel = 100;
+  let gLevel = 0;
   let currentTab = "weapon";
 
   // ========== 強化計算 ==========
 
-  function calcStat(baseVal, stat, mode, gLv) {
+  function calcStat(baseVal, stat, mode, gLv, isFixed) {
     if (baseVal === 0) return 0;
     if (stat === "mov") return baseVal;
+    if (isFixed) return baseVal;
 
     if (mode === "base") {
       return baseVal;
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return baseVal * 111;
     } else if (mode === "genhance") {
       const at1100 = baseVal * 111;
+      if (gLv === 0) return at1100;
       return at1100 + (at1100 * 25 + 10000) * gLv;
     }
     return baseVal;
@@ -113,8 +115,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (gInput) {
     gInput.addEventListener("input", () => {
       let v = parseInt(gInput.value, 10);
-      if (isNaN(v)) v = 1;
-      v = Math.min(100, Math.max(1, v));
+      if (isNaN(v)) v = 0;
+      v = Math.min(100, Math.max(0, v));
       gLevel = v;
       if (gSlider) gSlider.value = v;
       if (gDisplay) gDisplay.textContent = v;
@@ -150,6 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function appendWeaponRow(item) {
     const tr = document.createElement("tr");
+    const isFixed = item.id === "bare_hands";
 
     const nameTd = document.createElement("td");
     nameTd.textContent = item.name || "";
@@ -158,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     statList.forEach((stat) => {
       const td = document.createElement("td");
       const base = Number(item.base_add?.[stat] ?? 0);
-      const val = calcStat(base, stat, enhanceMode, gLevel);
+      const val = calcStat(base, stat, enhanceMode, gLevel, isFixed);
       td.textContent = formatStat(val);
       tr.appendChild(td);
     });
@@ -184,7 +187,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     statList.forEach((stat) => {
       const td = document.createElement("td");
       const base = Number(item.base_add?.[stat] ?? 0);
-      const val = calcStat(base, stat, enhanceMode, gLevel);
+      const val = calcStat(base, stat, enhanceMode, gLevel, false);
       td.textContent = formatStat(val);
       tr.appendChild(td);
     });
