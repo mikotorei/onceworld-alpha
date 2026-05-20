@@ -82,6 +82,17 @@
   text-align: left;
 }
 
+/* 上部ミラースクロールバー */
+.scroll-mirror {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 12px;
+  margin-bottom: 2px;
+}
+.scroll-mirror-inner {
+  height: 1px;
+}
+
 .equip-table {
   display: none;
 }
