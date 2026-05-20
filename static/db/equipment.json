@@ -514,7 +514,7 @@
       "category": "armor",
       "slot": "shield",
       "series": "tyrant",
-      "base_add": {"vit": 990, "spd": 0, "atk": 1900, "int": 0, "def": 990, "mdef": 990, "luk": 0, "mov": 0},
+      "base_add": {"vit": 990, "spd": 0, "atk": 1990, "int": 0, "def": 990, "mdef": 990, "luk": 0, "mov": 0},
       "base_rate": {}
     },
     {
