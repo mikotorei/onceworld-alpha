@@ -4,70 +4,63 @@ home = true
 weight = 20
 description = "武器・防具・アクセサリーの装備データ一覧"
 +++
-
 <div class="equip-db">
-
 <h1>装備データベース</h1>
-
 <div class="equip-tabs">
   <button class="equip-tab active" data-tab="weapon">武器</button>
   <button class="equip-tab" data-tab="armor">防具</button>
   <button class="equip-tab" data-tab="accessory">アクセ</button>
 </div>
-
 <div class="enhance-tabs" id="enhanceTabs">
   <button class="enhance-tab active" data-enhance="base">基礎値</button>
   <button class="enhance-tab" data-enhance="plus1100">+1100</button>
   <button class="enhance-tab" data-enhance="genhance">G強化</button>
 </div>
-
 <div id="gEnhanceControl" style="display:none;">
-  <label>G強化値：+<input id="gLevelInput" type="number" min="1" max="100" value="100"><span id="gLevelDisplay">100</span></label>
-  <input id="gLevelSlider" type="range" min="1" max="100" value="100">
+  <label>G強化値：+<input id="gLevelInput" type="number" min="0" max="100" value="0"><span id="gLevelDisplay">0</span></label>
+  <input id="gLevelSlider" type="range" min="0" max="100" value="0">
 </div>
-
 <div id="equipTables">
-
   <div class="equip-table active" id="tab-weapon">
     <table>
-      <thead>
+      <thead id="weaponThead">
         <tr>
-          <th>名前</th>
-          <th>VIT</th>
-          <th>SPD</th>
-          <th>ATK</th>
-          <th>INT</th>
-          <th>DEF</th>
-          <th>MDEF</th>
-          <th>LUK</th>
-          <th>MOV</th>
+          <th data-sort="name">名前</th>
+          <th data-sort="vit">VIT</th>
+          <th data-sort="spd">SPD</th>
+          <th data-sort="atk">ATK</th>
+          <th data-sort="int">INT</th>
+          <th data-sort="def">DEF</th>
+          <th data-sort="mdef">MDEF</th>
+          <th data-sort="luk">LUK</th>
+          <th data-sort="mov">MOV</th>
+          <th data-sort="gcost" class="g-cost-col" style="display:none;">必要G</th>
         </tr>
       </thead>
       <tbody id="weaponBody"></tbody>
     </table>
   </div>
-
   <div class="equip-table" id="tab-armor">
     <table>
-      <thead>
+      <thead id="armorThead">
         <tr>
-          <th>名前</th>
-          <th>部位</th>
-          <th>シリーズ</th>
-          <th>VIT</th>
-          <th>SPD</th>
-          <th>ATK</th>
-          <th>INT</th>
-          <th>DEF</th>
-          <th>MDEF</th>
-          <th>LUK</th>
-          <th>MOV</th>
+          <th data-sort="name">名前</th>
+          <th data-sort="slot">部位</th>
+          <th data-sort="series">シリーズ</th>
+          <th data-sort="vit">VIT</th>
+          <th data-sort="spd">SPD</th>
+          <th data-sort="atk">ATK</th>
+          <th data-sort="int">INT</th>
+          <th data-sort="def">DEF</th>
+          <th data-sort="mdef">MDEF</th>
+          <th data-sort="luk">LUK</th>
+          <th data-sort="mov">MOV</th>
+          <th data-sort="gcost" class="g-cost-col" style="display:none;">必要G</th>
         </tr>
       </thead>
       <tbody id="armorBody"></tbody>
     </table>
   </div>
-
   <div class="equip-table" id="tab-accessory">
     <table class="accessory-list-table">
       <thead>
@@ -81,10 +74,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
       <tbody id="accessoryBody"></tbody>
     </table>
   </div>
-
 </div>
-
 </div>
-
 <link rel="stylesheet" href="../css/equipment.css">
 <script src="../js/equipment-db.js"></script>
