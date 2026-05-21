@@ -18,9 +18,14 @@ disableKinds = ["taxonomy", "term"]
     baseName = "monsters-data"
     isPlainText = true
     notAlternative = true
+  [outputFormats.MapsData]
+    mediaType = "application/javascript"
+    baseName = "maps-data"
+    isPlainText = true
+    notAlternative = true
 
 [outputs]
-  home = ["HTML", "MonsterData"]
+  home = ["HTML", "MonsterData", "MapsData"]
 
 [services]
   [services.googleAnalytics]
