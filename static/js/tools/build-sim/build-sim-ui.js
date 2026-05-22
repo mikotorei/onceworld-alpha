@@ -1,12 +1,11 @@
 // ============================================================
 // build-sim-ui.js  ビルドシミュレーター UI・状態管理
-// calc-logic.js / calc-utils.js / build-sim-logic.js を前提とする
+// status-sim.js / calc-logic.js / build-sim-logic.js を前提とする
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", function () {
 
-const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
-const SIM_STATE_KEY     = "build_sim_state_v1";
+const SIM_STATE_KEY = "build_sim_state_v1";
 
 function $(id) { return document.getElementById(id); }
 
@@ -37,67 +36,22 @@ const state = {
   npanLimit:   3
 };
 
-// --- 天空回廊フロア→Lv変換（tenku.jsと同じ計算式）---
-function tenkuFloorToLv(floor) {
-  const n = Math.floor(Number(floor));
-  if (!Number.isFinite(n) || n < 1) return null;
-  if (n % 100 === 0) return 100 * n + 9900;
-  if (n >= 10000)    return 100 * n;
-  return 100 * n + 10000;
-}
-
-function loadBuilds() {
-  try { return JSON.parse(localStorage.getItem(BUILD_STORAGE_KEY) || "{}"); } catch { return {}; }
-}
-
+// status-sim.jsのrecalc後にwindow.lastFinalTotalが更新される
 function getHeroStats() {
+  const ft = window.lastFinalTotal || {};
   return {
-    atk:                  Math.max(0, parseFormattedInt($("bs-hero-atk"), 0)),
-    int:                  Math.max(0, parseFormattedInt($("bs-hero-int"), 0)),
-    spd:                  Math.max(0, parseFormattedInt($("bs-hero-spd"), 0)),
-    analysisBook:         Math.max(0, parseFormattedInt($("bs-analysis-book"), 0)),
-    analysisBookAdvanced: Math.max(0, parseFormattedInt($("bs-analysis-book-advanced"), 0)),
-    crystalCount:         Math.max(0, parseFormattedInt($("bs-crystal-count"), 0))
+    atk:                  Math.max(0, Math.round(ft.atk  || 0)),
+    int:                  Math.max(0, Math.round(ft.int  || 0)),
+    spd:                  Math.max(0, Math.round(ft.spd  || 0)),
+    analysisBook:         Math.max(0, parseFormattedInt($("analysis-book"), 0)),
+    analysisBookAdvanced: Math.max(0, parseFormattedInt($("analysis-book-advanced"), 0)),
+    crystalCount:         Math.max(0, parseFormattedInt($("crystal-count"), 0))
   };
-}
-
-function refreshBuildSelect() {
-  const sel = $("bs-build-select");
-  if (!sel) return;
-  const builds = loadBuilds();
-  const names  = Object.keys(builds).sort((a, b) => a.localeCompare(b, "ja"));
-  sel.innerHTML = "";
-  sel.appendChild(new Option("（手動入力）", ""));
-  names.forEach(name => sel.appendChild(new Option(name, name)));
-}
-
-function applyBuildToFields(name) {
-  if (!name) return;
-  const builds = loadBuilds();
-  const build  = builds[name];
-  if (!build) return;
-  const ft = build.finalTotal;
-  if (!ft) {
-    alert("このビルドには最終ステータスが記録されていません。\nステータスシミュレーターで再保存してください。");
-    return;
-  }
-  if ($("bs-hero-atk")) $("bs-hero-atk").value = formatIntString(Math.round(ft.atk || 0));
-  if ($("bs-hero-int")) $("bs-hero-int").value = formatIntString(Math.round(ft.int || 0));
-  if ($("bs-hero-spd")) $("bs-hero-spd").value = formatIntString(Math.round(ft.spd || 0));
-  saveSimState();
 }
 
 function saveSimState() {
   try {
-    const data = {
-      atk:                  normalizeFormattedNonNegIntValue($("bs-hero-atk")?.value, 0),
-      int:                  normalizeFormattedNonNegIntValue($("bs-hero-int")?.value, 0),
-      spd:                  normalizeFormattedNonNegIntValue($("bs-hero-spd")?.value, 0),
-      analysisBook:         normalizeFormattedNonNegIntValue($("bs-analysis-book")?.value, 0),
-      analysisBookAdvanced: normalizeFormattedNonNegIntValue($("bs-analysis-book-advanced")?.value, 0),
-      crystalCount:         normalizeFormattedNonNegIntValue($("bs-crystal-count")?.value, 0),
-      state
-    };
+    const data = { state };
     localStorage.setItem(SIM_STATE_KEY, JSON.stringify(data));
   } catch (e) {}
 }
@@ -107,12 +61,6 @@ function loadSimState() {
     const raw = localStorage.getItem(SIM_STATE_KEY);
     if (!raw) return;
     const d = JSON.parse(raw);
-    if ($("bs-hero-atk") && d.atk != null) $("bs-hero-atk").value = formatIntString(d.atk);
-    if ($("bs-hero-int") && d.int != null) $("bs-hero-int").value = formatIntString(d.int);
-    if ($("bs-hero-spd") && d.spd != null) $("bs-hero-spd").value = formatIntString(d.spd);
-    if ($("bs-analysis-book") && d.analysisBook != null) $("bs-analysis-book").value = formatIntString(d.analysisBook);
-    if ($("bs-analysis-book-advanced") && d.analysisBookAdvanced != null) $("bs-analysis-book-advanced").value = formatIntString(d.analysisBookAdvanced);
-    if ($("bs-crystal-count") && d.crystalCount != null) $("bs-crystal-count").value = formatIntString(d.crystalCount);
     if (d.state) {
       if (["physical","magic"].includes(d.state.attackType)) state.attackType = d.state.attackType;
       if (["fire","water","wood","light","dark"].includes(d.state.heroElement)) state.heroElement = d.state.heroElement;
@@ -195,7 +143,7 @@ function normalizeJP(s) {
     .replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 }
 
-function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId, onPick) {
+function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId) {
   const search  = $(searchId);
   const suggest = $(suggestId);
   const lvInput = $(lvInputId);
@@ -235,7 +183,6 @@ function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId, onPi
         search.value = m.title;
         closeSuggest();
         renderShortcuts(m);
-        if (onPick) onPick(m);
       });
       suggest.appendChild(btn);
     });
@@ -319,23 +266,22 @@ function appendJudge(wrap, ok, ngText) {
   wrap.appendChild(p);
 }
 
+// --- 天空回廊フロア→Lv変換 ---
+function tenkuFloorToLv(floor) {
+  const n = Math.floor(Number(floor));
+  if (!Number.isFinite(n) || n < 1) return null;
+  if (n % 100 === 0) return 100 * n + 9900;
+  if (n >= 10000)    return 100 * n;
+  return 100 * n + 10000;
+}
+
 // --- 初期化 ---
 loadSimState();
-refreshBuildSelect();
 applyModeUI();
 switchTab("scan");
 
-["bs-hero-atk","bs-hero-int","bs-hero-spd",
- "bs-analysis-book","bs-analysis-book-advanced","bs-crystal-count",
- "bs-reverse-lv","bs-reverse-npan"].forEach(id => attachCommaInputBehavior(id, 0));
-
-$("bs-build-select")?.addEventListener("change", e => applyBuildToFields(e.target.value));
-window.addEventListener("storage", e => { if (e.key === BUILD_STORAGE_KEY) refreshBuildSelect(); });
-
-["bs-hero-atk","bs-hero-int","bs-hero-spd",
- "bs-analysis-book","bs-analysis-book-advanced","bs-crystal-count"].forEach(id => {
-  $(id)?.addEventListener("blur", saveSimState);
-});
+// 解析書・水晶はcalc.htmlのIDと共通なのでbuild-sim専用IDを付与
+["bs-reverse-lv", "bs-reverse-npan"].forEach(id => attachCommaInputBehavior(id, 0));
 
 document.querySelectorAll("[data-bs-attack-type]").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -414,8 +360,7 @@ reverseSearchHandle = setupMonsterSearch(
   "bs-reverse-monster-search",
   "bs-reverse-monster-suggest",
   "bs-reverse-lv",
-  "bs-reverse-lv-shortcuts",
-  () => {}
+  "bs-reverse-lv-shortcuts"
 );
 
 $("bs-reverse-btn")?.addEventListener("click", () => {
