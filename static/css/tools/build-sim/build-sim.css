@@ -1,0 +1,153 @@
+.bs-wrap {
+  width: 100%;
+  max-width: 720px;
+}
+
+.bs-build-section {
+  margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid #000;
+  border-radius: 14px;
+}
+
+.bs-section-title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.bs-build-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bs-build-import-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.bs-select {
+  flex: 1;
+  padding: 10px 8px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fff;
+}
+
+.bs-label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bs-label-text {
+  white-space: nowrap;
+}
+
+.bs-npan-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.bs-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.bs-tab-btn {
+  flex: 1;
+}
+
+.bs-tab-btn[aria-pressed="true"] {
+  background: rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 2px #000 inset;
+}
+
+.bs-panel-section {
+  padding: 4px 0;
+}
+
+.bs-run-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #000;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 2px #000 inset;
+}
+
+.bs-run-btn:active {
+  transform: scale(0.99);
+}
+
+.bs-results {
+  margin-top: 16px;
+}
+
+.bs-area-section {
+  margin-bottom: 16px;
+}
+
+.bs-area-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+.bs-monster-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bs-monster-item {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.bs-ok {
+  color: #1a7a3a;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.bs-ng {
+  color: #c0392b;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.bs-monster-search {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 10px;
+}
+
+@media (min-width: 700px) {
+  .bs-build-import-row {
+    flex-direction: row;
+  }
+}
