@@ -8,8 +8,7 @@ const AUTO_STORAGE_KEY  = "status_sim_inline_v7";
 const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
 const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾", accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4" };
 
-// パスをlocation.pathnameから構築
-const pathParts = window.location.pathname.split("/tools/status")[0];
+const pathParts = window.location.pathname.split("/tools/")[0];
 const base = window.location.origin + pathParts;
 const EQUIP_URL      = base + "/db/equipment.json";
 const PET_SKILLS_URL = base + "/db/pet-skills.json";
@@ -22,6 +21,7 @@ const equipNameMap = new Map();
 const equipItemsCacheBySlot = new Map();
 let petItemsCache = [];
 let lastFinalTotal = null;
+let dataReady = false;
 
 function $(id) { return document.getElementById(id); }
 function n(v, fb = 0) { const x = Number(v); return Number.isFinite(x) ? x : fb; }
@@ -432,10 +432,14 @@ function loadNamedBuild() {
   const name = String(select.value||"").trim();
   if (!name) { setErr("読込するビルドを選択してください"); return; }
   const builds = loadBuildSlots();
-  const state  = builds[name];
-  if (!state)  { setErr("ビルドが見つかりません"); return; }
+  const saved  = builds[name];
+  if (!saved)  { setErr("ビルドが見つかりません"); return; }
   if ($("buildNameInput")) $("buildNameInput").value = name;
-  applyState(state);
+  if (!dataReady) {
+    setErr("データ読み込み中です。しばらくお待ちください。");
+    return;
+  }
+  applyState(saved);
   recalc();
   window.dispatchEvent(new CustomEvent("buildLoaded"));
   setErr(`ビルド「${name}」を読込みました`);
@@ -576,8 +580,12 @@ try {
   PET_KEYS.forEach(k => { fillSelect($("select_"+k), petItems); wirePetSearch(k); });
 } catch(e) { console.error("pet 読み込み失敗", e); }
 
+// fetch完了フラグを立ててから自動復元・初期化完了イベント発火
+dataReady = true;
 refreshBuildSelect();
 applyState(loadAutoState());
+recalc();
+window.dispatchEvent(new CustomEvent("statusSimReady"));
 
 document.querySelectorAll("input[type=number], select:not([hidden])").forEach(el => {
   ["input","change"].forEach(ev => {
@@ -643,7 +651,7 @@ if ($("clearSaveBtn")) {
   });
 }
 
-recalc();
 window.statusSimRecalc = recalc;
 window.statusSimCollectState = collectState;
+
 });
