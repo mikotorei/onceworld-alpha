@@ -431,6 +431,38 @@
         <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
       </div>
       <div id="bs-reverse-result" class="bs-results"></div>
+      <details class="fold bs-point-limit-fold" id="bs-point-limit-fold">
+        <summary>振り分け上限を計算する</summary>
+        <div class="bs-point-limit-grid">
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">賢者の落とし物</span>
+            <input id="bs-sage-drop" type="text" inputmode="numeric" value="0" class="lv-input">
+            <span class="bs-label-text">個</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">禁域の書物</span>
+            <input id="bs-forbidden-book" type="text" inputmode="numeric" value="0" class="lv-input">
+            <span class="bs-label-text">個</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">超越の契約書</span>
+            <div class="chip-group">
+              <button class="chip-btn bs-contract-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
+              <button class="chip-btn bs-contract-btn" type="button" data-val="1" aria-pressed="false">所持</button>
+            </div>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">天命輪廻</span>
+            <input id="bs-tenme-count" type="text" inputmode="numeric" value="0" class="lv-input">
+            <span class="bs-label-text">回</span>
+          </div>
+          <div class="bs-point-limit-result">
+            <span class="bs-point-limit-label">計算された上限</span>
+            <span id="bs-point-limit-display" class="bs-point-limit-total">10,000</span>
+            <span class="bs-label-text">ポイント</span>
+          </div>
+        </div>
+      </details>
       <div id="bs-search-equip-wrap" class="bs-search-equip-wrap" hidden>
         <button id="bs-search-equip-btn" type="button" class="chip-btn bs-run-btn bs-search-btn">この条件で装備を探索</button>
       </div>
