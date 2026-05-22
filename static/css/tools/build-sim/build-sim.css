@@ -3,21 +3,59 @@
   max-width: 720px;
 }
 
-.bs-build-section {
+/* ---- ビルド入力折りたたみ ---- */
+.bs-build-details {
   margin-bottom: 20px;
-  padding: 14px;
   border: 1px solid #000;
   border-radius: 14px;
+  padding: 14px;
 }
 
-.bs-build-section .status-sim {
+.bs-build-details .status-sim {
   max-width: 100%;
   padding: 0;
   margin: 0;
 }
 
-.bs-build-section .status-sim h1 {
+.bs-build-details .status-sim h1 {
   display: none;
+}
+
+.bs-build-summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  font-size: 15px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.bs-build-summary::-webkit-details-marker { display: none; }
+
+.bs-build-summary::before {
+  content: "▶";
+  font-size: 11px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.bs-build-details[open] > .bs-build-summary::before {
+  transform: rotate(90deg);
+}
+
+.bs-build-details[open] > .bs-build-summary {
+  margin-bottom: 12px;
+}
+
+/* ---- 戦闘設定 ---- */
+.bs-build-section {
+  margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid #000;
+  border-radius: 14px;
 }
 
 .bs-section-title {
@@ -60,6 +98,7 @@
   flex-wrap: wrap;
 }
 
+/* ---- タブ ---- */
 .bs-tabs {
   display: flex;
   gap: 8px;
@@ -79,6 +118,7 @@
   padding: 4px 0;
 }
 
+/* ---- ボタン ---- */
 .bs-run-btn {
   width: 100%;
   padding: 12px 14px;
@@ -94,6 +134,16 @@
   transform: scale(0.99);
 }
 
+.bs-search-btn {
+  margin-top: 12px;
+  background: #f0f7ff;
+}
+
+.bs-search-equip-wrap {
+  margin-top: 8px;
+}
+
+/* ---- 結果 ---- */
 .bs-results {
   margin-top: 16px;
 }
@@ -146,4 +196,55 @@
   padding: 10px;
   border: 1px solid #000;
   border-radius: 10px;
+}
+
+/* ---- 装備探索結果 ---- */
+.bs-equip-result-section {
+  margin-bottom: 24px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.bs-equip-subtitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #666;
+  margin: 12px 0 6px;
+}
+
+.bs-set-bonus {
+  color: #b8860b;
+  font-weight: 700;
+  font-size: 13px;
+  margin: 4px 0;
+}
+
+.bs-equip-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bs-equip-table tr {
+  border-bottom: 1px solid #eee;
+}
+
+.bs-equip-table td {
+  padding: 6px 8px;
+}
+
+.bs-equip-slot {
+  width: 52px;
+  color: #888;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.bs-equip-stat {
+  width: 80px;
+  text-align: right;
+  font-weight: 700;
+  color: #1a5fa8;
+  white-space: nowrap;
 }
