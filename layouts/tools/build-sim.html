@@ -8,9 +8,9 @@
 
 <div class="bs-wrap">
 
-  {{/* ---- ビルド入力（ステシミュUI）---- */}}
-  <section class="bs-build-section">
-    <div class="bs-section-title">ビルド入力</div>
+  {{/* ---- ビルド入力（折りたたみ可能）---- */}}
+  <details class="bs-build-details" open>
+    <summary class="bs-build-summary">ビルド入力</summary>
 
     <div class="status-sim">
 
@@ -329,7 +329,7 @@
       </details>
 
     </div>
-  </section>
+  </details>
 
   {{/* ---- 戦闘設定 ---- */}}
   <section class="bs-build-section">
@@ -431,6 +431,10 @@
         <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
       </div>
       <div id="bs-reverse-result" class="bs-results"></div>
+      <div id="bs-search-equip-wrap" class="bs-search-equip-wrap" hidden>
+        <button id="bs-search-equip-btn" type="button" class="chip-btn bs-run-btn bs-search-btn">この条件で装備を探索</button>
+      </div>
+      <div id="bs-equip-result" class="bs-results"></div>
     </section>
   </div>
 
