@@ -61,9 +61,9 @@ function getHeroStats() {
     atk:                  Math.max(0, Math.round(ft.atk  || 0)),
     int:                  Math.max(0, Math.round(ft.int  || 0)),
     spd:                  Math.max(0, Math.round(ft.spd  || 0)),
-    analysisBook:         Math.max(0, parseFormattedInt($("analysis-book"), 0)),
-    analysisBookAdvanced: Math.max(0, parseFormattedInt($("analysis-book-advanced"), 0)),
-    crystalCount:         Math.max(0, parseFormattedInt($("crystal-count"), 0))
+    analysisBook:         Math.max(0, parseInt($("bs-analysis-book")?.value         || "0", 10) || 0),
+    analysisBookAdvanced: Math.max(0, parseInt($("bs-analysis-book-advanced")?.value || "0", 10) || 0),
+    crystalCount:         Math.max(0, parseInt($("bs-crystal-count")?.value          || "0", 10) || 0)
   };
 }
 
