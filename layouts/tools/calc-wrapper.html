@@ -1,7 +1,7 @@
 {{ define "main" }}
 
 <h1>{{ .Title }}</h1>
-<link rel="stylesheet" href="{{ "css/integrated-tool.css" | relURL }}">
+<link rel="stylesheet" href="{{ "css/tools/integrated-tool.css" | relURL }}">
 
 <div class="tool-tabs" id="tool-tabs">
   <button type="button" class="tool-tab-btn" data-tab="integrated" aria-pressed="true">統合計算機</button>
@@ -62,13 +62,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      switchTab(btn.getAttribute("data-tab"));
-    });
+    btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
   });
 
-  // ハッシュ or localStorage でタブ復元
-  const hash = location.hash.replace("#", "");
+  const hash  = location.hash.replace("#", "");
   const saved = (() => { try { return localStorage.getItem(TAB_KEY); } catch(e) { return null; } })();
   const initial = (hash && panels[hash]) ? hash : (saved && panels[saved]) ? saved : "integrated";
   switchTab(initial);
@@ -76,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
-<script src="{{ "js/calc-utils.js" | relURL }}"></script>
-<script src="{{ "js/calc-logic.js" | relURL }}"></script>
+<script src="{{ "js/common/calc-utils.js" | relURL }}"></script>
+<script src="{{ "js/common/calc-logic.js" | relURL }}"></script>
 
 {{ end }}
