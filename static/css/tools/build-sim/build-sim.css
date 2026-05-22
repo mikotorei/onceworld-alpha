@@ -10,6 +10,16 @@
   border-radius: 14px;
 }
 
+.bs-build-section .status-sim {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.bs-build-section .status-sim h1 {
+  display: none;
+}
+
 .bs-section-title {
   font-weight: 700;
   font-size: 15px;
@@ -20,21 +30,6 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.bs-build-import-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.bs-select {
-  flex: 1;
-  padding: 10px 8px;
-  border: 1px solid #000;
-  border-radius: 10px;
-  font-size: 16px;
-  background: #fff;
 }
 
 .bs-label {
@@ -151,10 +146,4 @@
   padding: 10px;
   border: 1px solid #000;
   border-radius: 10px;
-}
-
-@media (min-width: 700px) {
-  .bs-build-import-row {
-    flex-direction: row;
-  }
 }
