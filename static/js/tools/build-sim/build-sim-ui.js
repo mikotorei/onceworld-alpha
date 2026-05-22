@@ -37,6 +37,15 @@ const state = {
   npanLimit:   3
 };
 
+// --- 天空回廊フロア→Lv変換（tenku.jsと同じ計算式）---
+function tenkuFloorToLv(floor) {
+  const n = Math.floor(Number(floor));
+  if (!Number.isFinite(n) || n < 1) return null;
+  if (n % 100 === 0) return 100 * n + 9900;
+  if (n >= 10000)    return 100 * n;
+  return 100 * n + 10000;
+}
+
 function loadBuilds() {
   try { return JSON.parse(localStorage.getItem(BUILD_STORAGE_KEY) || "{}"); } catch { return {}; }
 }
@@ -369,6 +378,19 @@ $("bs-debuff-wood-magic")?.addEventListener("click", () => {
   state.debuffWood = !state.debuffWood;
   applyModeUI();
   saveSimState();
+});
+
+// 天空フロア→Lv反映
+$("bs-tenku-apply")?.addEventListener("click", () => {
+  const floorEl = $("bs-tenku-floor");
+  const lvEl    = $("bs-reverse-lv");
+  if (!floorEl || !lvEl) return;
+  const lv = tenkuFloorToLv(floorEl.value.replace(/,/g, ""));
+  if (lv === null) {
+    alert("有効なフロア数を入力してください（1以上の整数）");
+    return;
+  }
+  lvEl.value = formatIntString(lv);
 });
 
 $("bs-scan-btn")?.addEventListener("click", () => {
