@@ -100,9 +100,11 @@
 
 .equip-row {
   display: grid;
-  grid-template-columns: 72px 1fr 44px 120px;
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: 64px 1fr;
+  grid-template-areas:
+    "slot main"
+    "slot lv";
+  row-gap: 6px;
   padding: 10px;
   border: 1px solid rgba(0,0,0,.12);
   border-radius: 12px;
@@ -110,28 +112,197 @@
 }
 
 .equip-row .slot {
+  grid-area: slot;
+  align-self: start;
+  padding-top: 10px;
   opacity: .85;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .equip-row .main {
+  grid-area: main;
   min-width: 0;
 }
 
-.equip-row .main select {
+.equip-row .main select,
+.equip-row .main input[type="text"] {
   width: 100%;
+}
+
+.equip-row .lv-row {
+  grid-area: lv;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .equip-row .lvtag {
   opacity: .65;
-  text-align: center;
   white-space: nowrap;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.equip-row .lvbox {
+  flex-shrink: 0;
 }
 
 .equip-row .lvbox input,
 .equip-row .lvbox select {
+  width: 80px;
+}
+
+@media (min-width: 521px) {
+  .equip-row {
+    grid-template-columns: 72px 1fr auto;
+    grid-template-areas: "slot main lv";
+    align-items: center;
+  }
+  .equip-row .slot {
+    align-self: center;
+    padding-top: 0;
+  }
+}
+
+.accessory-row {
+  grid-template-columns: 64px 1fr;
+  grid-template-areas:
+    "slot main"
+    "slot lv"
+    "slot effect";
+}
+
+.accessory-row .effectbox {
+  grid-area: effect;
+  min-width: 0;
+}
+
+@media (min-width: 521px) {
+  .accessory-row {
+    grid-template-columns: 72px 1fr auto minmax(140px, 1.2fr);
+    grid-template-areas: "slot main lv effect";
+    align-items: center;
+  }
+}
+
+.acc-effect-preview {
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  background: rgba(0,0,0,.02);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.pet-row {
+  grid-template-columns: 64px 1fr;
+  grid-template-areas:
+    "slot main"
+    "slot lv";
+  row-gap: 6px;
+}
+
+.pet-row .slot {
+  grid-area: slot;
+  align-self: start;
+  padding-top: 10px;
+}
+
+.pet-row .main {
+  grid-area: main;
+}
+
+.pet-row .lv-row {
+  grid-area: lv;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 521px) {
+  .pet-row {
+    grid-template-columns: 72px 1fr auto;
+    grid-template-areas: "slot main lv";
+    align-items: center;
+  }
+  .pet-row .slot {
+    align-self: center;
+    padding-top: 0;
+  }
+}
+
+.equip-search-wrap,
+.pet-search-wrap {
+  position: relative;
   width: 100%;
+}
+
+.equip-search-wrap input,
+.pet-search-wrap input {
+  width: 100%;
+}
+
+.equip-suggest,
+.pet-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  border: 1px solid rgba(0,0,0,.18);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.equip-suggest button,
+.pet-suggest button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+}
+
+.equip-suggest button:active,
+.pet-suggest button:active {
+  background: rgba(0,0,0,.06);
+}
+
+.build-preview {
+  padding: 10px 14px;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  background: rgba(0,0,0,.02);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 4px 0;
+}
+
+.build-preview dl {
+  display: grid;
+  grid-template-columns: 4em 1fr;
+  gap: 0 10px;
+  margin: 0;
+}
+
+.build-preview dt {
+  color: #888;
+  font-size: 12px;
+  align-self: start;
+  padding-top: 2px;
+}
+
+.build-preview dd {
+  margin: 0;
 }
 
 .buttons {
@@ -190,36 +361,10 @@
   }
 
   .status-sim input[type="number"] {
-    width: 96px;
+    width: 72px;
   }
 
   .status-sim button {
     width: 100%;
-  }
-
-  .equip-row {
-    grid-template-columns: 64px 1fr;
-    grid-template-areas:
-      "slot main"
-      "lvtag lvbox";
-    row-gap: 8px;
-  }
-
-  .equip-row .slot {
-    grid-area: slot;
-  }
-
-  .equip-row .main {
-    grid-area: main;
-  }
-
-  .equip-row .lvtag {
-    grid-area: lvtag;
-    text-align: left;
-    padding-left: 2px;
-  }
-
-  .equip-row .lvbox {
-    grid-area: lvbox;
   }
 }
