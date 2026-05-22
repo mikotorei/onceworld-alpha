@@ -58,6 +58,13 @@
   text-align: center;
 }
 
+.bs-floor-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .bs-tabs {
   display: flex;
   gap: 8px;
