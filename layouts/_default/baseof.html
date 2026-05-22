@@ -4,20 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{{ if .Title }}{{ .Title }} | {{ end }}{{ site.Title }}</title>
-  <link rel="stylesheet" href="{{ "css/style.css?v=2" | relURL }}" />
+  <link rel="stylesheet" href="{{ "css/common/style.css?v=2" | relURL }}" />
   {{ if .IsHome }}
-    <link rel="stylesheet" href="{{ "css/home.css?v=1" | relURL }}" />
+    <link rel="stylesheet" href="{{ "css/common/home.css?v=1" | relURL }}" />
   {{ end }}
   {{ if and (eq .Section "map") (eq .Kind "page") }}
-    <link rel="stylesheet" href="{{ "css/map.css?v=1" | relURL }}" />
+    <link rel="stylesheet" href="{{ "css/common/map.css?v=1" | relURL }}" />
   {{ end }}
   {{ if eq .Layout "tenku" }}
-    <link rel="stylesheet" href="{{ "css/tenku.css?v=1" | relURL }}" />
+    <link rel="stylesheet" href="{{ "css/common/tenku.css?v=1" | relURL }}" />
   {{ end }}
   {{ if eq .Layout "guide" }}
-    <link rel="stylesheet" href="{{ "css/guide.css?v=1" | relURL }}" />
+    <link rel="stylesheet" href="{{ "css/common/guide.css?v=1" | relURL }}" />
   {{ end }}
-  <!-- Google Analytics -->
   {{ with .Site.Config.Services.GoogleAnalytics.ID }}
   <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
   <script>
@@ -33,6 +32,6 @@
   <main>
     {{ block "main" . }}{{ end }}
   </main>
-  <script src="{{ "js/header-nav.js?v=1" | relURL }}" defer></script>
+  <script src="{{ "js/common/header-nav.js?v=1" | relURL }}" defer></script>
 </body>
 </html>
