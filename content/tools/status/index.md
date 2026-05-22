@@ -5,12 +5,6 @@ weight = 50
 description = "主人公の装備・ペット・ステータスを確認できるシミュレーター"
 +++
 
-<div id="status-sim-root"
-  data-equip-url="{{ "db/equipment.json" | relURL }}"
-  data-pet-skills-url="{{ "db/pet-skills.json" | relURL }}"
-  data-pet-names-url="{{ "pet-names/index.json" | relURL }}">
-</div>
-
 <div class="status-sim">
 
 <h1>主人公ステータス・シミュレーター</h1>
