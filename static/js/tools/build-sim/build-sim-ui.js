@@ -66,6 +66,66 @@ function getHeroStats() {
   };
 }
 
+// ステポイント1点あたりのfinalTotal実効倍率を推定
+// finalTotal / (basePlusProtein相当) から逆算する簡易版
+function estimateBasePointMultiplier(simState, stat) {
+  const ft = window.lastFinalTotal || {};
+  const finalVal = Math.round(Number(ft?.[stat] || 0));
+  if (finalVal <= 0) return 1;
+
+  // base + protein相当
+  const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
+  const shaker = Math.max(0, Number(simState?.shaker || 0));
+  const baseVal   = Math.max(0, Number(simState?.base?.[stat]    || 0));
+  const proteinVal = Math.max(0, Number(simState?.protein?.[stat] || 0));
+  const basePlusProtein = baseVal + proteinVal * (1 + shaker * 0.01);
+
+  // 装備なしの場合はfinalTotal≒basePlusProtein×multiplier
+  // multiplier = finalTotal / basePlusProtein（装備寄与を除外できないので近似）
+  // より正確には: basePlusProtein に対してsetBonus・accRate・petMulが乗る
+  // ここではfinalTotalとbasePlusProteinの比から実効倍率を推定
+  if (basePlusProtein <= 0) return 1;
+
+  // 実効倍率 = finalTotal / basePlusProtein（装備の加算分はbasePlusProteinに含まれないため
+  //   実際は (basePlusProtein + equipFlat) * rates = finalTotal となるが
+  //   ステポイントが乗る部分はbasePlusProteinの係数なので正確には以下で求める）
+  // 最も正確な方法: base[stat]を1増やした場合のfinalTotal増加量を直接計算
+  // → status-sim.jsのrecalcをそのまま呼べないので代わりにrate部分だけ計算
+
+  // setBonus
+  const ARMOR_SLOTS = ["head","body","hands","feet","shield"];
+  const armorSeries = ARMOR_SLOTS.map(k => {
+    const id = simState?.equip?.[k]?.id || "";
+    return id ? equipItemsMap.get(String(id))?.series || "" : "";
+  }).filter(s => s !== "");
+  const hasSet = armorSeries.length === 5 && armorSeries.every(s => s === armorSeries[0]);
+  const setMul = hasSet ? 1.1 : 1.0;
+
+  // accRate合計
+  const ACC_SLOTS = ["accessory1","accessory2","accessory3","accessory4"];
+  let totalAccRate = 0;
+  ACC_SLOTS.forEach(k => {
+    const id = simState?.equip?.[k]?.id || "";
+    const lv = Math.max(1, Number(simState?.equip?.[k]?.lv || 1));
+    if (!id) return;
+    const item = equipItemsMap.get(String(id));
+    if (!item) return;
+    const s = calcAccessoryStat(item, stat, lv);
+    totalAccRate += s.rate || 0;
+  });
+
+  // petMul・petFinalはfinalTotalから逆算
+  // finalTotal = (basePlusProtein + equipFlat + petAdd) * setMul * (1+accRate/100+petMul/100) * (1+petFinal/100)
+  // ステポイント1点追加でbasePlusProteinが1増える
+  // その寄与: 1 * setMul * (1+accRate/100+petMul/100) * (1+petFinal/100)
+  // petMul・petFinalはfinalTotalとの比から推定が難しいので、
+  // 代わりに finalTotal / basePlusProtein を全体の実効倍率として使う
+  // （petAddはflatなので正確ではないが近似として十分）
+  const approxMul = finalVal / basePlusProtein;
+  // setMulは確実に分かるので補正
+  return Math.max(1, approxMul);
+}
+
 function saveSimState() {
   try {
     localStorage.setItem(SIM_STATE_KEY, JSON.stringify({ state }));
@@ -289,7 +349,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
 
   const header = document.createElement("div");
   header.className = "bs-area-title";
-  header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのG強化分析`;
+  header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのG強化・ステポイント分析`;
   wrap.appendChild(header);
 
   if (analysis.achieved) {
@@ -301,16 +361,10 @@ function renderGlvAnalysis(analysis, stat, needed) {
     return;
   }
 
-  if (analysis.stillShort) {
-    const p = document.createElement("p");
-    p.className = "bs-ng";
-    p.textContent = `⚠️ 全スロットをG100にしても不足します。装備の見直しが必要です。`;
-    wrap.appendChild(p);
-  }
-
+  // G強化テーブル
   const armorTitle = document.createElement("div");
   armorTitle.className = "bs-equip-subtitle";
-  armorTitle.textContent = "武器・防具 G強化配分（perG効率順に割り振り）";
+  armorTitle.textContent = "① 武器・防具 G強化配分（perG効率順に割り振り）";
   wrap.appendChild(armorTitle);
 
   const table = document.createElement("table");
@@ -325,25 +379,26 @@ function renderGlvAnalysis(analysis, stat, needed) {
   });
   table.appendChild(thead);
 
+  let totalAddedG = 0;
   analysis.slots.forEach(s => {
     if (!s.item) return;
     const tr = document.createElement("tr");
     tr.style.borderBottom = "1px solid #eee";
-
     const isChanged = s.addedGlv > 0;
-    const isMax     = s.neededGlv >= 100 && s.addedGlv > 0;
+    const isMax     = s.neededGlv >= 100 && isChanged;
+    totalAddedG += s.addedGlv;
 
     const addedText = isChanged
       ? `+${s.addedGlv}個${isMax ? "（G100）" : ""}`
       : (s.canEnhance ? "変更不要" : "-");
 
     [
-      { text: s.label,              cls: "bs-equip-slot" },
-      { text: s.item.name,          cls: "" },
-      { text: `G${s.currentGlv}`,   cls: "" },
-      { text: s.canEnhance ? `G${s.neededGlv}` : "-", cls: "" },
-      { text: addedText,            cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
-      { text: fmt(s.currentStatVal),cls: "" },
+      { text: s.label,   cls: "bs-equip-slot" },
+      { text: s.item.name },
+      { text: `G${s.currentGlv}` },
+      { text: s.canEnhance ? `G${s.neededGlv}` : "-" },
+      { text: addedText, cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+      { text: fmt(s.currentStatVal) },
       { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
     ].forEach(c => {
       const td = document.createElement("td");
@@ -354,7 +409,73 @@ function renderGlvAnalysis(analysis, stat, needed) {
     });
     table.appendChild(tr);
   });
+
+  // G強化合計行
+  if (totalAddedG > 0) {
+    const sumTr = document.createElement("tr");
+    sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
+    ["合計", "", "", "", `+${totalAddedG}個`, "", ""].forEach((t, i) => {
+      const td = document.createElement("td");
+      td.textContent = t;
+      td.style.cssText = "padding:6px 8px;font-size:14px;";
+      sumTr.appendChild(td);
+    });
+    table.appendChild(sumTr);
+  }
   wrap.appendChild(table);
+
+  // ステポイント分析
+  if (analysis.statPointResult) {
+    const sp = analysis.statPointResult;
+    const spTitle = document.createElement("div");
+    spTitle.className = "bs-equip-subtitle";
+    spTitle.textContent = "② G強化で届かない分をステポイントで補う";
+    wrap.appendChild(spTitle);
+
+    const spBox = document.createElement("div");
+    spBox.className = "bs-statpoint-box";
+
+    const rows = [
+      { label: "G強化後も不足する分", value: `${STAT_LABEL[stat]||stat} ${fmt(Math.ceil(analysis.shortfall - (totalAddedG > 0 ? analysis.slots.reduce((s, slot) => s + (slot.newStatVal - slot.currentStatVal), 0) : 0)))}` },
+      { label: `必要な${STAT_LABEL[stat]||stat}ポイント追加`, value: `${fmt(sp.neededBaseIncrease)} ポイント` },
+      { label: "現在の振り分け上限", value: `${fmt(sp.basePointTotal)}` },
+      { label: "現在の使用済みポイント", value: `${fmt(sp.usedPoints)}` },
+      { label: "残り振り分け可能", value: `${fmt(sp.freePoints)} ポイント` },
+    ];
+
+    rows.forEach(row => {
+      const div = document.createElement("div");
+      div.className = "bs-statpoint-row";
+      const label = document.createElement("span");
+      label.className = "bs-statpoint-label";
+      label.textContent = row.label;
+      const val = document.createElement("span");
+      val.className = "bs-statpoint-val";
+      val.textContent = row.value;
+      div.appendChild(label);
+      div.appendChild(val);
+      spBox.appendChild(div);
+    });
+
+    const judgeP = document.createElement("p");
+    if (sp.achievable) {
+      judgeP.className = "bs-ok";
+      judgeP.textContent = `✅ 残り ${fmt(sp.freePoints)} ポイントを ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} 振り分けることで達成可能です`;
+    } else if (analysis.stillShort) {
+      judgeP.className = "bs-ng";
+      judgeP.textContent = `⚠️ G強化（全スロットG100）＋ステポイント全振りでも不足します。装備の見直しが必要です。`;
+    } else {
+      judgeP.className = "bs-ng";
+      judgeP.textContent = `⚠️ 残りポイント ${fmt(sp.freePoints)} では不足（${fmt(sp.neededBaseIncrease)} 必要）。振り分け上限を増やすか、G強化を増やしてください。`;
+    }
+    spBox.appendChild(judgeP);
+    wrap.appendChild(spBox);
+  } else if (analysis.stillShort) {
+    const p = document.createElement("p");
+    p.className = "bs-ng";
+    p.textContent = "⚠️ 全スロットをG100にしても不足します。装備の見直しが必要です。";
+    wrap.appendChild(p);
+  }
 
   renderAccTable(wrap, analysis.accSlots, stat);
 }
@@ -381,7 +502,7 @@ function renderAccTable(wrap, accSlots, stat) {
       return parts.join(" / ") || "-";
     };
     [
-      { text: s.label,  cls: "bs-equip-slot" },
+      { text: s.label, cls: "bs-equip-slot" },
       { text: s.item.name },
       { text: `Lv${s.currentLv}` },
       { text: fmtAcc(s.currentAdd, s.currentRate) },
@@ -487,12 +608,20 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   const btn = $("bs-search-equip-btn");
   if (btn) btn.textContent = "分析中...";
   await loadEquipItems();
-  const equipState = window.statusSimCollectState?.()?.equip || {};
+
+  const simState = window.statusSimCollectState?.() || {};
+  const equipState = simState.equip || {};
   const currentFinalTotal = window.lastFinalTotal || {};
+
+  // ステポイント1点あたりの実効倍率を推定
+  const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
+
   const analysis = analyzeGlvNeeded(
     equipState, equipItemsMap,
-    lastReverseResult.stat, lastReverseResult.needed, currentFinalTotal
+    lastReverseResult.stat, lastReverseResult.needed,
+    currentFinalTotal, simState, effectiveMultiplier
   );
+
   renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
   if (btn) btn.textContent = "この条件で装備を探索";
 });
