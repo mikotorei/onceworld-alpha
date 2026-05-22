@@ -248,3 +248,18 @@
   color: #1a5fa8;
   white-space: nowrap;
 }
+.bs-glv-needed {
+  color: #c0392b;
+  font-weight: 700;
+  padding: 6px 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bs-glv-ok {
+  color: #1a7a3a;
+  font-weight: 700;
+  padding: 6px 8px;
+  font-size: 14px;
+  white-space: nowrap;
+}
