@@ -294,3 +294,80 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+/* ---- 振り分け上限計算 ---- */
+.bs-point-limit-fold {
+  margin: 12px 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,.01);
+}
+
+.bs-point-limit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.bs-point-limit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bs-point-limit-label {
+  min-width: 120px;
+  font-size: 14px;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.bs-point-limit-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.bs-point-limit-total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a5fa8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- ステポイント分析ボックス ---- */
+.bs-statpoint-box {
+  margin: 8px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: rgba(0,0,0,.02);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bs-statpoint-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.bs-statpoint-label {
+  color: #555;
+}
+
+.bs-statpoint-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
