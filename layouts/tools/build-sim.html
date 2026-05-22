@@ -1,0 +1,145 @@
+{{ define "main" }}
+
+<h1>{{ .Title }}</h1>
+<link rel="stylesheet" href="{{ "css/tools/integrated-tool.css" | relURL }}">
+<link rel="stylesheet" href="{{ "css/tools/build-sim/build-sim.css" | relURL }}">
+
+<div class="bs-wrap">
+
+  <section class="bs-build-section">
+    <div class="bs-section-title">ビルド入力</div>
+    <div class="bs-build-row">
+      <label class="bs-label" for="bs-build-select">保存ビルドから読込</label>
+      <div class="bs-build-import-row">
+        <select id="bs-build-select" class="bs-select"></select>
+      </div>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-row hero-stat-row">
+        <span class="hero-label">atk</span>
+        <input id="bs-hero-atk" type="text" inputmode="numeric" value="0">
+      </div>
+      <div class="hero-row hero-stat-row">
+        <span class="hero-label">int</span>
+        <input id="bs-hero-int" type="text" inputmode="numeric" value="0">
+      </div>
+      <div class="hero-row hero-stat-row">
+        <span class="hero-label">spd</span>
+        <input id="bs-hero-spd" type="text" inputmode="numeric" value="0">
+      </div>
+      <div class="hero-row hero-stat-row bs-magic-only">
+        <span class="hero-label">解析書</span>
+        <input id="bs-analysis-book" type="text" inputmode="numeric" value="0">
+      </div>
+      <div class="hero-row hero-stat-row bs-magic-only">
+        <span class="hero-label">解析書の解析書</span>
+        <input id="bs-analysis-book-advanced" type="text" inputmode="numeric" value="0">
+      </div>
+      <div class="hero-row hero-stat-row bs-magic-only">
+        <span class="hero-label">魔晶立方体</span>
+        <input id="bs-crystal-count" type="text" inputmode="numeric" value="0">
+      </div>
+    </div>
+  </section>
+
+  <section class="bs-build-section">
+    <div class="bs-section-title">戦闘設定</div>
+    <div class="mode-row">
+      <span class="mode-label">攻撃タイプ</span>
+      <div class="chip-group">
+        <button class="chip-btn" type="button" data-bs-attack-type="physical" aria-pressed="true">物理</button>
+        <button class="chip-btn" type="button" data-bs-attack-type="magic" aria-pressed="false">魔法</button>
+      </div>
+    </div>
+    <div class="mode-row" style="margin-top:12px">
+      <span class="mode-label">主人公属性</span>
+      <div class="chip-group">
+        <button class="chip-btn" type="button" data-bs-hero-element="fire"  aria-pressed="true">火</button>
+        <button class="chip-btn" type="button" data-bs-hero-element="water" aria-pressed="false">水</button>
+        <button class="chip-btn" type="button" data-bs-hero-element="wood"  aria-pressed="false">木</button>
+        <button class="chip-btn" type="button" data-bs-hero-element="light" aria-pressed="false">光</button>
+        <button class="chip-btn" type="button" data-bs-hero-element="dark"  aria-pressed="false">闇</button>
+      </div>
+    </div>
+    <div class="mode-row bs-magic-only" style="margin-top:12px">
+      <span class="mode-label">呪文属性</span>
+      <div class="chip-group">
+        <button class="chip-btn" type="button" data-bs-spell="fire"    aria-pressed="true">火</button>
+        <button class="chip-btn" type="button" data-bs-spell="water"   aria-pressed="false">水</button>
+        <button class="chip-btn" type="button" data-bs-spell="wood"    aria-pressed="false">木</button>
+        <button class="chip-btn" type="button" data-bs-spell="light"   aria-pressed="false">光</button>
+        <button class="chip-btn" type="button" data-bs-spell="dark"    aria-pressed="false">闇</button>
+        <button class="chip-btn" type="button" data-bs-spell="shingan" aria-pressed="false">心眼</button>
+      </div>
+    </div>
+    <div class="mode-row" style="margin-top:12px">
+      <span class="mode-label">デバフ</span>
+      <div class="chip-group">
+        <button class="chip-btn bs-phys-only" id="bs-debuff-wood" type="button" aria-pressed="false">木デバフ</button>
+        <button class="chip-btn bs-phys-only" id="bs-debuff-dark" type="button" aria-pressed="false">闇デバフ</button>
+        <button class="chip-btn bs-magic-only" id="bs-debuff-wood-magic" type="button" aria-pressed="false">木デバフ</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="bs-tabs">
+    <button class="bs-tab-btn chip-btn" type="button" data-tab="scan"    aria-pressed="true">討伐判定</button>
+    <button class="bs-tab-btn chip-btn" type="button" data-tab="reverse" aria-pressed="false">逆算</button>
+  </div>
+
+  <div data-panel="scan">
+    <section class="bs-panel-section">
+      <div class="bs-build-row" style="margin-top:8px">
+        <label class="bs-label">
+          <span class="bs-label-text">○パン以内で倒せるモンスターを表示</span>
+          <input id="bs-npan-limit" type="number" min="1" max="99" value="3" class="bs-npan-input">
+          <span class="bs-label-text">パン</span>
+        </label>
+      </div>
+      <div class="action-section">
+        <button id="bs-scan-btn" type="button" class="chip-btn bs-run-btn">討伐判定を実行</button>
+      </div>
+      <div id="bs-scan-results" class="bs-results"></div>
+    </section>
+  </div>
+
+  <div data-panel="reverse" hidden>
+    <section class="bs-panel-section">
+      <div class="enemy-section">
+        <div class="enemy-row">
+          <span class="enemy-label">目標モンスター</span>
+          <div class="enemy-input-wrap">
+            <input id="bs-reverse-monster-search" type="search" placeholder="モンスター名を入力" class="bs-monster-search">
+            <div id="bs-reverse-monster-suggest" class="suggest" hidden></div>
+          </div>
+        </div>
+        <div class="mt">
+          <div id="bs-reverse-lv-shortcuts" class="lv-shortcuts"></div>
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">モンスターLv</span>
+          <input id="bs-reverse-lv" type="text" inputmode="numeric" value="0" class="lv-input">
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">目標発数</span>
+          <input id="bs-reverse-npan" type="text" inputmode="numeric" value="1" class="lv-input">
+          <span class="bs-label-text">パン以内</span>
+        </div>
+      </div>
+      <div class="action-section">
+        <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
+      </div>
+      <div id="bs-reverse-result" class="bs-results"></div>
+    </section>
+  </div>
+
+</div>
+
+<script src="{{ "monsters-data.js" | relURL }}"></script>
+<script src="{{ "js/common/calc-utils.js" | relURL }}" defer></script>
+<script src="{{ "js/common/number-format.js" | relURL }}" defer></script>
+<script src="{{ "js/common/calc-logic.js" | relURL }}" defer></script>
+<script src="{{ "js/tools/build-sim/build-sim-logic.js" | relURL }}" defer></script>
+<script src="{{ "js/tools/build-sim/build-sim-ui.js" | relURL }}" defer></script>
+
+{{ end }}
