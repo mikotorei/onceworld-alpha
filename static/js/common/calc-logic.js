@@ -1,0 +1,208 @@
+// ============================================================
+// calc-logic.js  ゲーム計算ロジック（DOM非依存）
+// ============================================================
+
+function normalizeElement(value) {
+  const raw = (value ?? "").toString().trim().toLowerCase();
+
+  const map = {
+    fire: "fire",
+    "火": "fire",
+    "火属性": "fire",
+    water: "water",
+    "水": "water",
+    "水属性": "water",
+    wood: "wood",
+    tree: "wood",
+    "木": "wood",
+    "木属性": "wood",
+    light: "light",
+    "光": "light",
+    "光属性": "light",
+    dark: "dark",
+    "闇": "dark",
+    "闇属性": "dark"
+  };
+
+  return map[raw] || raw;
+}
+
+function hitsFromSpd(spd) {
+  const s = Math.floor(Number(spd));
+  if (!Number.isFinite(s)) return 1;
+  if (s < 3000)       return 1;
+  if (s < 9000)       return 2;
+  if (s < 27000)      return 3;
+  if (s < 81000)      return 4;
+  if (s < 243000)     return 5;
+  if (s < 729000)     return 6;
+  if (s < 2187000)    return 7;
+  if (s < 6561000)    return 8;
+  if (s < 19683000)   return 9;
+  return 10;
+}
+
+function scaleStat(base, lv) {
+  return Math.floor(Number(base) * (1 + lv * 0.1));
+}
+
+function buildEnemyScaled(monster, lv, state) {
+  const wood = !!state.debuffWood;
+  const dark = !!state.debuffDark;
+
+  const defScaled = scaleStat(monster.def, lv);
+  const lukScaled = scaleStat(monster.luk, lv);
+
+  return {
+    id: monster.id,
+    title: monster.title,
+    lv,
+    vit:  scaleStat(monster.vit, lv),
+    spd:  scaleStat(monster.spd, lv),
+    atk:  scaleStat(monster.atk, lv),
+    int:  scaleStat(monster.int, lv),
+    def:  wood ? Math.floor(defScaled / 2) : defScaled,
+    mdef: scaleStat(monster.mdef, lv),
+    luk:  dark ? Math.floor(lukScaled / 2) : lukScaled,
+    element: normalizeElement(monster.element),
+    level_shortcuts: Array.isArray(monster.level_shortcuts) ? monster.level_shortcuts : []
+  };
+}
+
+function getElementModifier(heroElement, enemyElement) {
+  const h = normalizeElement(heroElement);
+  const e = normalizeElement(enemyElement);
+
+  if (!h || !e) return 1.0;
+
+  if (
+    (h === "fire"  && e === "wood")  ||
+    (h === "wood"  && e === "water") ||
+    (h === "water" && e === "fire")  ||
+    (h === "light" && e === "dark")  ||
+    (h === "dark"  && e === "light")
+  ) return 1.3;
+
+  if (
+    (h === "fire"  && e === "water") ||
+    (h === "water" && e === "wood")  ||
+    (h === "wood"  && e === "fire")  ||
+    (h === "light" && e === "light") ||
+    (h === "dark"  && e === "dark")
+  ) return 0.8;
+
+  return 1.0;
+}
+
+function getCriticalModifier(godCount) {
+  const count = Math.max(0, Math.min(1000, Math.floor(Number(godCount) || 0)));
+  return 1 + 1.50 + count * 0.003;
+}
+
+function damageRangeTotal(attack, defense, hits, elementModifier, criticalModifier = 1.0) {
+  const base = (attack * 7) - (defense * 4);
+  if (base <= 0) return { min: 0, max: 0, base };
+  const modifiedBase = base * elementModifier * criticalModifier;
+  const min = Math.floor(modifiedBase * 0.9 * hits);
+  const max = Math.floor(modifiedBase * 1.1 * hits);
+  return { min: Math.max(0, min), max: Math.max(0, max), base: modifiedBase };
+}
+
+function formatMinMax(min, max) {
+  return `${fmt(min)}～${fmt(max)}`;
+}
+
+function oneShotLineRequiredAttack(defense, hits, hp, elementModifier, criticalModifier = 1.0) {
+  const need = hp / (0.9 * hits * elementModifier * criticalModifier);
+  const x = (defense * 4 + need) / 7;
+  return Math.max(0, Math.ceil(x));
+}
+
+function requiredDefenseForNullify(enemyAttack) {
+  const a = Math.floor(Number(enemyAttack));
+  if (!Number.isFinite(a)) return 0;
+  const x = (a * 7 - 10) / 4;
+  return Math.max(0, Math.floor(x) + 1);
+}
+
+function clampAnalysisBonus(v) {
+  return Math.min(101000, Math.max(0, Math.floor(Number(v) || 0)));
+}
+
+function getSpellMultiplier(spell) {
+  switch (normalizeElement(spell)) {
+    case "fire":    return 1.0;
+    case "water":   return 1.0;
+    case "wood":    return 1.3;
+    case "light":   return 2.0;
+    case "dark":    return 1.4;
+    case "shingan": return 0.1;
+    default:        return 1.0;
+  }
+}
+
+function calcAnalysisBonus(bookCount, advancedBookCount) {
+  const book = Math.max(0, Math.floor(Number(bookCount) || 0));
+  const adv  = Math.max(0, Math.floor(Number(advancedBookCount) || 0));
+  const value = book * (1 + adv / 10);
+  return clampAnalysisBonus(value);
+}
+
+function getCrystalMultiplier(crystalCount) {
+  const count = Math.max(0, Math.floor(Number(crystalCount) || 0));
+  return Math.min(11.0, 1 + count * 0.01);
+}
+
+function calcMagicDamageRange(params) {
+  const heroInt           = Math.max(0, Math.floor(Number(params.heroInt) || 0));
+  const analysisBonus     = calcAnalysisBonus(params.analysisBook, params.analysisBookAdvanced);
+  const spellMultiplier   = getSpellMultiplier(params.spell);
+  const crystalMultiplier = getCrystalMultiplier(params.crystalCount);
+  const enemyMagDef       = Number(params.enemyMagDef) || 0;
+  const elementModifier   = getElementModifier(params.heroElement, params.enemyElement);
+  const criticalModifier  = 1.0;
+
+  const preDefense   = (heroInt + analysisBonus) * 1.25 * spellMultiplier * crystalMultiplier;
+  const afterDefense = preDefense - enemyMagDef;
+  const base         = afterDefense * 4;
+  const finalBase    = base * elementModifier * criticalModifier;
+
+  if (finalBase <= 0) {
+    return { min: 0, max: 0, analysisBonus, spellMultiplier, crystalMultiplier, elementModifier, criticalModifier, enemyMagDef, finalBase: 0 };
+  }
+
+  const min = Math.floor(finalBase * 0.9);
+  const max = Math.floor(finalBase * 1.1);
+
+  return {
+    min: Math.max(0, min),
+    max: Math.max(0, max),
+    analysisBonus,
+    spellMultiplier,
+    crystalMultiplier,
+    elementModifier,
+    criticalModifier,
+    enemyMagDef,
+    finalBase
+  };
+}
+
+function calcMagicOneShotRequiredInt(params) {
+  const hp                = Math.max(0, Number(params.hp) || 0);
+  const analysisBonus     = calcAnalysisBonus(params.analysisBook, params.analysisBookAdvanced);
+  const spellMultiplier   = getSpellMultiplier(params.spell);
+  const crystalMultiplier = getCrystalMultiplier(params.crystalCount);
+  const enemyMagDef       = Number(params.enemyMagDef) || 0;
+  const elementModifier   = getElementModifier(params.heroElement, params.enemyElement);
+  const criticalModifier  = 1.0;
+
+  const totalModifier = 0.9 * 4 * elementModifier * criticalModifier;
+  if (totalModifier <= 0 || spellMultiplier <= 0 || crystalMultiplier <= 0) return 0;
+
+  const neededAfterDefense = hp / totalModifier;
+  const neededPreDefense   = neededAfterDefense + enemyMagDef;
+  const neededIntPlusBook  = neededPreDefense / (1.25 * spellMultiplier * crystalMultiplier);
+  const neededInt          = Math.ceil(neededIntPlusBook - analysisBonus);
+
+  return Math.max(0, neededInt);
+}
