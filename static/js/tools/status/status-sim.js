@@ -437,6 +437,7 @@ function loadNamedBuild() {
   if ($("buildNameInput")) $("buildNameInput").value = name;
   applyState(state);
   recalc();
+  window.dispatchEvent(new CustomEvent("buildLoaded"));
   setErr(`ビルド「${name}」を読込みました`);
   window.setTimeout(() => setErr(""), 1200);
 }
