@@ -101,6 +101,22 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
 }
 
 // ============================================================
+// 振り分け上限計算
+// ============================================================
+
+// 各素材・条件から振り分け上限を計算する
+// 戻り値: 上限ポイント数（整数）
+function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
+  const BASE        = 10000;
+  const sage        = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop       || 0)))) * 10;
+  const forbidden   = Math.min(80000, Math.max(0, Math.floor(Number(forbiddenBook  || 0)))) * 80;
+  const contract    = hasContract ? 900000 : 0;
+  const tenme       = Math.max(0, Math.floor(Number(tenmeCount || 0)));
+  const tenmeBonus  = tenme >= 11 ? (tenme - 10) * 1000000 : 0;
+  return BASE + sage + forbidden + contract + tenmeBonus;
+}
+
+// ============================================================
 // 装備計算ユーティリティ
 // ============================================================
 
@@ -131,53 +147,10 @@ function calcAccessoryStat(item, stat, lv) {
 }
 
 // ============================================================
-// ステポイント1点あたりのfinalTotal寄与倍率を計算
-// （setBonus × accRate乗算 × petMul乗算 × petFinal乗算）
-// simState: collectState()の戻り値
-// equipItemsMap: Map<id, item>
-// stat: "atk" など
-// ============================================================
-function calcBasePointMultiplier(simState, equipItemsMap, stat) {
-  // セットボーナス判定
-  const ARMOR_SLOTS = ["head","body","hands","feet","shield"];
-  const armorItems = ARMOR_SLOTS.map(k => {
-    const id = simState.equip?.[k]?.id || "";
-    return id ? equipItemsMap.get(String(id)) : null;
-  }).filter(Boolean);
-  const armorSeries = armorItems.map(i => i?.series || "").filter(s => s !== "");
-  const hasSet = armorSeries.length === 5 && armorSeries.every(s => s === armorSeries[0]);
-  const setMul = hasSet ? 1.1 : 1.0;
-
-  // アクセサリ乗算合計（accRate）
-  const ACC_SLOTS = ["accessory1","accessory2","accessory3","accessory4"];
-  let totalAccRate = 0;
-  ACC_SLOTS.forEach(k => {
-    const id = simState.equip?.[k]?.id || "";
-    const lv = Math.max(1, Number(simState.equip?.[k]?.lv || 1));
-    if (!id) return;
-    const item = equipItemsMap.get(String(id));
-    if (!item) return;
-    const s = calcAccessoryStat(item, stat, lv);
-    totalAccRate += s.rate || 0;
-  });
-
-  // ペット乗算合計（petMul, petFinal）
-  // ※ petSkillMapはstatus-sim.js内にあり直接参照不可なので
-  //    window.lastFinalTotalとbaseから逆算する方式を取る
-  // → 代わりにsimStateのpetsからstage情報を取り、
-  //   window.statusSimCollectState経由で現在の倍率を推定する
-  // ここでは簡易的に finalTotal / (base + equipContrib) から実効倍率を推定
-  // → この値はUI側で渡す
-
-  // 返すのはsetMulとaccRateのみ（petMulはUI側で計算）
-  return { setMul, totalAccRate };
-}
-
-// ============================================================
 // G強化必要数 + ステポイント必要数 分析（複数スロット合算）
 // ============================================================
 
-function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier) {
+function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier, overridePointLimit) {
   const ARMOR_SLOTS = ["weapon", "head", "body", "hands", "feet", "shield"];
   const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
   const SLOT_LABEL = {
@@ -188,7 +161,6 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   const currentVal = Math.round(Number(currentFinalTotal?.[stat] || 0));
   let shortfall = Math.max(0, neededTotal - currentVal);
 
-  // 各スロットの現状を整理
   const armorAnalysis = ARMOR_SLOTS.map(slot => {
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
@@ -228,13 +200,11 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   let remaining = shortfall;
   enhanceable.forEach(s => {
     if (remaining <= 0) return;
-    const currentContrib = s.currentStatVal;
-    const maxContrib     = s.maxGStatVal;
-    const canAdd         = maxContrib - currentContrib;
+    const canAdd = s.maxGStatVal - s.currentStatVal;
     if (canAdd <= 0) return;
 
     if (canAdd >= remaining) {
-      const targetStat = currentContrib + remaining;
+      const targetStat = s.currentStatVal + remaining;
       let neededGlv;
       if (s.currentGlv > 0) {
         neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
@@ -251,7 +221,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
     } else {
       s.neededGlv  = 100;
       s.addedGlv   = 100 - s.currentGlv;
-      s.newStatVal = maxContrib;
+      s.newStatVal = s.maxGStatVal;
       remaining   -= canAdd;
     }
   });
@@ -259,24 +229,21 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   // G強化で届かなかった残りをステポイントで補う
   let statPointResult = null;
   if (remaining > 0 && effectiveMultiplier > 0) {
-    // ステポイント → finalTotal の換算
-    // finalTotal に remaining 追加するために必要な base 増加量
-    // remaining = baseIncrease * effectiveMultiplier
     const neededBaseIncrease = Math.ceil(remaining / effectiveMultiplier);
 
-    // 現在の使用済みポイントと残りポイントを計算
     const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
-    const basePointTotal = Math.max(0, Number(simState?.basePointTotal || 0));
+    // overridePointLimitがあればそちらを優先、なければsimStateのbasePointTotalを使用
+    const basePointTotal = overridePointLimit != null
+      ? overridePointLimit
+      : Math.max(0, Number(simState?.basePointTotal || 0));
     const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
     const freePoints = Math.max(0, basePointTotal - usedPoints);
-    const currentBaseForStat = Math.max(0, Number(simState?.base?.[stat] || 0));
 
     statPointResult = {
       neededBaseIncrease,
       freePoints,
       basePointTotal,
       usedPoints,
-      currentBaseForStat,
       achievable: neededBaseIncrease <= freePoints,
       stillShortAfterAll: neededBaseIncrease > freePoints
     };
