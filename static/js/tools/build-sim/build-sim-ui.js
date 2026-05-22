@@ -367,5 +367,10 @@ $("bs-reverse-btn")?.addEventListener("click", () => {
   renderReverseResult();
   saveSimState();
 });
-
+window.addEventListener("buildLoaded", () => {
+  const scanResults = $("bs-scan-results");
+  if (scanResults) scanResults.innerHTML = "";
+  const reverseResult = $("bs-reverse-result");
+  if (reverseResult) reverseResult.innerHTML = "";
+});
 }); // DOMContentLoaded
