@@ -8,10 +8,12 @@ const AUTO_STORAGE_KEY  = "status_sim_inline_v7";
 const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
 const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾", accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4" };
 
-const root = document.getElementById("status-sim-root");
-const EQUIP_URL      = root?.dataset.equipUrl      || "";
-const PET_SKILLS_URL = root?.dataset.petSkillsUrl  || "";
-const PET_NAMES_URL  = root?.dataset.petNamesUrl   || "";
+// パスをlocation.pathnameから構築
+const pathParts = window.location.pathname.split("/tools/status")[0];
+const base = window.location.origin + pathParts;
+const EQUIP_URL      = base + "/db/equipment.json";
+const PET_SKILLS_URL = base + "/db/pet-skills.json";
+const PET_NAMES_URL  = base + "/pet-names/index.json";
 
 const equipmentMap = new Map();
 const petSkillMap  = new Map();
@@ -620,7 +622,7 @@ if ($("resetBtn")) {
       if ($("level_" +k)) $("level_" +k).value=k.startsWith("accessory")?"1":"0";
       if ($("glevel_"+k)) $("glevel_"+k).value="0";
       if ($("effect_"+k)) $("effect_"+k).textContent="-";
-      const input=$( equipSearchId(k)); if(input) input.value="";
+      const input=$(equipSearchId(k)); if(input) input.value="";
       closeEquipSuggest(k);
     });
     PET_KEYS.forEach(k => {
