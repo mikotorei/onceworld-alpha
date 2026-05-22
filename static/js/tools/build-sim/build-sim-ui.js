@@ -37,7 +37,8 @@ const state = {
   spell:       "fire",
   debuffWood:  false,
   debuffDark:  false,
-  npanLimit:   3
+  npanLimit:   3,
+  hasContract: false
 };
 
 let lastReverseResult = null;
@@ -66,69 +67,41 @@ function getHeroStats() {
   };
 }
 
-// ステポイント1点あたりのfinalTotal実効倍率を推定
-// finalTotal / (basePlusProtein相当) から逆算する簡易版
+// --- 振り分け上限計算 ---
+function getPointLimitInputs() {
+  const sageDrop     = Math.max(0, parseInt(($("bs-sage-drop")?.value     || "0").replace(/,/g, ""), 10) || 0);
+  const forbiddenBook = Math.max(0, parseInt(($("bs-forbidden-book")?.value || "0").replace(/,/g, ""), 10) || 0);
+  const tenmeCount   = Math.max(0, parseInt(($("bs-tenme-count")?.value   || "0").replace(/,/g, ""), 10) || 0);
+  return { sageDrop, forbiddenBook, hasContract: state.hasContract, tenmeCount };
+}
+
+function updatePointLimitDisplay() {
+  const { sageDrop, forbiddenBook, hasContract, tenmeCount } = getPointLimitInputs();
+  const limit = calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount);
+  const el = $("bs-point-limit-display");
+  if (el) el.textContent = limit.toLocaleString("ja-JP");
+  return limit;
+}
+
 function estimateBasePointMultiplier(simState, stat) {
   const ft = window.lastFinalTotal || {};
   const finalVal = Math.round(Number(ft?.[stat] || 0));
   if (finalVal <= 0) return 1;
-
-  // base + protein相当
-  const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
-  const shaker = Math.max(0, Number(simState?.shaker || 0));
+  const shaker    = Math.max(0, Number(simState?.shaker || 0));
   const baseVal   = Math.max(0, Number(simState?.base?.[stat]    || 0));
   const proteinVal = Math.max(0, Number(simState?.protein?.[stat] || 0));
   const basePlusProtein = baseVal + proteinVal * (1 + shaker * 0.01);
-
-  // 装備なしの場合はfinalTotal≒basePlusProtein×multiplier
-  // multiplier = finalTotal / basePlusProtein（装備寄与を除外できないので近似）
-  // より正確には: basePlusProtein に対してsetBonus・accRate・petMulが乗る
-  // ここではfinalTotalとbasePlusProteinの比から実効倍率を推定
   if (basePlusProtein <= 0) return 1;
-
-  // 実効倍率 = finalTotal / basePlusProtein（装備の加算分はbasePlusProteinに含まれないため
-  //   実際は (basePlusProtein + equipFlat) * rates = finalTotal となるが
-  //   ステポイントが乗る部分はbasePlusProteinの係数なので正確には以下で求める）
-  // 最も正確な方法: base[stat]を1増やした場合のfinalTotal増加量を直接計算
-  // → status-sim.jsのrecalcをそのまま呼べないので代わりにrate部分だけ計算
-
-  // setBonus
-  const ARMOR_SLOTS = ["head","body","hands","feet","shield"];
-  const armorSeries = ARMOR_SLOTS.map(k => {
-    const id = simState?.equip?.[k]?.id || "";
-    return id ? equipItemsMap.get(String(id))?.series || "" : "";
-  }).filter(s => s !== "");
-  const hasSet = armorSeries.length === 5 && armorSeries.every(s => s === armorSeries[0]);
-  const setMul = hasSet ? 1.1 : 1.0;
-
-  // accRate合計
-  const ACC_SLOTS = ["accessory1","accessory2","accessory3","accessory4"];
-  let totalAccRate = 0;
-  ACC_SLOTS.forEach(k => {
-    const id = simState?.equip?.[k]?.id || "";
-    const lv = Math.max(1, Number(simState?.equip?.[k]?.lv || 1));
-    if (!id) return;
-    const item = equipItemsMap.get(String(id));
-    if (!item) return;
-    const s = calcAccessoryStat(item, stat, lv);
-    totalAccRate += s.rate || 0;
-  });
-
-  // petMul・petFinalはfinalTotalから逆算
-  // finalTotal = (basePlusProtein + equipFlat + petAdd) * setMul * (1+accRate/100+petMul/100) * (1+petFinal/100)
-  // ステポイント1点追加でbasePlusProteinが1増える
-  // その寄与: 1 * setMul * (1+accRate/100+petMul/100) * (1+petFinal/100)
-  // petMul・petFinalはfinalTotalとの比から推定が難しいので、
-  // 代わりに finalTotal / basePlusProtein を全体の実効倍率として使う
-  // （petAddはflatなので正確ではないが近似として十分）
-  const approxMul = finalVal / basePlusProtein;
-  // setMulは確実に分かるので補正
-  return Math.max(1, approxMul);
+  return Math.max(1, finalVal / basePlusProtein);
 }
 
 function saveSimState() {
   try {
-    localStorage.setItem(SIM_STATE_KEY, JSON.stringify({ state }));
+    const inputs = getPointLimitInputs();
+    localStorage.setItem(SIM_STATE_KEY, JSON.stringify({
+      state,
+      pointLimit: inputs
+    }));
   } catch (e) {}
 }
 
@@ -141,9 +114,15 @@ function loadSimState() {
       if (["physical","magic"].includes(d.state.attackType)) state.attackType = d.state.attackType;
       if (["fire","water","wood","light","dark"].includes(d.state.heroElement)) state.heroElement = d.state.heroElement;
       if (["fire","water","wood","light","dark","shingan"].includes(d.state.spell)) state.spell = d.state.spell;
-      state.debuffWood = !!d.state.debuffWood;
-      state.debuffDark = !!d.state.debuffDark;
+      state.debuffWood  = !!d.state.debuffWood;
+      state.debuffDark  = !!d.state.debuffDark;
+      state.hasContract = !!d.state.hasContract;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
+    }
+    if (d.pointLimit) {
+      if ($("bs-sage-drop"))      $("bs-sage-drop").value      = String(d.pointLimit.sageDrop      || 0);
+      if ($("bs-forbidden-book")) $("bs-forbidden-book").value = String(d.pointLimit.forbiddenBook || 0);
+      if ($("bs-tenme-count"))    $("bs-tenme-count").value    = String(d.pointLimit.tenmeCount    || 0);
     }
   } catch (e) {}
 }
@@ -170,6 +149,11 @@ function applyModeUI() {
   $("bs-debuff-wood")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
   $("bs-debuff-dark")?.setAttribute("aria-pressed", state.debuffDark ? "true" : "false");
   $("bs-debuff-wood-magic")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
+
+  // 超越の契約書ボタン
+  document.querySelectorAll(".bs-contract-btn").forEach(btn => {
+    btn.setAttribute("aria-pressed", String(btn.getAttribute("data-val") === "1") === String(state.hasContract) ? "true" : "false");
+  });
 }
 
 function renderScanResults(results) {
@@ -361,7 +345,6 @@ function renderGlvAnalysis(analysis, stat, needed) {
     return;
   }
 
-  // G強化テーブル
   const armorTitle = document.createElement("div");
   armorTitle.className = "bs-equip-subtitle";
   armorTitle.textContent = "① 武器・防具 G強化配分（perG効率順に割り振り）";
@@ -410,11 +393,10 @@ function renderGlvAnalysis(analysis, stat, needed) {
     table.appendChild(tr);
   });
 
-  // G強化合計行
   if (totalAddedG > 0) {
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-    ["合計", "", "", "", `+${totalAddedG}個`, "", ""].forEach((t, i) => {
+    ["合計", "", "", "", `+${totalAddedG}個`, "", ""].forEach(t => {
       const td = document.createElement("td");
       td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;";
@@ -424,7 +406,6 @@ function renderGlvAnalysis(analysis, stat, needed) {
   }
   wrap.appendChild(table);
 
-  // ステポイント分析
   if (analysis.statPointResult) {
     const sp = analysis.statPointResult;
     const spTitle = document.createElement("div");
@@ -436,11 +417,10 @@ function renderGlvAnalysis(analysis, stat, needed) {
     spBox.className = "bs-statpoint-box";
 
     const rows = [
-      { label: "G強化後も不足する分", value: `${STAT_LABEL[stat]||stat} ${fmt(Math.ceil(analysis.shortfall - (totalAddedG > 0 ? analysis.slots.reduce((s, slot) => s + (slot.newStatVal - slot.currentStatVal), 0) : 0)))}` },
       { label: `必要な${STAT_LABEL[stat]||stat}ポイント追加`, value: `${fmt(sp.neededBaseIncrease)} ポイント` },
-      { label: "現在の振り分け上限", value: `${fmt(sp.basePointTotal)}` },
-      { label: "現在の使用済みポイント", value: `${fmt(sp.usedPoints)}` },
-      { label: "残り振り分け可能", value: `${fmt(sp.freePoints)} ポイント` },
+      { label: "振り分け上限",       value: `${fmt(sp.basePointTotal)} ポイント` },
+      { label: "現在の使用済み",      value: `${fmt(sp.usedPoints)} ポイント` },
+      { label: "残り振り分け可能",    value: `${fmt(sp.freePoints)} ポイント` },
     ];
 
     rows.forEach(row => {
@@ -460,13 +440,13 @@ function renderGlvAnalysis(analysis, stat, needed) {
     const judgeP = document.createElement("p");
     if (sp.achievable) {
       judgeP.className = "bs-ok";
-      judgeP.textContent = `✅ 残り ${fmt(sp.freePoints)} ポイントを ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} 振り分けることで達成可能です`;
+      judgeP.textContent = `✅ ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} ポイント振り分けることで達成可能です`;
     } else if (analysis.stillShort) {
       judgeP.className = "bs-ng";
-      judgeP.textContent = `⚠️ G強化（全スロットG100）＋ステポイント全振りでも不足します。装備の見直しが必要です。`;
+      judgeP.textContent = "⚠️ G強化（全スロットG100）＋ステポイント全振りでも不足します。装備の見直しが必要です。";
     } else {
       judgeP.className = "bs-ng";
-      judgeP.textContent = `⚠️ 残りポイント ${fmt(sp.freePoints)} では不足（${fmt(sp.neededBaseIncrease)} 必要）。振り分け上限を増やすか、G強化を増やしてください。`;
+      judgeP.textContent = `⚠️ 残り ${fmt(sp.freePoints)} ポイントでは不足（${fmt(sp.neededBaseIncrease)} 必要）。振り分け上限を増やすかG強化を増やしてください。`;
     }
     spBox.appendChild(judgeP);
     wrap.appendChild(spBox);
@@ -533,7 +513,29 @@ applyModeUI();
 switchTab("scan");
 loadEquipItems();
 
-["bs-reverse-lv", "bs-reverse-npan"].forEach(id => attachCommaInputBehavior(id, 0));
+["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor",
+ "bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => attachCommaInputBehavior(id, 0));
+
+// 振り分け上限入力→リアルタイム計算
+["bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => {
+  $(id)?.addEventListener("input", () => { updatePointLimitDisplay(); saveSimState(); });
+  $(id)?.addEventListener("blur",  () => { updatePointLimitDisplay(); saveSimState(); });
+});
+
+// 超越の契約書ボタン
+document.querySelectorAll(".bs-contract-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.hasContract = btn.getAttribute("data-val") === "1";
+    document.querySelectorAll(".bs-contract-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (state.hasContract ? "1" : "0") ? "true" : "false");
+    });
+    updatePointLimitDisplay();
+    saveSimState();
+  });
+});
+
+// 初期表示を更新
+updatePointLimitDisplay();
 
 document.querySelectorAll("[data-bs-attack-type]").forEach(btn => {
   btn.addEventListener("click", () => {
@@ -613,13 +615,15 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   const equipState = simState.equip || {};
   const currentFinalTotal = window.lastFinalTotal || {};
 
-  // ステポイント1点あたりの実効倍率を推定
+  // 振り分け上限を素材入力から計算
+  const overridePointLimit = updatePointLimitDisplay();
+
   const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
 
   const analysis = analyzeGlvNeeded(
     equipState, equipItemsMap,
     lastReverseResult.stat, lastReverseResult.needed,
-    currentFinalTotal, simState, effectiveMultiplier
+    currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
   );
 
   renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
