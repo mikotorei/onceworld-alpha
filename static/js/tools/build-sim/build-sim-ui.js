@@ -257,7 +257,7 @@ function renderReverseResult() {
     appendResult(wrap, `目標: ${picked.title}（${lvLabel}）を${targetNpan}パン以内`);
     appendResult(wrap, `必要int: ${fmt(neededVal)} 以上`);
     appendResult(wrap, `現在のint(${fmt(hero.int)})での討伐: ${current.npan != null ? current.npan + "パン" : "計算不可"}`);
-    appendJudge(wrap, hero.int >= neededVal, `あと int ${fmt(needed - hero.int)} 不足`);
+    appendJudge(wrap, hero.int >= neededVal, `あと int ${fmt(neededVal - hero.int)} 不足`);
   }
 
   lastReverseResult = { stat: statKey, needed: neededVal };
@@ -280,7 +280,6 @@ function appendJudge(wrap, ok, ngText) {
   wrap.appendChild(p);
 }
 
-// --- G強化分析結果レンダリング ---
 function renderGlvAnalysis(analysis, stat, needed) {
   const wrap = $("bs-equip-result");
   if (!wrap) return;
@@ -298,29 +297,30 @@ function renderGlvAnalysis(analysis, stat, needed) {
     p.className = "bs-ok";
     p.textContent = "✅ 現在の装備・強化レベルで既に達成しています";
     wrap.appendChild(p);
+    renderAccTable(wrap, analysis.accSlots, stat);
     return;
   }
 
-  const shortP = document.createElement("p");
-  shortP.className = "bs-ng";
-  shortP.textContent = `⚠️ 現在 ${fmt(needed - analysis.shortfall)} → 目標まで ${fmt(analysis.shortfall)} 不足`;
-  wrap.appendChild(shortP);
+  if (analysis.stillShort) {
+    const p = document.createElement("p");
+    p.className = "bs-ng";
+    p.textContent = `⚠️ 全スロットをG100にしても不足します。装備の見直しが必要です。`;
+    wrap.appendChild(p);
+  }
 
-  // 武器・防具のG強化テーブル
   const armorTitle = document.createElement("div");
   armorTitle.className = "bs-equip-subtitle";
-  armorTitle.textContent = "各スロットのG強化必要数（このスロット単体で不足分を補う場合）";
+  armorTitle.textContent = "武器・防具 G強化配分（perG効率順に割り振り）";
   wrap.appendChild(armorTitle);
 
   const table = document.createElement("table");
   table.className = "bs-equip-table";
 
-  // ヘッダー
   const thead = document.createElement("tr");
-  ["スロット", "装備名", "現在G", "必要G", "追加G数", "現在値", "+後の値"].forEach(h => {
+  ["スロット", "装備名", "現在G", "推奨G", "追加G数", "現在値", "強化後"].forEach(h => {
     const th = document.createElement("th");
     th.textContent = h;
-    th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;";
+    th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;text-align:left;";
     thead.appendChild(th);
   });
   table.appendChild(thead);
@@ -330,67 +330,72 @@ function renderGlvAnalysis(analysis, stat, needed) {
     const tr = document.createElement("tr");
     tr.style.borderBottom = "1px solid #eee";
 
-    const canHelp = s.canEnhance && s.addedGlv > 0;
-    const isMax   = s.canEnhance && s.neededGlv >= 100 && s.addedGlv > 0;
+    const isChanged = s.addedGlv > 0;
+    const isMax     = s.neededGlv >= 100 && s.addedGlv > 0;
 
-    const cells = [
-      { text: s.label, cls: "bs-equip-slot" },
-      { text: s.item.name },
-      { text: `G${s.currentGlv}` },
-      { text: s.canEnhance ? `G${s.neededGlv}` : "-" },
-      { text: canHelp ? `+${s.addedGlv}個${isMax ? "（G100でも不足）" : ""}` : (s.canEnhance ? "変更不要" : "強化不可"), cls: canHelp ? "bs-glv-needed" : "bs-glv-ok" },
-      { text: fmt(s.currentStatVal) },
-      { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal) },
-    ];
+    const addedText = isChanged
+      ? `+${s.addedGlv}個${isMax ? "（G100）" : ""}`
+      : (s.canEnhance ? "変更不要" : "-");
 
-    cells.forEach(c => {
+    [
+      { text: s.label,              cls: "bs-equip-slot" },
+      { text: s.item.name,          cls: "" },
+      { text: `G${s.currentGlv}`,   cls: "" },
+      { text: s.canEnhance ? `G${s.neededGlv}` : "-", cls: "" },
+      { text: addedText,            cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+      { text: fmt(s.currentStatVal),cls: "" },
+      { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
+    ].forEach(c => {
       const td = document.createElement("td");
       td.textContent = c.text;
+      td.style.cssText = "padding:6px 8px;font-size:14px;";
       if (c.cls) td.className = c.cls;
-      else td.style.cssText = "padding:6px 8px;font-size:14px;";
       tr.appendChild(td);
     });
     table.appendChild(tr);
   });
   wrap.appendChild(table);
 
-  // アクセサリの現状表示
-  const hasAccData = analysis.accSlots.some(s => s.item && (s.currentAdd > 0 || s.currentRate > 0));
-  if (hasAccData) {
-    const accTitle = document.createElement("div");
-    accTitle.className = "bs-equip-subtitle";
-    accTitle.textContent = "アクセサリの現状";
-    wrap.appendChild(accTitle);
+  renderAccTable(wrap, analysis.accSlots, stat);
+}
 
-    const accTable = document.createElement("table");
-    accTable.className = "bs-equip-table";
-    analysis.accSlots.forEach(s => {
-      if (!s.item) return;
-      const tr = document.createElement("tr");
-      tr.style.borderBottom = "1px solid #eee";
+function renderAccTable(wrap, accSlots, stat) {
+  const hasAccData = accSlots.some(s => s.item && (s.currentAdd > 0 || s.currentRate > 0));
+  if (!hasAccData) return;
+
+  const accTitle = document.createElement("div");
+  accTitle.className = "bs-equip-subtitle";
+  accTitle.textContent = "アクセサリの現状";
+  wrap.appendChild(accTitle);
+
+  const accTable = document.createElement("table");
+  accTable.className = "bs-equip-table";
+  accSlots.forEach(s => {
+    if (!s.item) return;
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid #eee";
+    const fmtAcc = (add, rate) => {
       const parts = [];
-      if (s.currentAdd  > 0) parts.push(`+${fmt(Math.floor(s.currentAdd))}`);
-      if (s.currentRate > 0) parts.push(`+${s.currentRate.toFixed(1)}%`);
-      const maxParts = [];
-      if (s.maxAdd  > 0) maxParts.push(`+${fmt(Math.floor(s.maxAdd))}`);
-      if (s.maxRate > 0) maxParts.push(`+${s.maxRate.toFixed(1)}%`);
-      [
-        { text: s.label, cls: "bs-equip-slot" },
-        { text: s.item.name },
-        { text: `Lv${s.currentLv}` },
-        { text: parts.join(" / ") || "-" },
-        { text: s.canLevelUp ? `(max Lv${s.maxLv}: ${maxParts.join(" / ")})` : "(maxLv)" },
-      ].forEach(c => {
-        const td = document.createElement("td");
-        td.textContent = c.text;
-        if (c.cls) td.className = c.cls;
-        else td.style.cssText = "padding:6px 8px;font-size:13px;";
-        tr.appendChild(td);
-      });
-      accTable.appendChild(tr);
+      if (add  > 0) parts.push(`+${fmt(Math.floor(add))}`);
+      if (rate > 0) parts.push(`+${rate.toFixed(1)}%`);
+      return parts.join(" / ") || "-";
+    };
+    [
+      { text: s.label,  cls: "bs-equip-slot" },
+      { text: s.item.name },
+      { text: `Lv${s.currentLv}` },
+      { text: fmtAcc(s.currentAdd, s.currentRate) },
+      { text: s.canLevelUp ? `最大Lv${s.maxLv}: ${fmtAcc(s.maxAdd, s.maxRate)}` : "（maxLv）" },
+    ].forEach(c => {
+      const td = document.createElement("td");
+      td.textContent = c.text;
+      td.style.cssText = "padding:6px 8px;font-size:13px;";
+      if (c.cls) td.className = c.cls;
+      tr.appendChild(td);
     });
-    wrap.appendChild(accTable);
-  }
+    accTable.appendChild(tr);
+  });
+  wrap.appendChild(accTable);
 }
 
 function tenkuFloorToLv(floor) {
@@ -405,7 +410,7 @@ function tenkuFloorToLv(floor) {
 loadSimState();
 applyModeUI();
 switchTab("scan");
-loadEquipItems(); // バックグラウンドでfetch開始
+loadEquipItems();
 
 ["bs-reverse-lv", "bs-reverse-npan"].forEach(id => attachCommaInputBehavior(id, 0));
 
@@ -477,26 +482,17 @@ $("bs-reverse-btn")?.addEventListener("click", () => {
   saveSimState();
 });
 
-// 装備探索ボタン（現在の装備のG強化分析）
 $("bs-search-equip-btn")?.addEventListener("click", async () => {
   if (!lastReverseResult) return;
   const btn = $("bs-search-equip-btn");
   if (btn) btn.textContent = "分析中...";
-
   await loadEquipItems();
-
-  // 現在の装備状態を取得
   const equipState = window.statusSimCollectState?.()?.equip || {};
   const currentFinalTotal = window.lastFinalTotal || {};
-
   const analysis = analyzeGlvNeeded(
-    equipState,
-    equipItemsMap,
-    lastReverseResult.stat,
-    lastReverseResult.needed,
-    currentFinalTotal
+    equipState, equipItemsMap,
+    lastReverseResult.stat, lastReverseResult.needed, currentFinalTotal
   );
-
   renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
   if (btn) btn.textContent = "この条件で装備を探索";
 });
