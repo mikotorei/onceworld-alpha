@@ -1,5 +1,5 @@
 {{ define "main" }}
-<link rel="stylesheet" href="{{ "css/monster.css" | relURL }}">
+<link rel="stylesheet" href="{{ "css/common/monster.css" | relURL }}">
 
 <h1 class="d-title">{{ .Title }}</h1>
 
@@ -18,10 +18,7 @@
   <div class="d-level">
 
     <div class="d-level-row d-level-row--wrap">
-      <!-- Lv1は常に表示 -->
       <button class="d-btn" type="button" data-lv="1">Lv 1</button>
-
-      <!-- level_shortcuts がある場合のみ追加表示 -->
       {{ range .Params.level_shortcuts }}
         <button class="d-btn" type="button" data-lv="{{ .lv }}">{{ .label }}</button>
       {{ end }}
@@ -54,7 +51,6 @@
       <dt>実体力</dt>
       <dd class="n" id="real-hp" data-base="{{ mul .Params.status.vit 18 }}">{{ mul .Params.status.vit 18 }}</dd>
     </div>
-
     <div class="d-row"><dt>vit</dt><dd class="n" data-stat="vit" data-base="{{ .Params.status.vit }}">{{ .Params.status.vit }}</dd></div>
     <div class="d-row"><dt>spd</dt><dd class="n" data-stat="spd" data-base="{{ .Params.status.spd }}">{{ .Params.status.spd }}</dd></div>
     <div class="d-row"><dt>atk</dt><dd class="n" data-stat="atk" data-base="{{ .Params.status.atk }}">{{ .Params.status.atk }}</dd></div>
@@ -115,7 +111,7 @@
   <a href="{{ .CurrentSection.RelPermalink }}">← モンスター一覧に戻る</a>
 </p>
 
-<script defer src="{{ "js/pet-skills.js" | relURL }}"></script>
-<script defer src="{{ "js/monster-level.js" | relURL }}"></script>
-<script defer src="{{ "js/number-format.js" | relURL }}"></script>
+<script defer src="{{ "js/common/pet-skills.js" | relURL }}"></script>
+<script defer src="{{ "js/common/monster-level.js" | relURL }}"></script>
+<script defer src="{{ "js/common/number-format.js" | relURL }}"></script>
 {{ end }}
