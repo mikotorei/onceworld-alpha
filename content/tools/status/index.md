@@ -336,6 +336,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 </div>
 
-<link rel="stylesheet" href="{{ "css/status-sim.css" | relURL }}">
+<link rel="stylesheet" href="../../css/status-sim.css">
 
-<script src="{{ "js/tools/status/status-sim.js" | relURL }}" defer></script>
+<script src="../../js/tools/status/status-sim.js" defer></script>
