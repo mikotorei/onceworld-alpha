@@ -104,15 +104,13 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
 // 振り分け上限計算
 // ============================================================
 
-// 各素材・条件から振り分け上限を計算する
-// 戻り値: 上限ポイント数（整数）
 function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
-  const BASE        = 10000;
-  const sage        = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop       || 0)))) * 10;
-  const forbidden   = Math.min(80000, Math.max(0, Math.floor(Number(forbiddenBook  || 0)))) * 80;
-  const contract    = hasContract ? 900000 : 0;
-  const tenme       = Math.max(0, Math.floor(Number(tenmeCount || 0)));
-  const tenmeBonus  = tenme >= 11 ? (tenme - 10) * 1000000 : 0;
+  const BASE       = 10000;
+  const sage       = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop      || 0)))) * 10;
+  const forbidden  = Math.min(80000, Math.max(0, Math.floor(Number(forbiddenBook || 0)))) * 80;
+  const contract   = hasContract ? 900000 : 0;
+  const tenme      = Math.max(0, Math.floor(Number(tenmeCount || 0)));
+  const tenmeBonus = tenme >= 11 ? (tenme - 10) * 1000000 : 0;
   return BASE + sage + forbidden + contract + tenmeBonus;
 }
 
@@ -147,11 +145,11 @@ function calcAccessoryStat(item, stat, lv) {
 }
 
 // ============================================================
-// G強化必要数 + ステポイント必要数 分析（複数スロット合算）
+// 分析メイン：優先順序 ① ステ振り → ② G強化
 // ============================================================
 
 function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier, overridePointLimit) {
-  const ARMOR_SLOTS = ["weapon", "head", "body", "hands", "feet", "shield"];
+  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
   const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
   const SLOT_LABEL = {
     weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
@@ -161,6 +159,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   const currentVal = Math.round(Number(currentFinalTotal?.[stat] || 0));
   let shortfall = Math.max(0, neededTotal - currentVal);
 
+  // 各スロットの現状を整理（G強化計算用）
   const armorAnalysis = ARMOR_SLOTS.map(slot => {
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
@@ -192,62 +191,76 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
     return { achieved: true, shortfall: 0, slots: armorAnalysis, accSlots, statPointResult: null };
   }
 
-  // G強化を効率順に配分
-  const enhanceable = armorAnalysis
-    .filter(s => s.canEnhance && s.currentGlv < 100)
-    .sort((a, b) => b.perG - a.perG);
+  // ============================================================
+  // ① ステ振りで先に補う
+  // ============================================================
+  const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
+  const basePointTotal = overridePointLimit != null
+    ? overridePointLimit
+    : Math.max(0, Number(simState?.basePointTotal || 0));
+  const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
+  const freePoints = Math.max(0, basePointTotal - usedPoints);
 
-  let remaining = shortfall;
-  enhanceable.forEach(s => {
-    if (remaining <= 0) return;
-    const canAdd = s.maxGStatVal - s.currentStatVal;
-    if (canAdd <= 0) return;
-
-    if (canAdd >= remaining) {
-      const targetStat = s.currentStatVal + remaining;
-      let neededGlv;
-      if (s.currentGlv > 0) {
-        neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
-      } else {
-        const at1100 = calcWeaponArmorStatG(s.item, stat, 0);
-        const fromAt1100 = targetStat - at1100;
-        neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
-      }
-      neededGlv = Math.min(100, Math.max(s.currentGlv, neededGlv));
-      s.neededGlv  = neededGlv;
-      s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
-      s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
-      remaining    = 0;
-    } else {
-      s.neededGlv  = 100;
-      s.addedGlv   = 100 - s.currentGlv;
-      s.newStatVal = s.maxGStatVal;
-      remaining   -= canAdd;
-    }
-  });
-
-  // G強化で届かなかった残りをステポイントで補う
   let statPointResult = null;
-  if (remaining > 0 && effectiveMultiplier > 0) {
-    const neededBaseIncrease = Math.ceil(remaining / effectiveMultiplier);
+  let remainingAfterStat = shortfall;
 
-    const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
-    // overridePointLimitがあればそちらを優先、なければsimStateのbasePointTotalを使用
-    const basePointTotal = overridePointLimit != null
-      ? overridePointLimit
-      : Math.max(0, Number(simState?.basePointTotal || 0));
-    const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
-    const freePoints = Math.max(0, basePointTotal - usedPoints);
+  if (effectiveMultiplier > 0 && freePoints > 0) {
+    // 残り不足分をステポイントで何点補えるか
+    const maxFinalGainByStat = freePoints * effectiveMultiplier;
+    const neededBaseIncrease = Math.ceil(shortfall / effectiveMultiplier);
+    const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
+    const actualFinalGain    = Math.floor(usedBasePoints * effectiveMultiplier);
+
+    remainingAfterStat = Math.max(0, shortfall - actualFinalGain);
 
     statPointResult = {
       neededBaseIncrease,
+      usedBasePoints,
       freePoints,
       basePointTotal,
       usedPoints,
       achievable: neededBaseIncrease <= freePoints,
-      stillShortAfterAll: neededBaseIncrease > freePoints
+      partialGain: actualFinalGain
     };
-    remaining = Math.max(0, remaining - neededBaseIncrease * effectiveMultiplier);
+  }
+
+  // ============================================================
+  // ② ステ振りで届かなかった残りをG強化で補う
+  // ============================================================
+  let remaining = remainingAfterStat;
+
+  if (remaining > 0) {
+    const enhanceable = armorAnalysis
+      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .sort((a, b) => b.perG - a.perG);
+
+    enhanceable.forEach(s => {
+      if (remaining <= 0) return;
+      const canAdd = s.maxGStatVal - s.currentStatVal;
+      if (canAdd <= 0) return;
+
+      if (canAdd >= remaining) {
+        const targetStat = s.currentStatVal + remaining;
+        let neededGlv;
+        if (s.currentGlv > 0) {
+          neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
+        } else {
+          const at1100    = calcWeaponArmorStatG(s.item, stat, 0);
+          const fromAt1100 = targetStat - at1100;
+          neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
+        }
+        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        s.neededGlv  = neededGlv;
+        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
+        s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
+        remaining    = 0;
+      } else {
+        s.neededGlv  = 100;
+        s.addedGlv   = 100 - s.currentGlv;
+        s.newStatVal = s.maxGStatVal;
+        remaining   -= canAdd;
+      }
+    });
   }
 
   const stillShort = remaining > 0;
