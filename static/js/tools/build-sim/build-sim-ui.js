@@ -333,7 +333,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
 
   const header = document.createElement("div");
   header.className = "bs-area-title";
-  header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのG強化・ステポイント分析`;
+  header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのステポイント・G強化分析`;
   wrap.appendChild(header);
 
   if (analysis.achieved) {
@@ -345,9 +345,59 @@ function renderGlvAnalysis(analysis, stat, needed) {
     return;
   }
 
+  // ① ステポイント分析を先に表示
+  if (analysis.statPointResult) {
+    const sp = analysis.statPointResult;
+    const spTitle = document.createElement("div");
+    spTitle.className = "bs-equip-subtitle";
+    spTitle.textContent = "① ステポイントで補う";
+    wrap.appendChild(spTitle);
+
+    const spBox = document.createElement("div");
+    spBox.className = "bs-statpoint-box";
+
+    const rows = [
+      { label: `必要な${STAT_LABEL[stat]||stat}ポイント追加`, value: `${fmt(sp.neededBaseIncrease)} ポイント` },
+      { label: "振り分け上限",    value: `${fmt(sp.basePointTotal)} ポイント` },
+      { label: "現在の使用済み",  value: `${fmt(sp.usedPoints)} ポイント` },
+      { label: "残り振り分け可能", value: `${fmt(sp.freePoints)} ポイント` },
+    ];
+
+    rows.forEach(row => {
+      const div = document.createElement("div");
+      div.className = "bs-statpoint-row";
+      const label = document.createElement("span");
+      label.className = "bs-statpoint-label";
+      label.textContent = row.label;
+      const val = document.createElement("span");
+      val.className = "bs-statpoint-val";
+      val.textContent = row.value;
+      div.appendChild(label);
+      div.appendChild(val);
+      spBox.appendChild(div);
+    });
+
+    if (sp.achievable) {
+      const judgeP = document.createElement("p");
+      judgeP.className = "bs-ok";
+      judgeP.textContent = `✅ ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} ポイント振り分けることで達成可能です（G強化不要）`;
+      spBox.appendChild(judgeP);
+      wrap.appendChild(spBox);
+      renderAccTable(wrap, analysis.accSlots, stat);
+      return;
+    } else {
+      const partialP = document.createElement("p");
+      partialP.className = "bs-ng";
+      partialP.textContent = `⚠️ 残り ${fmt(sp.freePoints)} ポイントを全振りしても不足（${fmt(sp.partialGain)} 分補填） → 残りをG強化で補います`;
+      spBox.appendChild(partialP);
+      wrap.appendChild(spBox);
+    }
+  }
+
+  // ② G強化テーブル
   const armorTitle = document.createElement("div");
   armorTitle.className = "bs-equip-subtitle";
-  armorTitle.textContent = "① 武器・防具 G強化配分（perG効率順に割り振り）";
+  armorTitle.textContent = "② G強化で残りを補う（perG効率順に割り振り）";
   wrap.appendChild(armorTitle);
 
   const table = document.createElement("table");
@@ -406,54 +456,10 @@ function renderGlvAnalysis(analysis, stat, needed) {
   }
   wrap.appendChild(table);
 
-  if (analysis.statPointResult) {
-    const sp = analysis.statPointResult;
-    const spTitle = document.createElement("div");
-    spTitle.className = "bs-equip-subtitle";
-    spTitle.textContent = "② G強化で届かない分をステポイントで補う";
-    wrap.appendChild(spTitle);
-
-    const spBox = document.createElement("div");
-    spBox.className = "bs-statpoint-box";
-
-    const rows = [
-      { label: `必要な${STAT_LABEL[stat]||stat}ポイント追加`, value: `${fmt(sp.neededBaseIncrease)} ポイント` },
-      { label: "振り分け上限",       value: `${fmt(sp.basePointTotal)} ポイント` },
-      { label: "現在の使用済み",      value: `${fmt(sp.usedPoints)} ポイント` },
-      { label: "残り振り分け可能",    value: `${fmt(sp.freePoints)} ポイント` },
-    ];
-
-    rows.forEach(row => {
-      const div = document.createElement("div");
-      div.className = "bs-statpoint-row";
-      const label = document.createElement("span");
-      label.className = "bs-statpoint-label";
-      label.textContent = row.label;
-      const val = document.createElement("span");
-      val.className = "bs-statpoint-val";
-      val.textContent = row.value;
-      div.appendChild(label);
-      div.appendChild(val);
-      spBox.appendChild(div);
-    });
-
-    const judgeP = document.createElement("p");
-    if (sp.achievable) {
-      judgeP.className = "bs-ok";
-      judgeP.textContent = `✅ ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} ポイント振り分けることで達成可能です`;
-    } else if (analysis.stillShort) {
-      judgeP.className = "bs-ng";
-      judgeP.textContent = "⚠️ G強化（全スロットG100）＋ステポイント全振りでも不足します。装備の見直しが必要です。";
-    } else {
-      judgeP.className = "bs-ng";
-      judgeP.textContent = `⚠️ 残り ${fmt(sp.freePoints)} ポイントでは不足（${fmt(sp.neededBaseIncrease)} 必要）。振り分け上限を増やすかG強化を増やしてください。`;
-    }
-    spBox.appendChild(judgeP);
-    wrap.appendChild(spBox);
-  } else if (analysis.stillShort) {
+  if (analysis.stillShort) {
     const p = document.createElement("p");
     p.className = "bs-ng";
-    p.textContent = "⚠️ 全スロットをG100にしても不足します。装備の見直しが必要です。";
+    p.textContent = "⚠️ ステポイント全振り＋全スロットG100でも不足します。装備の見直しが必要です。";
     wrap.appendChild(p);
   }
 
