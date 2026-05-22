@@ -3,7 +3,6 @@
 // calc-logic.js の関数を前提として読み込む
 // ============================================================
 
-// --- HP計算 ---
 function calcMonsterHp(monster, lv) {
   const vitScaled = Math.floor(Number(monster.vit) * (1 + lv * 0.1));
   return vitScaled * 18 + 100;
@@ -16,7 +15,6 @@ function calcEnemyMagDef(defScaled, mdefScaled) {
   return mdefScaled + defScaled * 0.1;
 }
 
-// --- 討伐に必要な発数（物理）---
 function calcPhysicalKillInfo(heroAtk, heroSpd, monster, lv, heroElement, debuffWood, debuffDark) {
   const state = { debuffWood, debuffDark };
   const scaled = buildEnemyScaled(monster, lv, state);
@@ -31,7 +29,6 @@ function calcPhysicalKillInfo(heroAtk, heroSpd, monster, lv, heroElement, debuff
   return { hp, hits, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, oneShot, element: scaled.element };
 }
 
-// --- 討伐に必要な発数（魔法）---
 function calcMagicKillInfo(heroInt, analysisBook, analysisBookAdvanced, crystalCount, spell, monster, lv, heroElement, debuffWood) {
   const state = { debuffWood, debuffDark: false };
   const scaled = buildEnemyScaled(monster, lv, state);
@@ -52,14 +49,12 @@ function calcMagicKillInfo(heroInt, analysisBook, analysisBookAdvanced, crystalC
   return { hp, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, oneShot, element: scaled.element };
 }
 
-// --- 全モンスター討伐判定 ---
 function scanAllMonsters(monsters, heroStats, options) {
   const { attackType, heroElement, spell, debuffWood, debuffDark, npanLimit } = options;
   const results = [];
   monsters.forEach(monster => {
     const shortcuts = Array.isArray(monster.level_shortcuts) && monster.level_shortcuts.length > 0
-      ? monster.level_shortcuts
-      : [{ lv: 0, label: "基本" }];
+      ? monster.level_shortcuts : [{ lv: 0, label: "基本" }];
     shortcuts.forEach(sc => {
       const lv = Math.floor(Number(sc?.lv ?? sc ?? 0));
       const label = sc?.label ? String(sc.label) : String(lv);
@@ -77,7 +72,6 @@ function scanAllMonsters(monsters, heroStats, options) {
   return results;
 }
 
-// --- 逆算：物理 ---
 function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuffDark, targetNpan) {
   const state = { debuffWood, debuffDark };
   const scaled = buildEnemyScaled(monster, lv, state);
@@ -90,7 +84,6 @@ function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuf
   return Math.max(0, Math.ceil((neededBase + physDef * 4) / 7));
 }
 
-// --- 逆算：魔法 ---
 function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crystalCount, spell, heroElement, debuffWood, targetNpan) {
   const state = { debuffWood, debuffDark: false };
   const scaled = buildEnemyScaled(monster, lv, state);
@@ -108,199 +101,144 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
 }
 
 // ============================================================
-// 装備探索ロジック
+// 装備計算ユーティリティ
 // ============================================================
 
-// 武器・防具の強化後ステータス加算値（+1100固定）
-function calcWeaponArmorStat(item, stat) {
+// +lv強化後のstat加算値
+function calcWeaponArmorStat(item, stat, lv) {
   if (!item) return 0;
   const base = Number(item.base_add?.[stat] || 0);
   if (base === 0) return 0;
   if (item.no_enhance) return base;
-  return Math.floor(base * (1 + 1100 * 0.1));
+  const useLv = (lv !== undefined) ? lv : 1100;
+  return Math.floor(base * (1 + useLv * 0.1));
 }
 
-// アクセサリのステータス加算値（max_level使用）
-function calcAccessoryStat(item, stat) {
-  if (!item) return 0;
-  const lv  = Math.max(1, Number(item.max_level || 1));
-  const add  = Number(item.base_add?.[stat]  || 0) * (1 + (lv - 1) * 0.1);
-  const rate = Number(item.base_rate?.[stat] || 0) * (1 + (lv - 1) * 0.01);
+// G強化後のstat加算値
+function calcWeaponArmorStatG(item, stat, glv) {
+  if (!item || item.no_enhance) return calcWeaponArmorStat(item, stat, 0);
+  const base = Number(item.base_add?.[stat] || 0);
+  if (base === 0) return 0;
+  const g = Math.max(0, Math.min(100, Math.floor(glv)));
+  if (g === 0) return Math.floor(base * 111);
+  return Math.floor(base * 111 + (base * 25 + 10000) * g);
+}
+
+// アクセサリのstat値（lv指定）
+function calcAccessoryStat(item, stat, lv) {
+  if (!item) return { add: 0, rate: 0 };
+  const useLv = Math.max(1, Number((lv !== undefined) ? lv : (item.max_level || 1)));
+  const add  = Number(item.base_add?.[stat]  || 0) * (1 + (useLv - 1) * 0.1);
+  const rate = Number(item.base_rate?.[stat] || 0) * (1 + (useLv - 1) * 0.01);
   return { add, rate };
 }
 
-// G強化で必要な個数を計算（base_addに対して必要総量から逆算）
-function calcRequiredGlv(item, stat, neededFromThisSlot) {
-  if (!item || item.no_enhance) return 0;
-  const base = Number(item.base_add?.[stat] || 0);
-  if (base === 0) return 0;
-  const at1100 = Math.floor(base * (1 + 1100 * 0.1));
-  if (at1100 >= neededFromThisSlot) return 0;
-  // G強化式: base*111 + (base*25+10000)*glv >= needed
-  // glv >= (needed - base*111) / (base*25+10000)
-  const glv = Math.ceil((neededFromThisSlot - base * 111) / (base * 25 + 10000));
-  return Math.max(0, Math.min(100, glv));
-}
-
-// セットボーナス判定（5部位同シリーズ → ×1.1）
-function hasSetBonus(slots) {
-  const series = Object.values(slots)
-    .map(item => item?.series || "")
-    .filter(s => s !== "");
+// セットボーナス判定
+function hasSetBonus(armorItems) {
+  const series = armorItems.map(i => i?.series || "").filter(s => s !== "");
   if (series.length < 5) return false;
   return series.every(s => s === series[0]);
 }
 
-// 装備探索メイン関数
-// equipItems: equipment.jsonのitems配列
-// targets: [{stat: "atk", needed: 50000}, {stat: "spd", needed: 30000}]
-// currentStats: 現在のfinalTotal（装備を除いた基礎ステ＋プロテイン分）
-// 戻り値: 提案ビルドの配列
-function searchEquipBuild(equipItems, targets, currentStats) {
-  if (!equipItems || equipItems.length === 0 || !targets || targets.length === 0) return [];
+// ============================================================
+// G強化必要数分析（現在の装備を維持した上で）
+// ============================================================
 
-  const results = [];
+// 現在の装備状態から目標ステータスまでに必要なG強化を各スロット別に計算
+// equipState: collectState().equip
+// equipItemsMap: Map<id, item>
+// stat: "atk" など
+// neededTotal: 目標最終ステータス（finalTotal相当）
+// currentFinalTotal: 現在のfinalTotal
+// 戻り値: [{slot, item, currentGlv, neededGlv, addedGlv, currentStat, newStat}]
+function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal) {
+  const ARMOR_SLOTS = ["weapon", "head", "body", "hands", "feet", "shield"];
+  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
+  const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
+    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4" };
 
-  // スロット別に装備をグループ化
-  const bySlot = {
-    weapon:     equipItems.filter(i => i.slot === "weapon"  && !i.no_enhance),
-    head:       equipItems.filter(i => i.slot === "head"),
-    body:       equipItems.filter(i => i.slot === "body"),
-    hands:      equipItems.filter(i => i.slot === "hands"),
-    feet:       equipItems.filter(i => i.slot === "feet"),
-    shield:     equipItems.filter(i => i.slot === "shield"),
-    accessory:  equipItems.filter(i => i.slot === "accessory"),
-  };
+  const currentVal = Math.round(Number(currentFinalTotal?.[stat] || 0));
+  const shortfall  = Math.max(0, neededTotal - currentVal);
 
-  // 各ターゲットステータスについて探索
-  targets.forEach(({ stat, needed }) => {
-    if (!needed || needed <= 0) return;
+  if (shortfall <= 0) {
+    // 既に達成済み
+    return { achieved: true, shortfall: 0, slots: [], accSlots: [] };
+  }
 
-    const currentBase = Math.round(Number(currentStats?.[stat] || 0));
-    const stillNeeded = Math.max(0, needed - currentBase);
+  // 各スロットの現状を整理
+  const armorAnalysis = ARMOR_SLOTS.map(slot => {
+    const picked = equipState[slot];
+    const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
+    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
 
-    // --- 1. 武器・防具の貪欲選択 ---
-    const armorSlots = ["head","body","hands","feet","shield"];
-    const allPhysSlots = ["weapon", ...armorSlots];
-
-    // 各スロットで最もstatに貢献する装備を選ぶ
-    const bestBySlot = {};
-    allPhysSlots.forEach(slot => {
-      const candidates = bySlot[slot] || [];
-      let best = null, bestVal = -1;
-      candidates.forEach(item => {
-        const val = calcWeaponArmorStat(item, stat);
-        if (val > bestVal) { bestVal = val; best = item; }
-      });
-      bestBySlot[slot] = best;
-    });
-
-    // セットボーナス候補を探す
-    const seriesGroups = {};
-    armorSlots.forEach(slot => {
-      (bySlot[slot] || []).forEach(item => {
-        const s = item.series || "";
-        if (!s) return;
-        if (!seriesGroups[s]) seriesGroups[s] = {};
-        if (!seriesGroups[s][slot] || calcWeaponArmorStat(item, stat) > calcWeaponArmorStat(seriesGroups[s][slot], stat)) {
-          seriesGroups[s][slot] = item;
-        }
-      });
-    });
-
-    // セットボーナス込みの最大ステータスを計算
-    let bestSetBonus = null;
-    let bestSetBonusStat = -1;
-    Object.entries(seriesGroups).forEach(([series, slots]) => {
-      if (Object.keys(slots).length < 5) return;
-      let sum = 0;
-      armorSlots.forEach(sl => { sum += calcWeaponArmorStat(slots[sl], stat); });
-      const withBonus = Math.floor(sum * 1.1);
-      if (withBonus > bestSetBonusStat) {
-        bestSetBonusStat = withBonus;
-        bestSetBonus = { series, slots };
-      }
-    });
-
-    // 通常（セットなし）の合計
-    let normalSum = 0;
-    allPhysSlots.forEach(slot => {
-      normalSum += calcWeaponArmorStat(bestBySlot[slot], stat);
-    });
-
-    // セットあり vs なしで良い方を選ぶ
-    let chosenArmorSlots = {};
-    let chosenWeapon = bestBySlot["weapon"];
-    let setBonus = false;
-
-    if (bestSetBonus && (bestSetBonusStat + calcWeaponArmorStat(bestBySlot["weapon"], stat)) >= normalSum) {
-      armorSlots.forEach(sl => { chosenArmorSlots[sl] = bestSetBonus.slots[sl]; });
-      setBonus = true;
-    } else {
-      armorSlots.forEach(sl => { chosenArmorSlots[sl] = bestBySlot[sl]; });
-    }
-
-    let weaponArmorTotal = calcWeaponArmorStat(chosenWeapon, stat);
-    armorSlots.forEach(sl => { weaponArmorTotal += calcWeaponArmorStat(chosenArmorSlots[sl], stat); });
-    if (setBonus) weaponArmorTotal = Math.floor(weaponArmorTotal * 1.1);
-
-    // --- 2. アクセサリ選択（add優先、次にrate）---
-    const accCandidates = [...bySlot.accessory];
-
-    // add値の高い順に4枠選ぶ（重複なし）
-    accCandidates.sort((a, b) => {
-      const aAcc = calcAccessoryStat(a, stat);
-      const bAcc = calcAccessoryStat(b, stat);
-      const aScore = (aAcc.add || 0) + (aAcc.rate || 0) * 1000;
-      const bScore = (bAcc.add || 0) + (bAcc.rate || 0) * 1000;
-      return bScore - aScore;
-    });
-
-    const chosenAcc = accCandidates.slice(0, 4);
-    let accAddTotal = 0, accRateTotal = 0;
-    chosenAcc.forEach(item => {
-      const s = calcAccessoryStat(item, stat);
-      accAddTotal  += s.add  || 0;
-      accRateTotal += s.rate || 0;
-    });
-
-    // --- 3. 合計計算 ---
-    // finalTotal ≈ (base + weaponArmor + accAdd) * (1 + accRate/100)
-    const baseWithEquip = currentBase + weaponArmorTotal + accAddTotal;
-    const finalEstimate = Math.floor(baseWithEquip * (1 + accRateTotal / 100));
-    const achieved = finalEstimate >= needed;
-
-    // --- 4. G強化必要数 ---
-    let gNeeded = 0;
-    if (!achieved) {
-      const shortfall = needed - finalEstimate;
-      // weaponで補う場合のG強化数
-      if (chosenWeapon && !chosenWeapon.no_enhance) {
-        const base = Number(chosenWeapon.base_add?.[stat] || 0);
-        if (base > 0) {
-          // G強化1個で得られる追加値
-          const perG = base * 25 + 10000;
-          gNeeded = Math.ceil(shortfall / perG);
-        }
+    let currentStatVal = 0;
+    if (item) {
+      if (currentGlv > 0 && !item.no_enhance) {
+        currentStatVal = calcWeaponArmorStatG(item, stat, currentGlv);
+      } else {
+        currentStatVal = calcWeaponArmorStat(item, stat, currentLv);
       }
     }
 
-    results.push({
-      stat,
-      needed,
-      currentBase,
-      weapon:      chosenWeapon,
-      armorSlots:  chosenArmorSlots,
-      accessories: chosenAcc,
-      weaponArmorTotal,
-      accAddTotal,
-      accRateTotal,
-      finalEstimate,
-      achieved,
-      setBonus,
-      gNeeded: achieved ? 0 : gNeeded
-    });
+    // G強化を追加した場合の最大貢献量（G100まで）
+    const maxGStatVal = item && !item.no_enhance
+      ? calcWeaponArmorStatG(item, stat, 100)
+      : currentStatVal;
+
+    // 必要G強化数（現在のGlvから追加で何個必要か）
+    // G強化済みの場合はそこから追加計算
+    let neededGlv = currentGlv;
+    const base = Number(item?.base_add?.[stat] || 0);
+    if (base > 0 && !item?.no_enhance && shortfall > 0) {
+      // shortfallをこのスロットで全て補う場合に必要なGlv
+      const targetStatForThisSlot = currentStatVal + shortfall;
+      if (targetStatForThisSlot <= maxGStatVal) {
+        // G強化式: base*111 + (base*25+10000)*glv = target
+        const rawGlv = (targetStatForThisSlot - base * 111) / (base * 25 + 10000);
+        neededGlv = Math.max(currentGlv, Math.ceil(rawGlv));
+        neededGlv = Math.min(100, neededGlv);
+      } else {
+        neededGlv = 100;
+      }
+    }
+
+    return {
+      slot,
+      label: SLOT_LABEL[slot],
+      item,
+      currentLv,
+      currentGlv,
+      neededGlv,
+      addedGlv: Math.max(0, neededGlv - currentGlv),
+      currentStatVal,
+      maxGStatVal,
+      base,
+      canEnhance: !!(item && !item.no_enhance && base > 0)
+    };
   });
 
-  return results;
+  // アクセサリは強化レベルがあるが今回はG強化なし → 現状表示のみ
+  const accAnalysis = ACCESSORY_SLOTS.map(slot => {
+    const picked = equipState[slot];
+    const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
+    const currentLv = Math.max(1, Math.floor(Number(picked?.lv || 1)));
+    const maxLv     = Math.max(1, Number(item?.max_level || 1));
+    const s = item ? calcAccessoryStat(item, stat, currentLv) : { add: 0, rate: 0 };
+    const sMax = item ? calcAccessoryStat(item, stat, maxLv) : { add: 0, rate: 0 };
+    return {
+      slot,
+      label: SLOT_LABEL[slot],
+      item,
+      currentLv,
+      maxLv,
+      currentAdd:  s.add  || 0,
+      currentRate: s.rate || 0,
+      maxAdd:  sMax.add  || 0,
+      maxRate: sMax.rate || 0,
+      canLevelUp: item && currentLv < maxLv
+    };
+  });
+
+  return { achieved: false, shortfall, slots: armorAnalysis, accSlots: accAnalysis };
 }
