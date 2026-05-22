@@ -643,4 +643,6 @@ if ($("clearSaveBtn")) {
 }
 
 recalc();
+window.statusSimRecalc = recalc;
+window.statusSimCollectState = collectState;
 });
