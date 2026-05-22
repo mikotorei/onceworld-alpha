@@ -131,10 +131,53 @@ function calcAccessoryStat(item, stat, lv) {
 }
 
 // ============================================================
-// G強化必要数分析（複数スロット合算で目標に届くよう計算）
+// ステポイント1点あたりのfinalTotal寄与倍率を計算
+// （setBonus × accRate乗算 × petMul乗算 × petFinal乗算）
+// simState: collectState()の戻り値
+// equipItemsMap: Map<id, item>
+// stat: "atk" など
+// ============================================================
+function calcBasePointMultiplier(simState, equipItemsMap, stat) {
+  // セットボーナス判定
+  const ARMOR_SLOTS = ["head","body","hands","feet","shield"];
+  const armorItems = ARMOR_SLOTS.map(k => {
+    const id = simState.equip?.[k]?.id || "";
+    return id ? equipItemsMap.get(String(id)) : null;
+  }).filter(Boolean);
+  const armorSeries = armorItems.map(i => i?.series || "").filter(s => s !== "");
+  const hasSet = armorSeries.length === 5 && armorSeries.every(s => s === armorSeries[0]);
+  const setMul = hasSet ? 1.1 : 1.0;
+
+  // アクセサリ乗算合計（accRate）
+  const ACC_SLOTS = ["accessory1","accessory2","accessory3","accessory4"];
+  let totalAccRate = 0;
+  ACC_SLOTS.forEach(k => {
+    const id = simState.equip?.[k]?.id || "";
+    const lv = Math.max(1, Number(simState.equip?.[k]?.lv || 1));
+    if (!id) return;
+    const item = equipItemsMap.get(String(id));
+    if (!item) return;
+    const s = calcAccessoryStat(item, stat, lv);
+    totalAccRate += s.rate || 0;
+  });
+
+  // ペット乗算合計（petMul, petFinal）
+  // ※ petSkillMapはstatus-sim.js内にあり直接参照不可なので
+  //    window.lastFinalTotalとbaseから逆算する方式を取る
+  // → 代わりにsimStateのpetsからstage情報を取り、
+  //   window.statusSimCollectState経由で現在の倍率を推定する
+  // ここでは簡易的に finalTotal / (base + equipContrib) から実効倍率を推定
+  // → この値はUI側で渡す
+
+  // 返すのはsetMulとaccRateのみ（petMulはUI側で計算）
+  return { setMul, totalAccRate };
+}
+
+// ============================================================
+// G強化必要数 + ステポイント必要数 分析（複数スロット合算）
 // ============================================================
 
-function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal) {
+function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier) {
   const ARMOR_SLOTS = ["weapon", "head", "body", "hands", "feet", "shield"];
   const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
   const SLOT_LABEL = {
@@ -143,7 +186,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   };
 
   const currentVal = Math.round(Number(currentFinalTotal?.[stat] || 0));
-  const shortfall  = Math.max(0, neededTotal - currentVal);
+  let shortfall = Math.max(0, neededTotal - currentVal);
 
   // 各スロットの現状を整理
   const armorAnalysis = ARMOR_SLOTS.map(slot => {
@@ -161,56 +204,43 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    // G100での最大値
     const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
-    // G0（+1100）での値
-    const at1100 = canEnhance ? calcWeaponArmorStatG(item, stat, 0) : currentStatVal;
-    // G1個あたりの増加量
     const perG = canEnhance ? (base * 25 + 10000) : 0;
 
     return {
       slot, label: SLOT_LABEL[slot], item,
       currentLv, currentGlv, base, canEnhance,
-      currentStatVal, maxGStatVal, at1100, perG,
-      // 後で計算するので初期値
+      currentStatVal, maxGStatVal, perG,
       neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
     };
   });
 
   if (shortfall <= 0) {
-    // アクセサリ分析も作成して返す
     const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
-    return { achieved: true, shortfall: 0, slots: armorAnalysis, accSlots };
+    return { achieved: true, shortfall: 0, slots: armorAnalysis, accSlots, statPointResult: null };
   }
 
-  // --- 複数スロット合算でG強化を配分 ---
-  // 方針: 各スロットのperG（G1個あたりの増加量）が大きいものから優先的にG強化
-  // 貢献できるスロット（canEnhance かつ まだG強化の余地あり）を降順ソート
+  // G強化を効率順に配分
   const enhanceable = armorAnalysis
     .filter(s => s.canEnhance && s.currentGlv < 100)
     .sort((a, b) => b.perG - a.perG);
 
   let remaining = shortfall;
-
   enhanceable.forEach(s => {
     if (remaining <= 0) return;
-    // このスロットで補えるG強化量
     const currentContrib = s.currentStatVal;
     const maxContrib     = s.maxGStatVal;
     const canAdd         = maxContrib - currentContrib;
     if (canAdd <= 0) return;
 
     if (canAdd >= remaining) {
-      // このスロット単体で残りを補える
-      // 必要なG強化数を逆算: base*111 + perG*glv = target
       const targetStat = currentContrib + remaining;
       let neededGlv;
       if (s.currentGlv > 0) {
-        // 既にG強化済みの場合: 現在値からの差分で計算
         neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
       } else {
-        // G強化なし→G強化開始: at1100との差分
-        const fromAt1100 = targetStat - s.at1100;
+        const at1100 = calcWeaponArmorStatG(s.item, stat, 0);
+        const fromAt1100 = targetStat - at1100;
         neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
       }
       neededGlv = Math.min(100, Math.max(s.currentGlv, neededGlv));
@@ -219,7 +249,6 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
       s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
       remaining    = 0;
     } else {
-      // このスロットをG100まで全振りして次へ
       s.neededGlv  = 100;
       s.addedGlv   = 100 - s.currentGlv;
       s.newStatVal = maxContrib;
@@ -227,11 +256,36 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
     }
   });
 
-  // remainingが残っていれば全スロットG100でも届かない
-  const stillShort = remaining > 0;
+  // G強化で届かなかった残りをステポイントで補う
+  let statPointResult = null;
+  if (remaining > 0 && effectiveMultiplier > 0) {
+    // ステポイント → finalTotal の換算
+    // finalTotal に remaining 追加するために必要な base 増加量
+    // remaining = baseIncrease * effectiveMultiplier
+    const neededBaseIncrease = Math.ceil(remaining / effectiveMultiplier);
 
+    // 現在の使用済みポイントと残りポイントを計算
+    const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
+    const basePointTotal = Math.max(0, Number(simState?.basePointTotal || 0));
+    const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
+    const freePoints = Math.max(0, basePointTotal - usedPoints);
+    const currentBaseForStat = Math.max(0, Number(simState?.base?.[stat] || 0));
+
+    statPointResult = {
+      neededBaseIncrease,
+      freePoints,
+      basePointTotal,
+      usedPoints,
+      currentBaseForStat,
+      achievable: neededBaseIncrease <= freePoints,
+      stillShortAfterAll: neededBaseIncrease > freePoints
+    };
+    remaining = Math.max(0, remaining - neededBaseIncrease * effectiveMultiplier);
+  }
+
+  const stillShort = remaining > 0;
   const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
-  return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots };
+  return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
 }
 
 function buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat) {
