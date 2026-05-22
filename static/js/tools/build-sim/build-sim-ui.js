@@ -40,19 +40,18 @@ const state = {
   npanLimit:   3
 };
 
-// 逆算結果を保持（装備探索に渡す）
 let lastReverseResult = null;
 let equipItemsCache   = [];
+let equipItemsMap     = new Map();
 
-// equipment.jsonをfetch
 async function loadEquipItems() {
-  if (equipItemsCache.length > 0) return equipItemsCache;
+  if (equipItemsCache.length > 0) return;
   try {
     const res  = await fetch(EQUIP_URL, { cache: "no-store" });
     const data = await res.json();
     equipItemsCache = Array.isArray(data.items) ? data.items : [];
+    equipItemsCache.forEach(item => equipItemsMap.set(String(item.id), item));
   } catch(e) { console.error("equipment.json 読み込み失敗", e); }
-  return equipItemsCache;
 }
 
 function getHeroStats() {
@@ -241,10 +240,10 @@ function renderReverseResult() {
   const hero       = getHeroStats();
   const lvLabel    = lv > 0 ? `Lv${fmt(lv)}` : "基本";
 
-  let neededStat = null, neededVal = 0, statKey = "";
+  let neededVal = 0, statKey = "";
 
   if (state.attackType === "physical") {
-    neededVal  = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan);
+    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan);
     const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark);
     statKey = "atk";
     appendResult(wrap, `目標: ${picked.title}（${lvLabel}）を${targetNpan}パン以内`);
@@ -252,16 +251,15 @@ function renderReverseResult() {
     appendResult(wrap, `現在のatk(${fmt(hero.atk)})での討伐: ${current.npan != null ? current.npan + "パン" : "計算不可"}`);
     appendJudge(wrap, hero.atk >= neededVal, `あと atk ${fmt(neededVal - hero.atk)} 不足`);
   } else {
-    neededVal  = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan);
+    neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan);
     const current = calcMagicKillInfo(hero.int, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, picked, lv, state.heroElement, state.debuffWood);
     statKey = "int";
     appendResult(wrap, `目標: ${picked.title}（${lvLabel}）を${targetNpan}パン以内`);
     appendResult(wrap, `必要int: ${fmt(neededVal)} 以上`);
     appendResult(wrap, `現在のint(${fmt(hero.int)})での討伐: ${current.npan != null ? current.npan + "パン" : "計算不可"}`);
-    appendJudge(wrap, hero.int >= neededVal, `あと int ${fmt(neededVal - hero.int)} 不足`);
+    appendJudge(wrap, hero.int >= neededVal, `あと int ${fmt(needed - hero.int)} 不足`);
   }
 
-  // 逆算結果を保存して探索ボタンを表示
   lastReverseResult = { stat: statKey, needed: neededVal };
   const searchWrap = $("bs-search-equip-wrap");
   if (searchWrap) searchWrap.hidden = false;
@@ -277,110 +275,124 @@ function appendResult(wrap, text) {
 
 function appendJudge(wrap, ok, ngText) {
   const p = document.createElement("p");
-  if (ok) {
-    p.className = "bs-ok";
-    p.textContent = "✅ 現在のビルドで達成可能です";
-  } else {
-    p.className = "bs-ng";
-    p.textContent = `⚠️ ${ngText}`;
-  }
+  if (ok) { p.className = "bs-ok"; p.textContent = "✅ 現在のビルドで達成可能です"; }
+  else    { p.className = "bs-ng"; p.textContent = `⚠️ ${ngText}`; }
   wrap.appendChild(p);
 }
 
-// --- 装備探索結果レンダリング ---
-function renderEquipSearchResult(results) {
+// --- G強化分析結果レンダリング ---
+function renderGlvAnalysis(analysis, stat, needed) {
   const wrap = $("bs-equip-result");
   if (!wrap) return;
   wrap.innerHTML = "";
 
-  if (!results || results.length === 0) {
+  const STAT_LABEL = { atk:"ATK", int:"INT", spd:"SPD", def:"DEF", mdef:"MDEF", vit:"VIT", luk:"LUK" };
+
+  const header = document.createElement("div");
+  header.className = "bs-area-title";
+  header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのG強化分析`;
+  wrap.appendChild(header);
+
+  if (analysis.achieved) {
     const p = document.createElement("p");
-    p.textContent = "探索結果がありません。";
+    p.className = "bs-ok";
+    p.textContent = "✅ 現在の装備・強化レベルで既に達成しています";
     wrap.appendChild(p);
     return;
   }
 
-  const STAT_LABEL = { atk:"ATK", int:"INT", spd:"SPD", def:"DEF", mdef:"MDEF", vit:"VIT", luk:"LUK" };
-  const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾" };
+  const shortP = document.createElement("p");
+  shortP.className = "bs-ng";
+  shortP.textContent = `⚠️ 現在 ${fmt(needed - analysis.shortfall)} → 目標まで ${fmt(analysis.shortfall)} 不足`;
+  wrap.appendChild(shortP);
 
-  results.forEach(r => {
-    const section = document.createElement("div");
-    section.className = "bs-equip-result-section";
+  // 武器・防具のG強化テーブル
+  const armorTitle = document.createElement("div");
+  armorTitle.className = "bs-equip-subtitle";
+  armorTitle.textContent = "各スロットのG強化必要数（このスロット単体で不足分を補う場合）";
+  wrap.appendChild(armorTitle);
 
-    const title = document.createElement("div");
-    title.className = "bs-area-title";
-    title.textContent = `${STAT_LABEL[r.stat] || r.stat} ${fmt(r.needed)} 以上を目指す装備提案`;
-    section.appendChild(title);
+  const table = document.createElement("table");
+  table.className = "bs-equip-table";
 
-    const statusP = document.createElement("p");
-    statusP.className = r.achieved ? "bs-ok" : "bs-ng";
-    statusP.textContent = r.achieved
-      ? `✅ 推定 ${STAT_LABEL[r.stat] || r.stat} ${fmt(Math.floor(r.finalEstimate))} 達成可能`
-      : `⚠️ 推定 ${STAT_LABEL[r.stat] || r.stat} ${fmt(Math.floor(r.finalEstimate))}（不足: ${fmt(r.needed - Math.floor(r.finalEstimate))}）`;
-    section.appendChild(statusP);
+  // ヘッダー
+  const thead = document.createElement("tr");
+  ["スロット", "装備名", "現在G", "必要G", "追加G数", "現在値", "+後の値"].forEach(h => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;";
+    thead.appendChild(th);
+  });
+  table.appendChild(thead);
 
-    if (!r.achieved && r.gNeeded > 0) {
-      const gP = document.createElement("p");
-      gP.textContent = `G強化を ${r.gNeeded} 個追加することで達成できる可能性があります`;
-      section.appendChild(gP);
-    }
+  analysis.slots.forEach(s => {
+    if (!s.item) return;
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid #eee";
 
-    if (r.setBonus) {
-      const bonusP = document.createElement("p");
-      bonusP.className = "bs-set-bonus";
-      bonusP.textContent = "★ セットボーナス（×1.1）適用";
-      section.appendChild(bonusP);
-    }
+    const canHelp = s.canEnhance && s.addedGlv > 0;
+    const isMax   = s.canEnhance && s.neededGlv >= 100 && s.addedGlv > 0;
 
-    // 武器・防具テーブル
-    const armorTitle = document.createElement("div");
-    armorTitle.className = "bs-equip-subtitle";
-    armorTitle.textContent = "武器・防具（+1100強化）";
-    section.appendChild(armorTitle);
+    const cells = [
+      { text: s.label, cls: "bs-equip-slot" },
+      { text: s.item.name },
+      { text: `G${s.currentGlv}` },
+      { text: s.canEnhance ? `G${s.neededGlv}` : "-" },
+      { text: canHelp ? `+${s.addedGlv}個${isMax ? "（G100でも不足）" : ""}` : (s.canEnhance ? "変更不要" : "強化不可"), cls: canHelp ? "bs-glv-needed" : "bs-glv-ok" },
+      { text: fmt(s.currentStatVal) },
+      { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal) },
+    ];
 
-    const table = document.createElement("table");
-    table.className = "bs-equip-table";
-    const slots = ["weapon", "head", "body", "hands", "feet", "shield"];
-    slots.forEach(slot => {
-      const item = slot === "weapon" ? r.weapon : r.armorSlots[slot];
-      const tr = document.createElement("tr");
-      const tdSlot = document.createElement("td"); tdSlot.className = "bs-equip-slot"; tdSlot.textContent = SLOT_LABEL[slot] || slot;
-      const tdName = document.createElement("td"); tdName.textContent = item ? item.name : "（なし）";
-      const tdStat = document.createElement("td"); tdStat.className = "bs-equip-stat";
-      tdStat.textContent = item ? `+${fmt(calcWeaponArmorStat(item, r.stat))}` : "-";
-      tr.appendChild(tdSlot); tr.appendChild(tdName); tr.appendChild(tdStat);
-      table.appendChild(tr);
+    cells.forEach(c => {
+      const td = document.createElement("td");
+      td.textContent = c.text;
+      if (c.cls) td.className = c.cls;
+      else td.style.cssText = "padding:6px 8px;font-size:14px;";
+      tr.appendChild(td);
     });
-    section.appendChild(table);
+    table.appendChild(tr);
+  });
+  wrap.appendChild(table);
 
-    // アクセサリテーブル
+  // アクセサリの現状表示
+  const hasAccData = analysis.accSlots.some(s => s.item && (s.currentAdd > 0 || s.currentRate > 0));
+  if (hasAccData) {
     const accTitle = document.createElement("div");
     accTitle.className = "bs-equip-subtitle";
-    accTitle.textContent = "アクセサリ（max_lv）";
-    section.appendChild(accTitle);
+    accTitle.textContent = "アクセサリの現状";
+    wrap.appendChild(accTitle);
 
     const accTable = document.createElement("table");
     accTable.className = "bs-equip-table";
-    r.accessories.forEach((item, i) => {
-      const s = calcAccessoryStat(item, r.stat);
+    analysis.accSlots.forEach(s => {
+      if (!s.item) return;
       const tr = document.createElement("tr");
-      const tdSlot = document.createElement("td"); tdSlot.className = "bs-equip-slot"; tdSlot.textContent = `アクセ${i+1}`;
-      const tdName = document.createElement("td"); tdName.textContent = item.name;
-      const tdStat = document.createElement("td"); tdStat.className = "bs-equip-stat";
+      tr.style.borderBottom = "1px solid #eee";
       const parts = [];
-      if (s.add  > 0) parts.push(`+${fmt(Math.floor(s.add))}`);
-      if (s.rate > 0) parts.push(`+${s.rate.toFixed(1)}%`);
-      tdStat.textContent = parts.join(" / ") || "-";
-      tr.appendChild(tdSlot); tr.appendChild(tdName); tr.appendChild(tdStat);
+      if (s.currentAdd  > 0) parts.push(`+${fmt(Math.floor(s.currentAdd))}`);
+      if (s.currentRate > 0) parts.push(`+${s.currentRate.toFixed(1)}%`);
+      const maxParts = [];
+      if (s.maxAdd  > 0) maxParts.push(`+${fmt(Math.floor(s.maxAdd))}`);
+      if (s.maxRate > 0) maxParts.push(`+${s.maxRate.toFixed(1)}%`);
+      [
+        { text: s.label, cls: "bs-equip-slot" },
+        { text: s.item.name },
+        { text: `Lv${s.currentLv}` },
+        { text: parts.join(" / ") || "-" },
+        { text: s.canLevelUp ? `(max Lv${s.maxLv}: ${maxParts.join(" / ")})` : "(maxLv)" },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c.text;
+        if (c.cls) td.className = c.cls;
+        else td.style.cssText = "padding:6px 8px;font-size:13px;";
+        tr.appendChild(td);
+      });
       accTable.appendChild(tr);
     });
-    section.appendChild(accTable);
-
-    wrap.appendChild(section);
-  });
+    wrap.appendChild(accTable);
+  }
 }
 
-// --- 天空フロア→Lv変換 ---
 function tenkuFloorToLv(floor) {
   const n = Math.floor(Number(floor));
   if (!Number.isFinite(n) || n < 1) return null;
@@ -393,6 +405,7 @@ function tenkuFloorToLv(floor) {
 loadSimState();
 applyModeUI();
 switchTab("scan");
+loadEquipItems(); // バックグラウンドでfetch開始
 
 ["bs-reverse-lv", "bs-reverse-npan"].forEach(id => attachCommaInputBehavior(id, 0));
 
@@ -464,27 +477,27 @@ $("bs-reverse-btn")?.addEventListener("click", () => {
   saveSimState();
 });
 
-// 装備探索ボタン
+// 装備探索ボタン（現在の装備のG強化分析）
 $("bs-search-equip-btn")?.addEventListener("click", async () => {
   if (!lastReverseResult) return;
   const btn = $("bs-search-equip-btn");
-  if (btn) btn.textContent = "探索中...";
-  const items = await loadEquipItems();
-  const ft    = window.lastFinalTotal || {};
-  // 装備を除いた基礎ステ（プロテイン込み）を推定
-  // finalTotalから現在の装備効果を引くのは複雑なので、
-  // 基礎ステ＋プロテイン分だけを渡す（装備なし状態での合計として探索）
-  const baseStats = {
-    atk:  Math.round(Number(document.getElementById("base_atk")?.value  || 0)),
-    int:  Math.round(Number(document.getElementById("base_int")?.value  || 0)),
-    spd:  Math.round(Number(document.getElementById("base_spd")?.value  || 0)),
-    def:  Math.round(Number(document.getElementById("base_def")?.value  || 0)),
-    mdef: Math.round(Number(document.getElementById("base_mdef")?.value || 0)),
-    vit:  Math.round(Number(document.getElementById("base_vit")?.value  || 0)),
-    luk:  Math.round(Number(document.getElementById("base_luk")?.value  || 0)),
-  };
-  const results = searchEquipBuild(items, [lastReverseResult], baseStats);
-  renderEquipSearchResult(results);
+  if (btn) btn.textContent = "分析中...";
+
+  await loadEquipItems();
+
+  // 現在の装備状態を取得
+  const equipState = window.statusSimCollectState?.()?.equip || {};
+  const currentFinalTotal = window.lastFinalTotal || {};
+
+  const analysis = analyzeGlvNeeded(
+    equipState,
+    equipItemsMap,
+    lastReverseResult.stat,
+    lastReverseResult.needed,
+    currentFinalTotal
+  );
+
+  renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
   if (btn) btn.textContent = "この条件で装備を探索";
 });
 
