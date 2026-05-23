@@ -33,5 +33,14 @@
     {{ block "main" . }}{{ end }}
   </main>
   <script src="{{ "js/common/header-nav.js?v=1" | relURL }}" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("focus", function (e) {
+    if (e.target && e.target.tagName === "INPUT" && e.target.type === "number") {
+      e.target.select();
+    }
+  }, true);
+});
+</script>
 </body>
 </html>
