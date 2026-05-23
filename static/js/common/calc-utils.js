@@ -47,6 +47,7 @@ function attachCommaInputBehavior(id, fallback = 0) {
 
   el.addEventListener("focus", () => {
     removeCommaFormatting(el, fallback);
+    el.select();
   });
 
   el.addEventListener("input", () => {
