@@ -425,3 +425,197 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
   const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
   return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
 }
+
+// ============================================================
+// atk・luk 同時探索ロジック（atk優先）
+// ============================================================
+
+// atk満足後、残りスロット・ステポイントでlukを補う
+function analyzeAtkAndLukNeeded(
+  equipState, equipItemsMap,
+  neededAtk, neededLuk,
+  currentFinalTotal, simState,
+  effectiveAtkMultiplier, effectiveLukMultiplier,
+  overridePointLimit
+) {
+  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
+  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
+  const SLOT_LABEL = {
+    weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
+    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4"
+  };
+
+  const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
+  const basePointTotal = overridePointLimit != null
+    ? overridePointLimit
+    : Math.max(0, Number(simState?.basePointTotal || 0));
+  const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
+  let freePoints = Math.max(0, basePointTotal - usedPoints);
+
+  const currentAtk = Math.round(Number(currentFinalTotal?.atk || 0));
+  const currentLuk = Math.round(Number(currentFinalTotal?.luk || 0));
+  let atkShortfall = Math.max(0, neededAtk - currentAtk);
+  let lukShortfall = Math.max(0, neededLuk - currentLuk);
+
+  // 各スロットの現状（atk・luk両方）
+  const makeSlotAnalysis = (stat) => ARMOR_SLOTS.map(slot => {
+    const picked = equipState[slot];
+    const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
+    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
+    const base = Number(item?.base_add?.[stat] || 0);
+    const canEnhance = !!(item && !item.no_enhance && base > 0);
+    let currentStatVal = 0;
+    if (item) {
+      currentStatVal = (currentGlv > 0 && canEnhance)
+        ? calcWeaponArmorStatG(item, stat, currentGlv)
+        : calcWeaponArmorStat(item, stat, currentLv);
+    }
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
+    const perG = canEnhance ? (base * 25 + 10000) : 0;
+    return {
+      slot, label: SLOT_LABEL[slot], item,
+      currentLv, currentGlv, base, canEnhance,
+      currentStatVal, maxGStatVal, perG,
+      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
+    };
+  });
+
+  const atkSlots = makeSlotAnalysis("atk");
+  const lukSlots = makeSlotAnalysis("luk");
+
+  // atkShortfallが0なら既にatk達成済み
+  const atkAlreadyAchieved = atkShortfall <= 0;
+  const lukAlreadyAchieved = lukShortfall <= 0;
+
+  // ============================================================
+  // STEP1: atkをステポイントで補う
+  // ============================================================
+  let atkStatPointResult = null;
+  let atkRemainingAfterStat = atkShortfall;
+
+  if (!atkAlreadyAchieved && effectiveAtkMultiplier > 0 && freePoints > 0) {
+    const neededBaseIncrease = Math.ceil(atkShortfall / effectiveAtkMultiplier);
+    const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
+    const actualFinalGain    = Math.floor(usedBasePoints * effectiveAtkMultiplier);
+    atkRemainingAfterStat    = Math.max(0, atkShortfall - actualFinalGain);
+    freePoints              -= usedBasePoints; // 使ったポイントを消費
+    atkStatPointResult = {
+      neededBaseIncrease, usedBasePoints, freePoints: freePoints + usedBasePoints,
+      basePointTotal, usedPoints,
+      achievable: neededBaseIncrease <= (freePoints + usedBasePoints),
+      partialGain: actualFinalGain
+    };
+  }
+
+  // STEP2: atkをG強化で補う
+  let atkRemaining = atkRemainingAfterStat;
+  if (atkRemaining > 0) {
+    const enhanceable = atkSlots
+      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .sort((a, b) => b.perG - a.perG);
+    enhanceable.forEach(s => {
+      if (atkRemaining <= 0) return;
+      const canAdd = s.maxGStatVal - s.currentStatVal;
+      if (canAdd <= 0) return;
+      if (canAdd >= atkRemaining) {
+        const targetStat = s.currentStatVal + atkRemaining;
+        let neededGlv;
+        if (s.currentGlv > 0) {
+          neededGlv = s.currentGlv + Math.ceil(atkRemaining / s.perG);
+        } else {
+          const at1100 = calcWeaponArmorStatG(s.item, "atk", 0);
+          neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
+        }
+        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        s.neededGlv  = neededGlv;
+        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
+        s.newStatVal = calcWeaponArmorStatG(s.item, "atk", neededGlv);
+        atkRemaining = 0;
+      } else {
+        s.neededGlv  = 100;
+        s.addedGlv   = 100 - s.currentGlv;
+        s.newStatVal = s.maxGStatVal;
+        atkRemaining -= canAdd;
+      }
+    });
+  }
+
+  const atkStillShort = atkRemaining > 0;
+
+  // ============================================================
+  // STEP3: lukをステポイントで補う（atk消費後の残りポイントで）
+  // ============================================================
+  let lukStatPointResult = null;
+  let lukRemainingAfterStat = lukShortfall;
+
+  if (!lukAlreadyAchieved && effectiveLukMultiplier > 0 && freePoints > 0) {
+    const neededBaseIncrease = Math.ceil(lukShortfall / effectiveLukMultiplier);
+    const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
+    const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
+    lukRemainingAfterStat    = Math.max(0, lukShortfall - actualFinalGain);
+    lukStatPointResult = {
+      neededBaseIncrease, usedBasePoints, freePoints,
+      basePointTotal, usedPoints,
+      achievable: neededBaseIncrease <= freePoints,
+      partialGain: actualFinalGain
+    };
+  }
+
+  // STEP4: lukをG強化で補う（atkでG強化したスロットの残り枠で）
+  let lukRemaining = lukRemainingAfterStat;
+  if (lukRemaining > 0) {
+    // atkでG強化済みのスロットは currentGlv が増えているとみなす
+    lukSlots.forEach(ls => {
+      const atkSlot = atkSlots.find(a => a.slot === ls.slot);
+      if (atkSlot && atkSlot.addedGlv > 0) {
+        // atkでG強化したスロットはすでにG強化済みの状態から
+        ls.currentGlv = atkSlot.neededGlv;
+        ls.currentStatVal = calcWeaponArmorStatG(ls.item, "luk", ls.currentGlv);
+        ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 100) : ls.currentStatVal;
+      }
+    });
+
+    const lukEnhanceable = lukSlots
+      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .sort((a, b) => b.perG - a.perG);
+
+    lukEnhanceable.forEach(s => {
+      if (lukRemaining <= 0) return;
+      const canAdd = s.maxGStatVal - s.currentStatVal;
+      if (canAdd <= 0) return;
+      if (canAdd >= lukRemaining) {
+        const targetStat = s.currentStatVal + lukRemaining;
+        let neededGlv;
+        if (s.currentGlv > 0) {
+          neededGlv = s.currentGlv + Math.ceil(lukRemaining / s.perG);
+        } else {
+          const at1100 = calcWeaponArmorStatG(s.item, "luk", 0);
+          neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
+        }
+        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        s.neededGlv  = neededGlv;
+        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
+        s.newStatVal = calcWeaponArmorStatG(s.item, "luk", neededGlv);
+        lukRemaining = 0;
+      } else {
+        s.neededGlv  = 100;
+        s.addedGlv   = 100 - s.currentGlv;
+        s.newStatVal = s.maxGStatVal;
+        lukRemaining -= canAdd;
+      }
+    });
+  }
+
+  const lukStillShort = lukRemaining > 0;
+  const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, "luk");
+
+  return {
+    atkAlreadyAchieved, lukAlreadyAchieved,
+    atkShortfall, lukShortfall,
+    atkSlots, lukSlots,
+    atkStatPointResult, lukStatPointResult,
+    atkStillShort, lukStillShort,
+    accSlots
+  };
+}
