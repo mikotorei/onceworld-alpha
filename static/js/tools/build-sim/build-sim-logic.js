@@ -131,7 +131,7 @@ function calcWeaponArmorStatG(item, stat, glv) {
   if (!item || item.no_enhance) return calcWeaponArmorStat(item, stat, 0);
   const base = Number(item.base_add?.[stat] || 0);
   if (base === 0) return 0;
-  const g = Math.max(0, Math.min(100, Math.floor(glv)));
+  const g = Math.max(0, Math.min(300, Math.floor(glv)));
   if (g === 0) return Math.floor(base * 111);
   return Math.floor(base * 111 + (base * 25 + 10000) * g);
 }
@@ -164,7 +164,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
     const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
+    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
 
@@ -175,7 +175,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
 
     return {
@@ -231,7 +231,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
 
   if (remaining > 0) {
     const enhanceable = armorAnalysis
-      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .filter(s => s.canEnhance && s.currentGlv < 300)
       .sort((a, b) => b.perG - a.perG);
 
     enhanceable.forEach(s => {
@@ -249,14 +249,14 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
           const fromAt1100 = targetStat - at1100;
           neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
         }
-        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
         s.neededGlv  = neededGlv;
         s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
         s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
         remaining    = 0;
       } else {
-        s.neededGlv  = 100;
-        s.addedGlv   = 100 - s.currentGlv;
+        s.neededGlv  = 300;
+        s.addedGlv   = 300 - s.currentGlv;
         s.newStatVal = s.maxGStatVal;
         remaining   -= canAdd;
       }
@@ -335,7 +335,7 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
     const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
+    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
 
@@ -346,7 +346,7 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
 
     return {
@@ -390,7 +390,7 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
   let remaining = remainingAfterStat;
   if (remaining > 0) {
     const enhanceable = armorAnalysis
-      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .filter(s => s.canEnhance && s.currentGlv < 300)
       .sort((a, b) => b.perG - a.perG);
 
     enhanceable.forEach(s => {
@@ -407,14 +407,14 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
           const fromAt1100 = targetStat - at1100;
           neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
         }
-        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
         s.neededGlv  = neededGlv;
         s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
         s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
         remaining    = 0;
       } else {
-        s.neededGlv  = 100;
-        s.addedGlv   = 100 - s.currentGlv;
+        s.neededGlv  = 300;
+        s.addedGlv   = 300 - s.currentGlv;
         s.newStatVal = s.maxGStatVal;
         remaining   -= canAdd;
       }
@@ -462,7 +462,7 @@ function analyzeAtkAndLukNeeded(
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
     const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
+    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
     let currentStatVal = 0;
@@ -471,7 +471,7 @@ function analyzeAtkAndLukNeeded(
         ? calcWeaponArmorStatG(item, stat, currentGlv)
         : calcWeaponArmorStat(item, stat, currentLv);
     }
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
     return {
       slot, label: SLOT_LABEL[slot], item,
@@ -512,7 +512,7 @@ function analyzeAtkAndLukNeeded(
   let atkRemaining = atkRemainingAfterStat;
   if (atkRemaining > 0) {
     const enhanceable = atkSlots
-      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .filter(s => s.canEnhance && s.currentGlv < 300)
       .sort((a, b) => b.perG - a.perG);
     enhanceable.forEach(s => {
       if (atkRemaining <= 0) return;
@@ -527,14 +527,14 @@ function analyzeAtkAndLukNeeded(
           const at1100 = calcWeaponArmorStatG(s.item, "atk", 0);
           neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
         }
-        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
         s.neededGlv  = neededGlv;
         s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
         s.newStatVal = calcWeaponArmorStatG(s.item, "atk", neededGlv);
         atkRemaining = 0;
       } else {
-        s.neededGlv  = 100;
-        s.addedGlv   = 100 - s.currentGlv;
+        s.neededGlv  = 300;
+        s.addedGlv   = 300 - s.currentGlv;
         s.newStatVal = s.maxGStatVal;
         atkRemaining -= canAdd;
       }
@@ -572,12 +572,12 @@ function analyzeAtkAndLukNeeded(
         // atkでG強化したスロットはすでにG強化済みの状態から
         ls.currentGlv = atkSlot.neededGlv;
         ls.currentStatVal = calcWeaponArmorStatG(ls.item, "luk", ls.currentGlv);
-        ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 100) : ls.currentStatVal;
+        ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 300) : ls.currentStatVal;
       }
     });
 
     const lukEnhanceable = lukSlots
-      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .filter(s => s.canEnhance && s.currentGlv < 300)
       .sort((a, b) => b.perG - a.perG);
 
     lukEnhanceable.forEach(s => {
@@ -593,14 +593,14 @@ function analyzeAtkAndLukNeeded(
           const at1100 = calcWeaponArmorStatG(s.item, "luk", 0);
           neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
         }
-        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
         s.neededGlv  = neededGlv;
         s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
         s.newStatVal = calcWeaponArmorStatG(s.item, "luk", neededGlv);
         lukRemaining = 0;
       } else {
-        s.neededGlv  = 100;
-        s.addedGlv   = 100 - s.currentGlv;
+        s.neededGlv  = 300;
+        s.addedGlv   = 300 - s.currentGlv;
         s.newStatVal = s.maxGStatVal;
         lukRemaining -= canAdd;
       }
