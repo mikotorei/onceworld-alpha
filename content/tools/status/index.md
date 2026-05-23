@@ -102,7 +102,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
@@ -119,7 +119,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
@@ -136,7 +136,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
@@ -153,7 +153,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
@@ -170,7 +170,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
@@ -187,7 +187,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
       <span class="lvtag">+</span>
       <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="100" value="0"></div>
+      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="300" value="0"></div>
     </div>
   </div>
 
