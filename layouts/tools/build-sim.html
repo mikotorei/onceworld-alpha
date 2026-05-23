@@ -392,6 +392,7 @@
   <div class="bs-tabs">
     <button class="bs-tab-btn chip-btn" type="button" data-tab="scan"    aria-pressed="true">討伐判定</button>
     <button class="bs-tab-btn chip-btn" type="button" data-tab="reverse" aria-pressed="false">逆算</button>
+    <button class="bs-tab-btn chip-btn" type="button" data-tab="hit"     aria-pressed="false">命中</button>
   </div>
 
   {{/* ---- 討伐判定パネル ---- */}}
@@ -483,6 +484,52 @@
         <button id="bs-search-equip-btn" type="button" class="chip-btn bs-run-btn bs-search-btn">この条件で装備を探索</button>
       </div>
       <div id="bs-equip-result" class="bs-results"></div>
+    </section>
+  </div>
+
+  {{/* ---- 命中パネル ---- */}}
+  <div data-panel="hit" hidden>
+    <section class="bs-panel-section">
+      <div class="enemy-section">
+        <div class="enemy-row">
+          <span class="enemy-label">目標モンスター</span>
+          <div class="enemy-input-wrap">
+            <input id="bs-hit-monster-search" type="search" placeholder="モンスター名を入力" class="bs-monster-search">
+            <div id="bs-hit-monster-suggest" class="suggest" hidden></div>
+          </div>
+        </div>
+        <div class="mt">
+          <div id="bs-hit-lv-shortcuts" class="lv-shortcuts"></div>
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">モンスターLv</span>
+          <input id="bs-hit-lv" type="text" inputmode="numeric" value="0" class="lv-input">
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">天空フロアから算出</span>
+          <div class="bs-floor-row">
+            <input id="bs-hit-tenku-floor" type="text" inputmode="numeric" placeholder="例: 5000" class="lv-input">
+            <span class="bs-label-text">階</span>
+            <button id="bs-hit-tenku-apply" type="button" class="chip-btn">Lvに反映</button>
+          </div>
+        </div>
+      </div>
+      <div class="mode-row" style="margin-top:12px">
+        <span class="mode-label">命中確率</span>
+        <div class="chip-group">
+          <button class="chip-btn bs-hit-rate-btn" type="button" data-rate="1"  aria-pressed="false">1%</button>
+          <button class="chip-btn bs-hit-rate-btn" type="button" data-rate="50" aria-pressed="true">50%</button>
+          <button class="chip-btn bs-hit-rate-btn" type="button" data-rate="99" aria-pressed="false">99%</button>
+        </div>
+      </div>
+      <div class="action-section" style="margin-top:12px">
+        <button id="bs-hit-calc-btn" type="button" class="chip-btn bs-run-btn">命中を計算</button>
+      </div>
+      <div id="bs-hit-result" class="bs-results"></div>
+      <div id="bs-hit-search-wrap" hidden style="margin-top:8px">
+        <button id="bs-hit-search-btn" type="button" class="chip-btn bs-run-btn bs-search-btn">必要lukの装備を探索</button>
+      </div>
+      <div id="bs-hit-equip-result" class="bs-results"></div>
     </section>
   </div>
 
