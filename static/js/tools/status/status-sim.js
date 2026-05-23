@@ -31,6 +31,7 @@ function clamp1(v)     { return Math.max(1, n(v, 1)); }
 function clampStage(v) { return Math.max(0, Math.min(4, n(v, 0))); }
 function clampG(v)     { return Math.max(0, Math.min(300, Math.floor(Number(v) || 0))); }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
+function floorStats(s) { const o = zeroStats(); STATS.forEach(k => { o[k] = k === "mov" ? (s?.[k]||0) : floorSafe(s?.[k]||0); }); return o; }
 function roundSafe(x)  { return Math.round((Number(x) || 0) + 1e-6); }
 
 function fmtSafe(x) {
@@ -470,7 +471,7 @@ function recalc() {
   baseStats.mov = 6;
   const proteinRaw     = zeroStats();
   BASE_STATS.forEach(k => { proteinRaw[k] = state.protein[k]||0; });
-  const proteinApplied  = mulStats(proteinRaw, 1 + state.shaker * 0.01);
+  const proteinApplied  = floorStats(mulStats(proteinRaw, 1 + state.shaker * 0.01));
   const basePlusProtein = addStats(baseStats, proteinApplied);
   let weaponArmorSum = zeroStats();
   ["weapon","head","body","hands","feet","shield"].forEach(key => {
