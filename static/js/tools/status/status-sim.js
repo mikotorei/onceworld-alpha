@@ -589,6 +589,8 @@ try {
 
 // fetch完了フラグを立ててから自動復元・初期化完了イベント発火
 dataReady = true;
+window.statusSimRecalc = recalc;
+window.statusSimCollectState = collectState;
 refreshBuildSelect();
 applyState(loadAutoState());
 recalc();
@@ -657,8 +659,5 @@ if ($("clearSaveBtn")) {
     window.setTimeout(() => setErr(""), 1000);
   });
 }
-
-window.statusSimRecalc = recalc;
-window.statusSimCollectState = collectState;
 
 });
