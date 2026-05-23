@@ -867,6 +867,20 @@ switchTab("scan");
 loadEquipItems();
 setupHitMonsterSearch();
 
+// status-sim.jsのデータ読み込み完了を待つ
+// 完了前は探索ボタンを無効化
+const searchBtns = ["bs-search-equip-btn", "bs-hit-search-btn"];
+searchBtns.forEach(id => {
+  const el = $(id);
+  if (el) { el.disabled = true; el.style.opacity = "0.5"; }
+});
+window.addEventListener("statusSimReady", () => {
+  searchBtns.forEach(id => {
+    const el = $(id);
+    if (el) { el.disabled = false; el.style.opacity = ""; }
+  });
+}, { once: true });
+
 ["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor",
  "bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => attachCommaInputBehavior(id, 0));
 
@@ -1033,6 +1047,9 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   try {
     await loadEquipItems();
 
+    if (!window.statusSimCollectState) {
+      throw new Error("データ読み込み中です。しばらくお待ちください。");
+    }
     const simState = window.statusSimCollectState?.() || {};
     const equipState = simState.equip || {};
     const currentFinalTotal = window.lastFinalTotal || {};
@@ -1068,7 +1085,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   } catch(e) {
     console.error("探索エラー:", e);
     const wrap = $("bs-equip-result");
-    if (wrap) wrap.textContent = "探索中にエラーが発生しました。ページを再読み込みして再試行してください。";
+    if (wrap) wrap.textContent = e.message || "探索中にエラーが発生しました。ページを再読み込みして再試行してください。";
   } finally {
     if (btn) btn.textContent = "この条件で装備を探索";
   }
