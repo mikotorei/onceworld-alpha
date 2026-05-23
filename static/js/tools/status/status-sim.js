@@ -253,7 +253,10 @@ function wireEquipSearch(key) {
     else { closeAllEquipSuggests(); closeAllPetSuggests(); openEquipSuggest(key, items); }
   });
   input.addEventListener("focus", () => {
-    const items = filterEquipItems(key, input.value||"");
+    const q = input.value || "";
+    const items = q.trim() === ""
+      ? (equipItemsCacheBySlot.get(key) || []).map(i => ({ id: String(i.id), name: i.name })).slice(0, 200)
+      : filterEquipItems(key, q);
     if (items.length === 0) closeEquipSuggest(key);
     else { closeAllEquipSuggests(); closeAllPetSuggests(); openEquipSuggest(key, items); }
   });
@@ -309,7 +312,10 @@ function wirePetSearch(key) {
     else { closeAllPetSuggests(); closeAllEquipSuggests(); openPetSuggest(key, items); }
   });
   input.addEventListener("focus", () => {
-    const items = filterPetItems(input.value||"");
+    const q = input.value || "";
+    const items = q.trim() === ""
+      ? petItemsCache.slice(0, 200)
+      : filterPetItems(q);
     if (items.length === 0) closePetSuggest(key);
     else { closeAllPetSuggests(); closeAllEquipSuggests(); openPetSuggest(key, items); }
   });
