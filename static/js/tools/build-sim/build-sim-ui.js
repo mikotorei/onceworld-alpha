@@ -32,13 +32,14 @@ tabButtons.forEach(btn => {
 });
 
 const state = {
-  attackType:  "physical",
-  heroElement: "fire",
-  spell:       "fire",
-  debuffWood:  false,
-  debuffDark:  false,
-  npanLimit:   3,
-  hasContract: false
+  attackType:      "physical",
+  heroElement:     "fire",
+  spell:           "fire",
+  debuffWood:      false,
+  debuffDark:      false,
+  npanLimit:       3,
+  hasContract:     false,
+  reverseHitRate:  0
 };
 
 let lastReverseResult = null;
@@ -114,9 +115,10 @@ function loadSimState() {
       if (["physical","magic"].includes(d.state.attackType)) state.attackType = d.state.attackType;
       if (["fire","water","wood","light","dark"].includes(d.state.heroElement)) state.heroElement = d.state.heroElement;
       if (["fire","water","wood","light","dark","shingan"].includes(d.state.spell)) state.spell = d.state.spell;
-      state.debuffWood  = !!d.state.debuffWood;
-      state.debuffDark  = !!d.state.debuffDark;
-      state.hasContract = !!d.state.hasContract;
+      state.debuffWood     = !!d.state.debuffWood;
+      state.debuffDark     = !!d.state.debuffDark;
+      state.hasContract    = !!d.state.hasContract;
+      state.reverseHitRate = [0,1,50,99].includes(Number(d.state.reverseHitRate)) ? Number(d.state.reverseHitRate) : 0;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
     }
     if (d.pointLimit) {
@@ -149,6 +151,11 @@ function applyModeUI() {
   $("bs-debuff-wood")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
   $("bs-debuff-dark")?.setAttribute("aria-pressed", state.debuffDark ? "true" : "false");
   $("bs-debuff-wood-magic")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
+
+  // 逆算タブ命中ボタン
+  document.querySelectorAll(".bs-reverse-hit-btn").forEach(b => {
+    b.setAttribute("aria-pressed", b.getAttribute("data-rate") === String(state.reverseHitRate) ? "true" : "false");
+  });
 
   // 超越の契約書ボタン
   document.querySelectorAll(".bs-contract-btn").forEach(btn => {
@@ -285,7 +292,7 @@ function renderReverseResult() {
   const lv         = Math.max(0, parseFormattedInt(lvEl, 0));
   const targetNpan = Math.max(1, parseFormattedInt(npanEl, 1));
   const hero       = getHeroStats();
-  const lvLabel    = lv > 0 ? `Lv${fmt(lv)}` : "基本";
+  const lvLabel    = lv > 0 ? "Lv" + fmt(lv) : "基本";
 
   let neededVal = 0, statKey = "";
 
@@ -293,21 +300,39 @@ function renderReverseResult() {
     neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan);
     const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark);
     statKey = "atk";
-    appendResult(wrap, `目標: ${picked.title}（${lvLabel}）を${targetNpan}パン以内`);
-    appendResult(wrap, `必要atk: ${fmt(neededVal)} 以上`);
-    appendResult(wrap, `現在のatk(${fmt(hero.atk)})での討伐: ${current.npan != null ? current.npan + "パン" : "計算不可"}`);
-    appendJudge(wrap, hero.atk >= neededVal, `あと atk ${fmt(neededVal - hero.atk)} 不足`);
+    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内");
+    appendResult(wrap, "必要atk: " + fmt(neededVal) + " 以上");
+    appendResult(wrap, "現在のatk(" + fmt(hero.atk) + ")での討伐: " + (current.npan != null ? current.npan + "パン" : "計算不可"));
+    appendJudge(wrap, hero.atk >= neededVal, "あと atk " + fmt(neededVal - hero.atk) + " 不足");
+
+    // 命中も同時計算
+    if (state.reverseHitRate > 0) {
+      const scaled   = buildEnemyScaled(picked, lv, { debuffWood: state.debuffWood, debuffDark: state.debuffDark });
+      const neededLuk = calcRequiredLukForHitRate(scaled.luk, state.reverseHitRate);
+      const ft = window.lastFinalTotal || {};
+      const heroLuk = Math.max(0, Math.round(ft.luk || 0));
+      const currentRate = calcHitRateFromLuk(heroLuk, scaled.luk);
+      const sep = document.createElement("hr");
+      sep.style.margin = "10px 0";
+      wrap.appendChild(sep);
+      appendResult(wrap, "命中" + state.reverseHitRate + "% 必要luk: " + fmt(neededLuk) + " 以上");
+      appendResult(wrap, "現在のluk(" + fmt(heroLuk) + ")での命中率: 約" + currentRate + "%");
+      appendJudge(wrap, heroLuk >= neededLuk, "あと luk " + fmt(neededLuk - heroLuk) + " 不足");
+      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk, hitRate: state.reverseHitRate };
+    } else {
+      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
+    }
   } else {
     neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan);
     const current = calcMagicKillInfo(hero.int, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, picked, lv, state.heroElement, state.debuffWood);
     statKey = "int";
-    appendResult(wrap, `目標: ${picked.title}（${lvLabel}）を${targetNpan}パン以内`);
-    appendResult(wrap, `必要int: ${fmt(neededVal)} 以上`);
-    appendResult(wrap, `現在のint(${fmt(hero.int)})での討伐: ${current.npan != null ? current.npan + "パン" : "計算不可"}`);
-    appendJudge(wrap, hero.int >= neededVal, `あと int ${fmt(neededVal - hero.int)} 不足`);
+    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内");
+    appendResult(wrap, "必要int: " + fmt(neededVal) + " 以上");
+    appendResult(wrap, "現在のint(" + fmt(hero.int) + ")での討伐: " + (current.npan != null ? current.npan + "パン" : "計算不可"));
+    appendJudge(wrap, hero.int >= neededVal, "あと int " + fmt(neededVal - hero.int) + " 不足");
+    lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
   }
 
-  lastReverseResult = { stat: statKey, needed: neededVal };
   const searchWrap = $("bs-search-equip-wrap");
   if (searchWrap) searchWrap.hidden = false;
   const equipResult = $("bs-equip-result");
@@ -686,6 +711,143 @@ function renderHitEquipResult(analysis) {
   renderAccTable(wrap, analysis.accSlots, "luk");
 }
 
+function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
+  const wrap = $("bs-equip-result");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "bs-area-title";
+  header.textContent = "ATK " + fmt(neededAtk) + " ＋ 命中" + hitRate + "%(LUK " + fmt(neededLuk) + ") 同時達成分析";
+  wrap.appendChild(header);
+
+  function makeStatSection(title, slots, statPointResult, stillShort, stat, alreadyAchieved) {
+    const sec = document.createElement("div");
+    sec.style.marginBottom = "20px";
+
+    const secTitle = document.createElement("div");
+    secTitle.className = "bs-area-title";
+    secTitle.style.fontSize = "14px";
+    secTitle.textContent = title;
+    sec.appendChild(secTitle);
+
+    if (alreadyAchieved) {
+      const p = document.createElement("p"); p.className = "bs-ok";
+      p.textContent = "✅ 現在の" + (stat === "atk" ? "atk" : "luk") + "で達成しています";
+      sec.appendChild(p);
+      return sec;
+    }
+
+    // ステポイント
+    if (statPointResult) {
+      const sp = statPointResult;
+      const spTitle = document.createElement("div");
+      spTitle.className = "bs-equip-subtitle";
+      spTitle.textContent = "① ステポイントで補う";
+      sec.appendChild(spTitle);
+      const spBox = document.createElement("div");
+      spBox.className = "bs-statpoint-box";
+      [
+        { label: "必要" + stat.toUpperCase() + "ポイント追加", value: fmt(sp.neededBaseIncrease) + " ポイント" },
+        { label: "残り振り分け可能", value: fmt(sp.freePoints) + " ポイント" },
+      ].forEach(row => {
+        const div = document.createElement("div"); div.className = "bs-statpoint-row";
+        const label = document.createElement("span"); label.className = "bs-statpoint-label"; label.textContent = row.label;
+        const val   = document.createElement("span"); val.className   = "bs-statpoint-val";   val.textContent   = row.value;
+        div.appendChild(label); div.appendChild(val); spBox.appendChild(div);
+      });
+      const judgeP = document.createElement("p");
+      if (sp.achievable) {
+        judgeP.className = "bs-ok";
+        judgeP.textContent = "✅ " + stat.toUpperCase() + " に " + fmt(sp.neededBaseIncrease) + " ポイント振り分けで達成可能（G強化不要）";
+        spBox.appendChild(judgeP); sec.appendChild(spBox);
+        return sec;
+      } else {
+        judgeP.className = "bs-ng";
+        judgeP.textContent = "⚠️ 残り " + fmt(sp.freePoints) + " ポイントを全振りしても不足 → G強化で補います";
+        spBox.appendChild(judgeP); sec.appendChild(spBox);
+      }
+    }
+
+    // G強化テーブル
+    const armorTitle = document.createElement("div");
+    armorTitle.className = "bs-equip-subtitle";
+    armorTitle.textContent = "② G強化で残りを補う";
+    sec.appendChild(armorTitle);
+
+    const table = document.createElement("table");
+    table.className = "bs-equip-table";
+    const thead = document.createElement("tr");
+    ["スロット","装備名","現在G","推奨G","追加G数","現在値","強化後"].forEach(h => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;text-align:left;";
+      thead.appendChild(th);
+    });
+    table.appendChild(thead);
+
+    let totalAddedG = 0;
+    slots.forEach(s => {
+      if (!s.item) return;
+      const isChanged = s.addedGlv > 0;
+      const isMax     = s.neededGlv >= 100 && isChanged;
+      totalAddedG += s.addedGlv;
+      const tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid #eee";
+      [
+        { text: s.label, cls: "bs-equip-slot" },
+        { text: s.item.name },
+        { text: "G" + s.currentGlv },
+        { text: s.canEnhance ? "G" + s.neededGlv : "-" },
+        { text: isChanged ? ("+" + s.addedGlv + "個" + (isMax ? "（G100）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+        { text: fmt(s.currentStatVal) },
+        { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c.text;
+        td.style.cssText = "padding:6px 8px;font-size:14px;";
+        if (c.cls) td.className = c.cls;
+        tr.appendChild(td);
+      });
+      table.appendChild(tr);
+    });
+    if (totalAddedG > 0) {
+      const sumTr = document.createElement("tr");
+      sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
+      ["合計","","","","+" + totalAddedG + "個","",""].forEach(t => {
+        const td = document.createElement("td"); td.textContent = t;
+        td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
+      });
+      table.appendChild(sumTr);
+    }
+    sec.appendChild(table);
+
+    if (stillShort) {
+      const p = document.createElement("p"); p.className = "bs-ng";
+      p.textContent = "⚠️ ステポイント全振り＋全スロットG100でも不足。装備の見直しが必要です。";
+      sec.appendChild(p);
+    }
+    return sec;
+  }
+
+  wrap.appendChild(makeStatSection(
+    "【ATK " + fmt(neededAtk) + " 達成】",
+    analysis.atkSlots, analysis.atkStatPointResult, analysis.atkStillShort, "atk", analysis.atkAlreadyAchieved
+  ));
+
+  const divider = document.createElement("hr");
+  divider.style.margin = "16px 0";
+  wrap.appendChild(divider);
+
+  wrap.appendChild(makeStatSection(
+    "【命中" + hitRate + "% (LUK " + fmt(neededLuk) + ") 達成】（atk消費後の残りポイントで計算）",
+    analysis.lukSlots, analysis.lukStatPointResult, analysis.lukStillShort, "luk", analysis.lukAlreadyAchieved
+  ));
+
+  // アクセサリ（luk系）
+  renderAccTable(wrap, analysis.accSlots, "luk");
+}
+
 function tenkuFloorToLv(floor) {
   const n = Math.floor(Number(floor));
   if (!Number.isFinite(n) || n < 1) return null;
@@ -766,6 +928,17 @@ $("bs-tenku-apply")?.addEventListener("click", () => {
   const lv = tenkuFloorToLv(floorEl.value.replace(/,/g, ""));
   if (lv === null) { alert("有効なフロア数を入力してください（1以上の整数）"); return; }
   lvEl.value = formatIntString(lv);
+});
+
+// 逆算タブ：命中確率選択ボタン
+document.querySelectorAll(".bs-reverse-hit-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.reverseHitRate = Number(btn.getAttribute("data-rate"));
+    document.querySelectorAll(".bs-reverse-hit-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-rate") === String(state.reverseHitRate) ? "true" : "false");
+    });
+    saveSimState();
+  });
 });
 
 // 命中タブ：天空フロア
@@ -852,19 +1025,35 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   const simState = window.statusSimCollectState?.() || {};
   const equipState = simState.equip || {};
   const currentFinalTotal = window.lastFinalTotal || {};
-
-  // 振り分け上限を素材入力から計算
   const overridePointLimit = updatePointLimitDisplay();
 
-  const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
+  // atk+luk同時探索（物理かつhitRate指定あり）
+  if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
+    const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
+    const ft2 = window.lastFinalTotal || {};
+    const finalLuk = Math.round(Number(ft2?.luk || 0));
+    const shaker   = Math.max(0, Number(simState?.shaker || 0));
+    const baseLuk  = Math.max(0, Number(simState?.base?.luk    || 0));
+    const protLuk  = Math.max(0, Number(simState?.protein?.luk || 0));
+    const bpLuk    = baseLuk + protLuk * (1 + shaker * 0.01);
+    const effectiveLukMul = bpLuk > 0 ? Math.max(1, finalLuk / bpLuk) : 1;
 
-  const analysis = analyzeGlvNeeded(
-    equipState, equipItemsMap,
-    lastReverseResult.stat, lastReverseResult.needed,
-    currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
-  );
-
-  renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+    const analysis = analyzeAtkAndLukNeeded(
+      equipState, equipItemsMap,
+      lastReverseResult.needed, lastReverseResult.neededLuk,
+      currentFinalTotal, simState,
+      effectiveAtkMul, effectiveLukMul, overridePointLimit
+    );
+    renderAtkLukAnalysis(analysis, lastReverseResult.needed, lastReverseResult.neededLuk, lastReverseResult.hitRate);
+  } else {
+    const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
+    const analysis = analyzeGlvNeeded(
+      equipState, equipItemsMap,
+      lastReverseResult.stat, lastReverseResult.needed,
+      currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
+    );
+    renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+  }
   if (btn) btn.textContent = "この条件で装備を探索";
 });
 
