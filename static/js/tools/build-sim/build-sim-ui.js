@@ -476,10 +476,10 @@ function renderGlvAnalysis(analysis, stat, needed) {
   });
 
   if (totalAddedG > 0) {
+    const totalCost = calcTotalGCost(analysis.slots);
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-    ["合計", "", "", "", `+${totalAddedG}回`, "", ""].forEach(t => {
-      const td = document.createElement("td");
+    ["合計", "", "", "", `+${totalAddedG}回`, "", `推定費用: ${fmtGCost(totalCost)}`].forEach(t => {
       td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;";
       sumTr.appendChild(td);
@@ -491,7 +491,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
   if (analysis.stillShort) {
     const p = document.createElement("p");
     p.className = "bs-ng";
-    p.textContent = "⚠️ ステポイント全振り＋全スロットG100でも不足します。装備の見直しが必要です。";
+    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
     wrap.appendChild(p);
   }
 
@@ -698,10 +698,10 @@ function renderHitEquipResult(analysis) {
     table.appendChild(tr);
   });
   if (totalAddedG > 0) {
+    const totalCostHit = calcTotalGCost(analysis.slots);
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-    ["合計","","","","+" + totalAddedG + "回","",""].forEach(t => {
-      const td = document.createElement("td"); td.textContent = t;
+    ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(totalCostHit)].forEach(t => {
       td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
     });
     table.appendChild(sumTr);
@@ -709,7 +709,7 @@ function renderHitEquipResult(analysis) {
   wrap.appendChild(table);
   if (analysis.stillShort) {
     const p = document.createElement("p"); p.className = "bs-ng";
-    p.textContent = "⚠️ ステポイント全振り＋全スロットG100でも不足します。装備の見直しが必要です。";
+    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
     wrap.appendChild(p);
   }
   renderAccTable(wrap, analysis.accSlots, "luk");
@@ -816,10 +816,10 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
       table.appendChild(tr);
     });
     if (totalAddedG > 0) {
+      const sectionCost = calcTotalGCost(slots);
       const sumTr = document.createElement("tr");
       sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-      ["合計","","","","+" + totalAddedG + "回","",""].forEach(t => {
-        const td = document.createElement("td"); td.textContent = t;
+      ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(sectionCost)].forEach(t => {
         td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
       });
       table.appendChild(sumTr);
@@ -828,7 +828,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
 
     if (stillShort) {
       const p = document.createElement("p"); p.className = "bs-ng";
-      p.textContent = "⚠️ ステポイント全振り＋全スロットG100でも不足。装備の見直しが必要です。";
+      p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足。装備の見直しが必要です。";
       sec.appendChild(p);
     }
     return sec;
