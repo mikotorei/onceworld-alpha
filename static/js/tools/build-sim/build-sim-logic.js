@@ -118,6 +118,47 @@ function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
 // 装備計算ユーティリティ
 // ============================================================
 
+
+// ============================================================
+// G強化コスト計算
+// ============================================================
+
+// 装備のbase_add全ステ合計（mov含む）
+function calcEquipStatSum(item) {
+  if (!item || !item.base_add) return 0;
+  return Object.values(item.base_add).reduce((s, v) => s + Math.max(0, Number(v) || 0), 0);
+}
+
+// G強化1回あたりのコスト（G段階に応じて変わる）
+// fromGlv: 現在のG段階（0始まり）, toGlv: 強化後のG段階
+function calcGCostRange(item, fromGlv, toGlv) {
+  const S = calcEquipStatSum(item);
+  const baseCost = S * 10000000; // S × 1,000万G
+  let total = 0;
+  for (let g = fromGlv + 1; g <= toGlv; g++) {
+    if (g <= 100)      total += baseCost;
+    else if (g <= 200) total += baseCost + 10000000000;   // +100億G
+    else               total += baseCost + 50000000000;   // +500億G
+  }
+  return total;
+}
+
+// 複数スロットのG強化コスト合計
+function calcTotalGCost(slots) {
+  return slots.reduce((sum, s) => {
+    if (!s.item || s.addedGlv <= 0) return sum;
+    return sum + calcGCostRange(s.item, s.currentGlv, s.neededGlv);
+  }, 0);
+}
+
+// コスト表示用フォーマット（億G単位）
+function fmtGCost(gold) {
+  if (gold >= 1000000000000) return (gold / 1000000000000).toFixed(1) + "兆G";
+  if (gold >= 100000000)     return Math.floor(gold / 100000000) + "億G";
+  if (gold >= 10000)         return Math.floor(gold / 10000) + "万G";
+  return gold + "G";
+}
+
 function calcWeaponArmorStat(item, stat, lv) {
   if (!item) return 0;
   const base = Number(item.base_add?.[stat] || 0);
@@ -232,7 +273,16 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   if (remaining > 0) {
     const enhanceable = armorAnalysis
       .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => b.perG - a.perG);
+      .sort((a, b) => {
+        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
+        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
+        if (aCostPer <= 0 && bCostPer <= 0) return 0;
+        if (aCostPer <= 0) return -1;
+        if (bCostPer <= 0) return 1;
+        const aEfficiency = a.perG / aCostPer;
+        const bEfficiency = b.perG / bCostPer;
+        return bEfficiency - aEfficiency;
+      });
 
     enhanceable.forEach(s => {
       if (remaining <= 0) return;
@@ -391,7 +441,16 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
   if (remaining > 0) {
     const enhanceable = armorAnalysis
       .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => b.perG - a.perG);
+      .sort((a, b) => {
+        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
+        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
+        if (aCostPer <= 0 && bCostPer <= 0) return 0;
+        if (aCostPer <= 0) return -1;
+        if (bCostPer <= 0) return 1;
+        const aEfficiency = a.perG / aCostPer;
+        const bEfficiency = b.perG / bCostPer;
+        return bEfficiency - aEfficiency;
+      });
 
     enhanceable.forEach(s => {
       if (remaining <= 0) return;
@@ -513,7 +572,16 @@ function analyzeAtkAndLukNeeded(
   if (atkRemaining > 0) {
     const enhanceable = atkSlots
       .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => b.perG - a.perG);
+      .sort((a, b) => {
+        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
+        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
+        if (aCostPer <= 0 && bCostPer <= 0) return 0;
+        if (aCostPer <= 0) return -1;
+        if (bCostPer <= 0) return 1;
+        const aEfficiency = a.perG / aCostPer;
+        const bEfficiency = b.perG / bCostPer;
+        return bEfficiency - aEfficiency;
+      });
     enhanceable.forEach(s => {
       if (atkRemaining <= 0) return;
       const canAdd = s.maxGStatVal - s.currentStatVal;
@@ -578,7 +646,16 @@ function analyzeAtkAndLukNeeded(
 
     const lukEnhanceable = lukSlots
       .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => b.perG - a.perG);
+      .sort((a, b) => {
+        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
+        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
+        if (aCostPer <= 0 && bCostPer <= 0) return 0;
+        if (aCostPer <= 0) return -1;
+        if (bCostPer <= 0) return 1;
+        const aEfficiency = a.perG / aCostPer;
+        const bEfficiency = b.perG / bCostPer;
+        return bEfficiency - aEfficiency;
+      });
 
     lukEnhanceable.forEach(s => {
       if (lukRemaining <= 0) return;
