@@ -454,7 +454,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
     totalAddedG += s.addedGlv;
 
     const addedText = isChanged
-      ? `+${s.addedGlv}回${isMax ? "（G300）" : ""}`
+      ? `+${s.addedGlv}回（G${s.currentGlv}→G${s.neededGlv}）`
       : (s.canEnhance ? "変更不要" : "-");
 
     [
@@ -703,8 +703,6 @@ function renderHitEquipResult(analysis) {
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
     ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(totalCostHit)].forEach(t => {
-      const td = document.createElement("td");
-      td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
     });
     table.appendChild(sumTr);
@@ -823,8 +821,6 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
       const sumTr = document.createElement("tr");
       sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
       ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(sectionCost)].forEach(t => {
-        const td = document.createElement("td");
-        td.textContent = t;
         td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
       });
       table.appendChild(sumTr);
