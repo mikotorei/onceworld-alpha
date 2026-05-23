@@ -285,3 +285,143 @@ function buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap
     };
   });
 }
+
+// ============================================================
+// 命中計算ロジック
+// ============================================================
+
+// 命中に必要なlukを計算
+// rate: 1, 50, 99
+// enemyLuk: スケール済み敵luk（buildEnemyScaledのluk）
+function calcRequiredLukForHitRate(enemyLuk, rate) {
+  const luk = Math.floor(Number(enemyLuk || 0));
+  if (rate <= 1)  return Math.floor(luk / 2);
+  if (rate >= 99) return luk;
+  // 線形補間: 1%→luk/2, 99%→luk
+  const min = luk / 2;
+  const max = luk;
+  return Math.ceil(min + (max - min) * (rate - 1) / 98);
+}
+
+// 現在のlukで何%命中するか
+function calcHitRateFromLuk(heroLuk, enemyLuk) {
+  const el = Math.floor(Number(enemyLuk || 0));
+  const hl = Math.floor(Number(heroLuk  || 0));
+  if (el <= 0) return 100;
+  const min = Math.floor(el / 2);
+  const max = el;
+  if (hl >= max) return 99;
+  if (hl <= min) return 1;
+  // 線形補間で逆算
+  return Math.round(1 + (hl - min) / (max - min) * 98);
+}
+
+// luk探索：G強化・ステポイントでlukを補う
+// neededLuk: 必要luk
+// currentFinalLuk: 現在のfinalTotal.luk
+function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk, simState, effectiveLukMultiplier, overridePointLimit) {
+  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
+  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
+  const SLOT_LABEL = {
+    weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
+    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4"
+  };
+  const stat = "luk";
+
+  const currentVal = Math.round(Number(currentFinalLuk || 0));
+  let shortfall = Math.max(0, neededLuk - currentVal);
+
+  const armorAnalysis = ARMOR_SLOTS.map(slot => {
+    const picked = equipState[slot];
+    const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
+    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(100,  Math.floor(Number(picked?.glv || 0))));
+    const base = Number(item?.base_add?.[stat] || 0);
+    const canEnhance = !!(item && !item.no_enhance && base > 0);
+
+    let currentStatVal = 0;
+    if (item) {
+      currentStatVal = (currentGlv > 0 && canEnhance)
+        ? calcWeaponArmorStatG(item, stat, currentGlv)
+        : calcWeaponArmorStat(item, stat, currentLv);
+    }
+
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 100) : currentStatVal;
+    const perG = canEnhance ? (base * 25 + 10000) : 0;
+
+    return {
+      slot, label: SLOT_LABEL[slot], item,
+      currentLv, currentGlv, base, canEnhance,
+      currentStatVal, maxGStatVal, perG,
+      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
+    };
+  });
+
+  if (shortfall <= 0) {
+    const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
+    return { achieved: true, shortfall: 0, slots: armorAnalysis, accSlots, statPointResult: null };
+  }
+
+  // ① ステポイントで先に補う
+  const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
+  const basePointTotal = overridePointLimit != null
+    ? overridePointLimit
+    : Math.max(0, Number(simState?.basePointTotal || 0));
+  const usedPoints = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
+  const freePoints = Math.max(0, basePointTotal - usedPoints);
+
+  let statPointResult = null;
+  let remainingAfterStat = shortfall;
+
+  if (effectiveLukMultiplier > 0 && freePoints > 0) {
+    const neededBaseIncrease = Math.ceil(shortfall / effectiveLukMultiplier);
+    const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
+    const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
+    remainingAfterStat = Math.max(0, shortfall - actualFinalGain);
+    statPointResult = {
+      neededBaseIncrease, usedBasePoints, freePoints,
+      basePointTotal, usedPoints,
+      achievable: neededBaseIncrease <= freePoints,
+      partialGain: actualFinalGain
+    };
+  }
+
+  // ② G強化で残りを補う
+  let remaining = remainingAfterStat;
+  if (remaining > 0) {
+    const enhanceable = armorAnalysis
+      .filter(s => s.canEnhance && s.currentGlv < 100)
+      .sort((a, b) => b.perG - a.perG);
+
+    enhanceable.forEach(s => {
+      if (remaining <= 0) return;
+      const canAdd = s.maxGStatVal - s.currentStatVal;
+      if (canAdd <= 0) return;
+      if (canAdd >= remaining) {
+        const targetStat  = s.currentStatVal + remaining;
+        let neededGlv;
+        if (s.currentGlv > 0) {
+          neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
+        } else {
+          const at1100     = calcWeaponArmorStatG(s.item, stat, 0);
+          const fromAt1100 = targetStat - at1100;
+          neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
+        }
+        neededGlv    = Math.min(100, Math.max(s.currentGlv, neededGlv));
+        s.neededGlv  = neededGlv;
+        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
+        s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
+        remaining    = 0;
+      } else {
+        s.neededGlv  = 100;
+        s.addedGlv   = 100 - s.currentGlv;
+        s.newStatVal = s.maxGStatVal;
+        remaining   -= canAdd;
+      }
+    });
+  }
+
+  const stillShort = remaining > 0;
+  const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
+  return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
+}
