@@ -686,7 +686,7 @@ function renderHitEquipResult(analysis) {
       { text: s.item.name },
       { text: "G" + s.currentGlv },
       { text: s.canEnhance ? "G" + s.neededGlv : "-" },
-      { text: isChanged ? ("+" + s.addedGlv + "回" + (isMax ? "（G300）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+      { text: isChanged ? ("+" + s.addedGlv + "回（G" + s.currentGlv + "→G" + s.neededGlv + "）") : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
       { text: fmt(s.currentStatVal) },
       { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, "luk", s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
     ].forEach(c => {
@@ -804,7 +804,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
         { text: s.item.name },
         { text: "G" + s.currentGlv },
         { text: s.canEnhance ? "G" + s.neededGlv : "-" },
-        { text: isChanged ? ("+" + s.addedGlv + "回" + (isMax ? "（G300）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+        { text: isChanged ? ("+" + s.addedGlv + "回（G" + s.currentGlv + "→G" + s.neededGlv + "）") : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
         { text: fmt(s.currentStatVal) },
         { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
       ].forEach(c => {
