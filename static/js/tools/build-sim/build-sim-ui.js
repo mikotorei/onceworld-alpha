@@ -49,7 +49,7 @@ let equipItemsMap     = new Map();
 async function loadEquipItems() {
   if (equipItemsCache.length > 0) return;
   try {
-    const res  = await fetch(EQUIP_URL, { cache: "no-store" });
+    const res  = await fetch(EQUIP_URL, { cache: "default" });
     const data = await res.json();
     equipItemsCache = Array.isArray(data.items) ? data.items : [];
     equipItemsCache.forEach(item => equipItemsMap.set(String(item.id), item));
@@ -1030,41 +1030,48 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   if (!lastReverseResult) return;
   const btn = $("bs-search-equip-btn");
   if (btn) btn.textContent = "分析中...";
-  await loadEquipItems();
+  try {
+    await loadEquipItems();
 
-  const simState = window.statusSimCollectState?.() || {};
-  const equipState = simState.equip || {};
-  const currentFinalTotal = window.lastFinalTotal || {};
-  const overridePointLimit = updatePointLimitDisplay();
+    const simState = window.statusSimCollectState?.() || {};
+    const equipState = simState.equip || {};
+    const currentFinalTotal = window.lastFinalTotal || {};
+    const overridePointLimit = updatePointLimitDisplay();
 
-  // atk+luk同時探索（物理かつhitRate指定あり）
-  if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
-    const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
-    const ft2 = window.lastFinalTotal || {};
-    const finalLuk = Math.round(Number(ft2?.luk || 0));
-    const shaker   = Math.max(0, Number(simState?.shaker || 0));
-    const baseLuk  = Math.max(0, Number(simState?.base?.luk    || 0));
-    const protLuk  = Math.max(0, Number(simState?.protein?.luk || 0));
-    const bpLuk    = baseLuk + protLuk * (1 + shaker * 0.01);
-    const effectiveLukMul = bpLuk > 0 ? Math.max(1, finalLuk / bpLuk) : 1;
+    // atk+luk同時探索（物理かつhitRate指定あり）
+    if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
+      const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
+      const ft2 = window.lastFinalTotal || {};
+      const finalLuk = Math.round(Number(ft2?.luk || 0));
+      const shaker   = Math.max(0, Number(simState?.shaker || 0));
+      const baseLuk  = Math.max(0, Number(simState?.base?.luk    || 0));
+      const protLuk  = Math.max(0, Number(simState?.protein?.luk || 0));
+      const bpLuk    = baseLuk + protLuk * (1 + shaker * 0.01);
+      const effectiveLukMul = bpLuk > 0 ? Math.max(1, finalLuk / bpLuk) : 1;
 
-    const analysis = analyzeAtkAndLukNeeded(
-      equipState, equipItemsMap,
-      lastReverseResult.needed, lastReverseResult.neededLuk,
-      currentFinalTotal, simState,
-      effectiveAtkMul, effectiveLukMul, overridePointLimit
-    );
-    renderAtkLukAnalysis(analysis, lastReverseResult.needed, lastReverseResult.neededLuk, lastReverseResult.hitRate);
-  } else {
-    const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
-    const analysis = analyzeGlvNeeded(
-      equipState, equipItemsMap,
-      lastReverseResult.stat, lastReverseResult.needed,
-      currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
-    );
-    renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+      const analysis = analyzeAtkAndLukNeeded(
+        equipState, equipItemsMap,
+        lastReverseResult.needed, lastReverseResult.neededLuk,
+        currentFinalTotal, simState,
+        effectiveAtkMul, effectiveLukMul, overridePointLimit
+      );
+      renderAtkLukAnalysis(analysis, lastReverseResult.needed, lastReverseResult.neededLuk, lastReverseResult.hitRate);
+    } else {
+      const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
+      const analysis = analyzeGlvNeeded(
+        equipState, equipItemsMap,
+        lastReverseResult.stat, lastReverseResult.needed,
+        currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
+      );
+      renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+    }
+  } catch(e) {
+    console.error("探索エラー:", e);
+    const wrap = $("bs-equip-result");
+    if (wrap) wrap.textContent = "探索中にエラーが発生しました。ページを再読み込みして再試行してください。";
+  } finally {
+    if (btn) btn.textContent = "この条件で装備を探索";
   }
-  if (btn) btn.textContent = "この条件で装備を探索";
 });
 
 window.addEventListener("buildLoaded", () => {
