@@ -29,7 +29,7 @@ function clamp0(v)     { return Math.max(0, n(v, 0)); }
 function clampLv(v)    { return Math.max(0, Math.min(1100, Math.floor(n(v, 0)))); }
 function clamp1(v)     { return Math.max(1, n(v, 1)); }
 function clampStage(v) { return Math.max(0, Math.min(4, n(v, 0))); }
-function clampG(v)     { return Math.max(0, Math.min(100, Math.floor(Number(v) || 0))); }
+function clampG(v)     { return Math.max(0, Math.min(300, Math.floor(Number(v) || 0))); }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
 function roundSafe(x)  { return Math.round((Number(x) || 0) + 1e-6); }
 
