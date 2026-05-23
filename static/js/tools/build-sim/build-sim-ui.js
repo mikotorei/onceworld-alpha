@@ -454,7 +454,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
     totalAddedG += s.addedGlv;
 
     const addedText = isChanged
-      ? `+${s.addedGlv}個${isMax ? "（G100）" : ""}`
+      ? `+${s.addedGlv}回${isMax ? "（G300）" : ""}`
       : (s.canEnhance ? "変更不要" : "-");
 
     [
@@ -478,7 +478,7 @@ function renderGlvAnalysis(analysis, stat, needed) {
   if (totalAddedG > 0) {
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-    ["合計", "", "", "", `+${totalAddedG}個`, "", ""].forEach(t => {
+    ["合計", "", "", "", `+${totalAddedG}回`, "", ""].forEach(t => {
       const td = document.createElement("td");
       td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;";
@@ -685,7 +685,7 @@ function renderHitEquipResult(analysis) {
       { text: s.item.name },
       { text: "G" + s.currentGlv },
       { text: s.canEnhance ? "G" + s.neededGlv : "-" },
-      { text: isChanged ? ("+" + s.addedGlv + "個" + (isMax ? "（G100）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+      { text: isChanged ? ("+" + s.addedGlv + "回" + (isMax ? "（G300）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
       { text: fmt(s.currentStatVal) },
       { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, "luk", s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
     ].forEach(c => {
@@ -700,7 +700,7 @@ function renderHitEquipResult(analysis) {
   if (totalAddedG > 0) {
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-    ["合計","","","","+" + totalAddedG + "個","",""].forEach(t => {
+    ["合計","","","","+" + totalAddedG + "回","",""].forEach(t => {
       const td = document.createElement("td"); td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
     });
@@ -803,7 +803,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
         { text: s.item.name },
         { text: "G" + s.currentGlv },
         { text: s.canEnhance ? "G" + s.neededGlv : "-" },
-        { text: isChanged ? ("+" + s.addedGlv + "個" + (isMax ? "（G100）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
+        { text: isChanged ? ("+" + s.addedGlv + "回" + (isMax ? "（G300）" : "")) : (s.canEnhance ? "変更不要" : "-"), cls: isChanged ? "bs-glv-needed" : "bs-glv-ok" },
         { text: fmt(s.currentStatVal) },
         { text: s.canEnhance ? fmt(calcWeaponArmorStatG(s.item, stat, s.neededGlv)) : fmt(s.currentStatVal), cls: isChanged ? "bs-glv-needed" : "" },
       ].forEach(c => {
@@ -818,7 +818,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
     if (totalAddedG > 0) {
       const sumTr = document.createElement("tr");
       sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
-      ["合計","","","","+" + totalAddedG + "個","",""].forEach(t => {
+      ["合計","","","","+" + totalAddedG + "回","",""].forEach(t => {
         const td = document.createElement("td"); td.textContent = t;
         td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
       });
@@ -943,6 +943,12 @@ document.querySelectorAll(".bs-reverse-hit-btn").forEach(btn => {
     });
     saveSimState();
   });
+});
+
+// 魔法アイテムALL1000
+$("bs-magic-all1000-btn")?.addEventListener("click", () => {
+  const ids = ["bs-analysis-book", "bs-analysis-book-advanced", "bs-crystal-count"];
+  ids.forEach(id => { const el = $(id); if (el) el.value = "1000"; });
 });
 
 // 命中タブ：天空フロア
