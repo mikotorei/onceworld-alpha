@@ -262,8 +262,12 @@ function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId) {
   });
 
   search.addEventListener("focus", () => {
+    const q = search.value || "";
     const items = Array.isArray(window.MONSTERS)
-      ? window.MONSTERS.filter(m => normalizeJP(m.title).includes(normalizeJP(search.value))).slice(0, 50) : [];
+      ? (q.trim() === ""
+          ? window.MONSTERS.slice(0, 200)
+          : window.MONSTERS.filter(m => normalizeJP(m.title).includes(normalizeJP(q))).slice(0, 200))
+      : [];
     if (items.length > 0) openSuggest(items);
   });
 
