@@ -703,6 +703,8 @@ function renderHitEquipResult(analysis) {
     const sumTr = document.createElement("tr");
     sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
     ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(totalCostHit)].forEach(t => {
+      const td = document.createElement("td");
+      td.textContent = t;
       td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
     });
     table.appendChild(sumTr);
@@ -821,6 +823,8 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
       const sumTr = document.createElement("tr");
       sumTr.style.cssText = "border-top:2px solid #ccc;font-weight:700;";
       ["合計","","","","+" + totalAddedG + "回","","推定費用: " + fmtGCost(sectionCost)].forEach(t => {
+        const td = document.createElement("td");
+        td.textContent = t;
         td.style.cssText = "padding:6px 8px;font-size:14px;"; sumTr.appendChild(td);
       });
       table.appendChild(sumTr);
