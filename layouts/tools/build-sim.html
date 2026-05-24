@@ -421,48 +421,6 @@
   {{/* ---- 逆算パネル ---- */}}
   <div data-panel="reverse" hidden>
     <section class="bs-panel-section">
-      <div class="enemy-section">
-        <div class="enemy-row">
-          <span class="enemy-label">目標モンスター</span>
-          <div class="enemy-input-wrap">
-            <input id="bs-reverse-monster-search" type="search" placeholder="モンスター名を入力" class="bs-monster-search">
-            <div id="bs-reverse-monster-suggest" class="suggest" hidden></div>
-          </div>
-        </div>
-        <div class="mt">
-          <div id="bs-reverse-lv-shortcuts" class="lv-shortcuts"></div>
-        </div>
-        <div class="enemy-row mt">
-          <span class="enemy-label">モンスターLv</span>
-          <input id="bs-reverse-lv" type="text" inputmode="numeric" value="0" class="lv-input">
-        </div>
-        <div class="enemy-row mt">
-          <span class="enemy-label">天空フロアから算出</span>
-          <div class="bs-floor-row">
-            <input id="bs-tenku-floor" type="text" inputmode="numeric" placeholder="例: 5000" class="lv-input">
-            <span class="bs-label-text">階</span>
-            <button id="bs-tenku-apply" type="button" class="chip-btn">Lvに反映</button>
-          </div>
-        </div>
-        <div class="enemy-row mt">
-          <span class="enemy-label">目標発数</span>
-          <input id="bs-reverse-npan" type="text" inputmode="numeric" value="1" class="lv-input">
-          <span class="bs-label-text">パン以内</span>
-        </div>
-        <div class="enemy-row mt bs-phys-only">
-          <span class="enemy-label">命中確率も探索</span>
-          <div class="chip-group">
-            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="0"  aria-pressed="true">しない</button>
-            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="1"  aria-pressed="false">1%</button>
-            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="50" aria-pressed="false">50%</button>
-            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="99" aria-pressed="false">99%</button>
-          </div>
-        </div>
-      </div>
-      <div class="action-section">
-        <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
-      </div>
-      <div id="bs-reverse-result" class="bs-results"></div>
       <details class="fold bs-point-limit-fold" id="bs-stat-point-fold">
         <summary>振り分けポイントを計算する</summary>
         <div class="bs-point-limit-grid">
@@ -540,6 +498,48 @@
           </div>
         </div>
       </details>
+      <div class="enemy-section">
+        <div class="enemy-row">
+          <span class="enemy-label">目標モンスター</span>
+          <div class="enemy-input-wrap">
+            <input id="bs-reverse-monster-search" type="search" placeholder="モンスター名を入力" class="bs-monster-search">
+            <div id="bs-reverse-monster-suggest" class="suggest" hidden></div>
+          </div>
+        </div>
+        <div class="mt">
+          <div id="bs-reverse-lv-shortcuts" class="lv-shortcuts"></div>
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">モンスターLv</span>
+          <input id="bs-reverse-lv" type="text" inputmode="numeric" value="0" class="lv-input">
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">天空フロアから算出</span>
+          <div class="bs-floor-row">
+            <input id="bs-tenku-floor" type="text" inputmode="numeric" placeholder="例: 5000" class="lv-input">
+            <span class="bs-label-text">階</span>
+            <button id="bs-tenku-apply" type="button" class="chip-btn">Lvに反映</button>
+          </div>
+        </div>
+        <div class="enemy-row mt">
+          <span class="enemy-label">目標発数</span>
+          <input id="bs-reverse-npan" type="text" inputmode="numeric" value="1" class="lv-input">
+          <span class="bs-label-text">パン以内</span>
+        </div>
+        <div class="enemy-row mt bs-phys-only">
+          <span class="enemy-label">命中確率も探索</span>
+          <div class="chip-group">
+            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="0"  aria-pressed="true">しない</button>
+            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="1"  aria-pressed="false">1%</button>
+            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="50" aria-pressed="false">50%</button>
+            <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="99" aria-pressed="false">99%</button>
+          </div>
+        </div>
+      </div>
+      <div class="action-section">
+        <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
+      </div>
+      <div id="bs-reverse-result" class="bs-results"></div>
       <div id="bs-search-equip-wrap" class="bs-search-equip-wrap" hidden>
         <button id="bs-search-equip-btn" type="button" class="chip-btn bs-run-btn bs-search-btn">この条件で装備を探索</button>
       </div>
