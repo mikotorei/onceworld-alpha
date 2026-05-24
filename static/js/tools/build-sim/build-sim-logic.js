@@ -229,6 +229,63 @@ function calcAccessoryStat(item, stat, lv) {
 // 分析メイン：優先順序 ① ステ振り → ② G強化
 // ============================================================
 
+
+// ============================================================
+// レンジベースG強化最適化（共通関数）
+// armorSlots: 各スロットの情報（canEnhance, perG, currentGlv, item等）
+// stat: "atk" / "luk" など
+// remainingFinal: finalTotal換算の不足値
+// effectiveMul: ステポイント1ptあたりのfinalTotal寄与倍率
+// ============================================================
+function applyOptimalGEnhancement(armorSlots, stat, remainingFinal, effectiveMul) {
+  const mul = (effectiveMul > 0) ? effectiveMul : 1;
+  let remaining = Math.ceil(remainingFinal / mul);
+  if (remaining <= 0) return false;
+
+  const allRanges = [];
+  armorSlots.filter(s => s.canEnhance && s.perG > 0).forEach(s => {
+    const segments = [
+      { from: 0,   to: 100, addCost: 0 },
+      { from: 100, to: 200, addCost: 10000000000 },
+      { from: 200, to: 300, addCost: 50000000000 },
+    ];
+    segments.forEach(seg => {
+      const from = Math.max(s.currentGlv, seg.from);
+      const to   = seg.to;
+      if (from >= to) return;
+      const statSum  = calcEquipStatSum(s.item);
+      const costPerG = statSum * 10000000 + seg.addCost;
+      allRanges.push({
+        slot: s, from, to,
+        costPerStat: costPerG / s.perG,
+        totalStat:   (to - from) * s.perG,
+      });
+    });
+  });
+
+  allRanges.sort((a, b) => a.costPerStat - b.costPerStat);
+
+  for (const r of allRanges) {
+    if (remaining <= 0) break;
+    const s = r.slot;
+    if (r.totalStat <= remaining) {
+      remaining   -= r.totalStat;
+      s.neededGlv  = r.to;
+      s.addedGlv   = Math.max(0, r.to - s.currentGlv);
+      s.newStatVal = calcWeaponArmorStatG(s.item, stat, r.to);
+    } else {
+      const neededG = Math.ceil(remaining / s.perG);
+      const fromG   = Math.max(s.currentGlv, r.from);
+      const toG     = Math.min(300, fromG + neededG);
+      s.neededGlv   = toG;
+      s.addedGlv    = Math.max(0, toG - s.currentGlv);
+      s.newStatVal  = calcWeaponArmorStatG(s.item, stat, toG);
+      remaining     = 0;
+    }
+  }
+  return remaining > 0;
+}
+
 function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier, overridePointLimit) {
   const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
   const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
@@ -306,54 +363,9 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   }
 
   // ============================================================
-  // ② ステ振りで届かなかった残りをG強化で補う
+  // ② ステ振りで届かなかった残りをG強化で補う（レンジベース最適化）
   // ============================================================
-  let remaining = remainingAfterStat;
-
-  if (remaining > 0) {
-    const enhanceable = armorAnalysis
-      .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => {
-        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
-        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
-        if (aCostPer <= 0 && bCostPer <= 0) return 0;
-        if (aCostPer <= 0) return -1;
-        if (bCostPer <= 0) return 1;
-        const aEfficiency = a.perG / aCostPer;
-        const bEfficiency = b.perG / bCostPer;
-        return bEfficiency - aEfficiency;
-      });
-
-    enhanceable.forEach(s => {
-      if (remaining <= 0) return;
-      const canAdd = s.maxGStatVal - s.currentStatVal;
-      if (canAdd <= 0) return;
-
-      if (canAdd >= remaining) {
-        const targetStat = s.currentStatVal + remaining;
-        let neededGlv;
-        if (s.currentGlv > 0) {
-          neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
-        } else {
-          const at1100    = calcWeaponArmorStatG(s.item, stat, 0);
-          const fromAt1100 = targetStat - at1100;
-          neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
-        }
-        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
-        s.neededGlv  = neededGlv;
-        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
-        s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
-        remaining    = 0;
-      } else {
-        s.neededGlv  = 300;
-        s.addedGlv   = 300 - s.currentGlv;
-        s.newStatVal = s.maxGStatVal;
-        remaining   -= canAdd;
-      }
-    });
-  }
-
-  const stillShort = remaining > 0;
+  const stillShort = applyOptimalGEnhancement(armorAnalysis, stat, remainingAfterStat, effectiveMultiplier);
   const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
   return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
 }
@@ -476,51 +488,8 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
     };
   }
 
-  // ② G強化で残りを補う
-  let remaining = remainingAfterStat;
-  if (remaining > 0) {
-    const enhanceable = armorAnalysis
-      .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => {
-        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
-        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
-        if (aCostPer <= 0 && bCostPer <= 0) return 0;
-        if (aCostPer <= 0) return -1;
-        if (bCostPer <= 0) return 1;
-        const aEfficiency = a.perG / aCostPer;
-        const bEfficiency = b.perG / bCostPer;
-        return bEfficiency - aEfficiency;
-      });
-
-    enhanceable.forEach(s => {
-      if (remaining <= 0) return;
-      const canAdd = s.maxGStatVal - s.currentStatVal;
-      if (canAdd <= 0) return;
-      if (canAdd >= remaining) {
-        const targetStat  = s.currentStatVal + remaining;
-        let neededGlv;
-        if (s.currentGlv > 0) {
-          neededGlv = s.currentGlv + Math.ceil(remaining / s.perG);
-        } else {
-          const at1100     = calcWeaponArmorStatG(s.item, stat, 0);
-          const fromAt1100 = targetStat - at1100;
-          neededGlv = fromAt1100 > 0 ? Math.ceil(fromAt1100 / s.perG) : 0;
-        }
-        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
-        s.neededGlv  = neededGlv;
-        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
-        s.newStatVal = calcWeaponArmorStatG(s.item, stat, neededGlv);
-        remaining    = 0;
-      } else {
-        s.neededGlv  = 300;
-        s.addedGlv   = 300 - s.currentGlv;
-        s.newStatVal = s.maxGStatVal;
-        remaining   -= canAdd;
-      }
-    });
-  }
-
-  const stillShort = remaining > 0;
+  // ② G強化で残りを補う（レンジベース最適化）
+  const stillShort = applyOptimalGEnhancement(armorAnalysis, stat, remainingAfterStat, effectiveLukMultiplier);
   const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
   return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
 }
@@ -608,48 +577,8 @@ function analyzeAtkAndLukNeeded(
   }
 
   // STEP2: atkをG強化で補う
-  let atkRemaining = atkRemainingAfterStat;
-  if (atkRemaining > 0) {
-    const enhanceable = atkSlots
-      .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => {
-        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
-        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
-        if (aCostPer <= 0 && bCostPer <= 0) return 0;
-        if (aCostPer <= 0) return -1;
-        if (bCostPer <= 0) return 1;
-        const aEfficiency = a.perG / aCostPer;
-        const bEfficiency = b.perG / bCostPer;
-        return bEfficiency - aEfficiency;
-      });
-    enhanceable.forEach(s => {
-      if (atkRemaining <= 0) return;
-      const canAdd = s.maxGStatVal - s.currentStatVal;
-      if (canAdd <= 0) return;
-      if (canAdd >= atkRemaining) {
-        const targetStat = s.currentStatVal + atkRemaining;
-        let neededGlv;
-        if (s.currentGlv > 0) {
-          neededGlv = s.currentGlv + Math.ceil(atkRemaining / s.perG);
-        } else {
-          const at1100 = calcWeaponArmorStatG(s.item, "atk", 0);
-          neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
-        }
-        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
-        s.neededGlv  = neededGlv;
-        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
-        s.newStatVal = calcWeaponArmorStatG(s.item, "atk", neededGlv);
-        atkRemaining = 0;
-      } else {
-        s.neededGlv  = 300;
-        s.addedGlv   = 300 - s.currentGlv;
-        s.newStatVal = s.maxGStatVal;
-        atkRemaining -= canAdd;
-      }
-    });
-  }
-
-  const atkStillShort = atkRemaining > 0;
+  // STEP2: atkをG強化で補う（レンジベース最適化）
+  const atkStillShort = applyOptimalGEnhancement(atkSlots, "atk", atkRemainingAfterStat, effectiveAtkMul);
 
   // ============================================================
   // STEP3: lukをステポイントで補う（atk消費後の残りポイントで）
@@ -684,44 +613,8 @@ function analyzeAtkAndLukNeeded(
       }
     });
 
-    const lukEnhanceable = lukSlots
-      .filter(s => s.canEnhance && s.currentGlv < 300)
-      .sort((a, b) => {
-        const aCostPer = calcGCostRange(a.item, a.currentGlv, a.currentGlv + 1);
-        const bCostPer = calcGCostRange(b.item, b.currentGlv, b.currentGlv + 1);
-        if (aCostPer <= 0 && bCostPer <= 0) return 0;
-        if (aCostPer <= 0) return -1;
-        if (bCostPer <= 0) return 1;
-        const aEfficiency = a.perG / aCostPer;
-        const bEfficiency = b.perG / bCostPer;
-        return bEfficiency - aEfficiency;
-      });
-
-    lukEnhanceable.forEach(s => {
-      if (lukRemaining <= 0) return;
-      const canAdd = s.maxGStatVal - s.currentStatVal;
-      if (canAdd <= 0) return;
-      if (canAdd >= lukRemaining) {
-        const targetStat = s.currentStatVal + lukRemaining;
-        let neededGlv;
-        if (s.currentGlv > 0) {
-          neededGlv = s.currentGlv + Math.ceil(lukRemaining / s.perG);
-        } else {
-          const at1100 = calcWeaponArmorStatG(s.item, "luk", 0);
-          neededGlv = (targetStat - at1100) > 0 ? Math.ceil((targetStat - at1100) / s.perG) : 0;
-        }
-        neededGlv    = Math.min(300, Math.max(s.currentGlv, neededGlv));
-        s.neededGlv  = neededGlv;
-        s.addedGlv   = Math.max(0, neededGlv - s.currentGlv);
-        s.newStatVal = calcWeaponArmorStatG(s.item, "luk", neededGlv);
-        lukRemaining = 0;
-      } else {
-        s.neededGlv  = 300;
-        s.addedGlv   = 300 - s.currentGlv;
-        s.newStatVal = s.maxGStatVal;
-        lukRemaining -= canAdd;
-      }
-    });
+    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, effectiveLukMul);
+    lukRemaining = 0;
   }
 
   const lukStillShort = lukRemaining > 0;
