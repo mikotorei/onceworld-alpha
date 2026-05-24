@@ -88,6 +88,19 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <details class="fold" id="foldEquip" open>
   <summary>装備</summary>
   <div class="equip-grid">
+  <div class="series-select-row">
+  <span class="series-select-label">シリーズ一括</span>
+  <div class="chip-group">
+  <button class="chip-btn" type="button" data-series="demon">悪魔</button>
+  <button class="chip-btn" type="button" data-series="dragon">ドラゴン</button>
+  <button class="chip-btn" type="button" data-series="inferno">獄炎</button>
+  <button class="chip-btn" type="button" data-series="leather">皮</button>
+  <button class="chip-btn" type="button" data-series="mage">魔道士</button>
+  <button class="chip-btn" type="button" data-series="metal">鉄</button>
+  <button class="chip-btn" type="button" data-series="platinum">白金</button>
+  <button class="chip-btn" type="button" data-series="tyrant">暴君</button>
+  </div>
+  </div>
 
   <div class="equip-row">
     <div class="slot">武器</div>
