@@ -999,8 +999,7 @@ switchTab("scan");
 loadEquipItems();
 setupHitMonsterSearch();
 
-["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor",
- "bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => attachCommaInputBehavior(id, 0));
+["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor"].forEach(id => attachCommaInputBehavior(id, 0));
 
 // 振り分けポイント計算入力
 ["bs-chara-lv", "bs-sp-tenme-count", "bs-pen-count", "bs-altar-count", "bs-tensho-count"].forEach(id => {
