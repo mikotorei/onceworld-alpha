@@ -427,11 +427,13 @@
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">キャラLv</span>
             <input id="bs-chara-lv" type="number" min="1" max="200" value="200" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-chara-lv').value='200';document.getElementById('bs-chara-lv').dispatchEvent(new Event('input'))">MAX</button>
             <span class="bs-label-text">（上限200）</span>
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">天命輪廻</span>
             <input id="bs-sp-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sp-tenme-count').value='30';document.getElementById('bs-sp-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
             <span class="bs-label-text">回（上限30）</span>
           </div>
           <div class="bs-point-limit-row">
@@ -444,16 +446,19 @@
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">ヨハネの羽ペン</span>
             <input id="bs-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-pen-count').value='1000';document.getElementById('bs-pen-count').dispatchEvent(new Event('input'))">MAX</button>
             <span class="bs-label-text">個（最大1000個）</span>
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">ヨハネの祭壇</span>
             <input id="bs-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-altar-count').value='1000';document.getElementById('bs-altar-count').dispatchEvent(new Event('input'))">MAX</button>
             <span class="bs-label-text">個（最大1000個）</span>
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">ステータス天晶</span>
             <input id="bs-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tensho-count').value='1000';document.getElementById('bs-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
             <span class="bs-label-text">個（最大1000個）</span>
           </div>
           <div class="bs-point-limit-result">
@@ -471,13 +476,15 @@
         <div class="bs-point-limit-grid">
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">賢者の落とし物</span>
-            <input id="bs-sage-drop" type="text" inputmode="numeric" value="0" class="lv-input">
-            <span class="bs-label-text">個</span>
+            <input id="bs-sage-drop" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sage-drop').value='1000';document.getElementById('bs-sage-drop').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1,000個）</span>
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">禁域の書物</span>
-            <input id="bs-forbidden-book" type="text" inputmode="numeric" value="0" class="lv-input">
-            <span class="bs-label-text">個</span>
+            <input id="bs-forbidden-book" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-forbidden-book').value='1000';document.getElementById('bs-forbidden-book').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1,000個）</span>
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">超越の契約書</span>
@@ -488,8 +495,9 @@
           </div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">天命輪廻</span>
-            <input id="bs-tenme-count" type="text" inputmode="numeric" value="0" class="lv-input">
-            <span class="bs-label-text">回</span>
+            <input id="bs-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tenme-count').value='30';document.getElementById('bs-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">回（上限30）</span>
           </div>
           <div class="bs-point-limit-result">
             <span class="bs-point-limit-label">計算された上限</span>
