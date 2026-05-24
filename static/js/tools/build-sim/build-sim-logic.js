@@ -653,9 +653,17 @@ function analyzeAtkAndLukNeeded(
     };
   }
 
-  // STEP2: atkをG強化で補う
-  // STEP2: atkをG強化で補う（レンジベース最適化）
-  const atkStillShort = applyOptimalGEnhancement(atkSlots, "atk", atkRemainingAfterStat, effectiveAtkMultiplier);
+  // STEP2: atk素材強化で補う → G強化で補う
+  const atkEffMulG = (effectiveAtkMultiplier > 0) ? effectiveAtkMultiplier : 1;
+  let atkRemainingAfterMat = atkRemainingAfterStat;
+  const atkHasNonMaxLv = atkSlots.some(s =>
+    s.item && !s.item.no_enhance && Number(s.item.base_add?.["atk"] || 0) > 0 && s.currentLv < 1100
+  );
+  if (atkHasNonMaxLv && atkRemainingAfterMat > 0) {
+    atkRemainingAfterMat = applyOptimalMatEnhancement(atkSlots, "atk", atkRemainingAfterMat, atkEffMulG);
+  }
+  atkSlots.forEach(s => { if (s.canEnhanceAfterMat) s.canEnhance = true; });
+  const atkStillShort = applyOptimalGEnhancement(atkSlots, "atk", atkRemainingAfterMat, atkEffMulG);
 
   // ============================================================
   // STEP3: lukをステポイントで補う（atk消費後の残りポイントで）
@@ -676,21 +684,38 @@ function analyzeAtkAndLukNeeded(
     };
   }
 
-  // STEP4: lukをG強化で補う（atkでG強化したスロットの残り枠で）
+  // STEP4: luk素材強化→G強化で補う
+  const lukEffMulG = (effectiveLukMultiplier > 0) ? effectiveLukMultiplier : 1;
   let lukRemaining = lukRemainingAfterStat;
   if (lukRemaining > 0) {
-    // atkでG強化済みのスロットは currentGlv が増えているとみなす
+    // atkでG強化・素材強化したスロットの状態をlukSlotに反映
     lukSlots.forEach(ls => {
       const atkSlot = atkSlots.find(a => a.slot === ls.slot);
-      if (atkSlot && atkSlot.addedGlv > 0) {
-        // atkでG強化したスロットはすでにG強化済みの状態から
-        ls.currentGlv = atkSlot.neededGlv;
-        ls.currentStatVal = calcWeaponArmorStatG(ls.item, "luk", ls.currentGlv);
-        ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 300) : ls.currentStatVal;
+      if (atkSlot) {
+        if (atkSlot.addedGlv > 0) {
+          ls.currentGlv     = atkSlot.neededGlv;
+          ls.currentStatVal = calcWeaponArmorStatG(ls.item, "luk", ls.currentGlv);
+          ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 300) : ls.currentStatVal;
+        }
+        if (atkSlot.addedLv > 0) {
+          ls.currentLv      = atkSlot.neededLv;
+          ls.currentStatVal = calcWeaponArmorStat(ls.item, "luk", ls.currentLv);
+          if (ls.currentLv >= 1100) ls.canEnhance = true;
+        }
       }
     });
 
-    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, effectiveLukMultiplier);
+    // luk素材強化
+    const lukHasNonMaxLv = lukSlots.some(s =>
+      s.item && !s.item.no_enhance && Number(s.item.base_add?.["luk"] || 0) > 0 && s.currentLv < 1100
+    );
+    if (lukHasNonMaxLv) {
+      lukRemaining = applyOptimalMatEnhancement(lukSlots, "luk", lukRemaining, lukEffMulG);
+    }
+    lukSlots.forEach(s => { if (s.canEnhanceAfterMat) s.canEnhance = true; });
+
+    // luk G強化
+    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, lukEffMulG);
     lukRemaining = 0;
   }
 
