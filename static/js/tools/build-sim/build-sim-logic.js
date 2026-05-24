@@ -655,7 +655,7 @@ function analyzeAtkAndLukNeeded(
 
   // STEP2: atkをG強化で補う
   // STEP2: atkをG強化で補う（レンジベース最適化）
-  const atkStillShort = applyOptimalGEnhancement(atkSlots, "atk", atkRemainingAfterStat, effectiveAtkMul);
+  const atkStillShort = applyOptimalGEnhancement(atkSlots, "atk", atkRemainingAfterStat, effectiveAtkMultiplier);
 
   // ============================================================
   // STEP3: lukをステポイントで補う（atk消費後の残りポイントで）
@@ -690,7 +690,7 @@ function analyzeAtkAndLukNeeded(
       }
     });
 
-    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, effectiveLukMul);
+    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, effectiveLukMultiplier);
     lukRemaining = 0;
   }
 
