@@ -526,6 +526,63 @@
       "base_rate": {}
     },
     {
+      "id": "motsu_shomotsu",
+      "name": "持つ書物",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 999999,
+        "def": 0,
+        "mdef": 999999,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "sky_sword_sorasido",
+      "name": "天空剣ソラシド",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 6789000,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "assassin_claw",
+      "name": "暗殺者のカギ爪",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 1,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
       "id": "negi_sword",
       "name": "ネギソード",
       "category": "weapon",
