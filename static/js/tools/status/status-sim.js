@@ -627,6 +627,44 @@ try {
 dataReady = true;
 window.statusSimRecalc = recalc;
 window.statusSimCollectState = collectState;
+
+// ステポイント1pt追加時のfinalTotal増加量（実効倍率）を計算して公開
+// stat: "atk" / "int" / "luk" など
+window.statusSimGetEffectiveMul = function(stat) {
+  const state = collectState();
+
+  // セットボーナス
+  const armorSetSeries = getArmorSetSeries(state.equip);
+  const setMul = armorSetSeries ? 1.1 : 1.0;
+
+  // アクセサリ乗算合計
+  let totalAccRate = 0;
+  ACCESSORY_KEYS.forEach(key => {
+    const picked = state.equip[key];
+    if (!picked?.id) return;
+    const item = equipmentMap.get(String(picked.id));
+    if (!item) return;
+    const s = scaleAccessoryBaseRate(item.base_rate || {}, picked.lv);
+    totalAccRate += s?.[stat] || 0;
+  });
+
+  // ペット乗算合計（petMul, petFinal）
+  let totalPetMul = 0, totalPetFinal = 0;
+  PET_KEYS.forEach(key => {
+    const picked = state.pets[key];
+    if (!picked?.id || picked.stage <= 0) return;
+    const summed = sumPetUpToStage(picked.id, picked.stage);
+    totalPetMul   += summed.mul?.[stat]   || 0;
+    totalPetFinal += summed.final?.[stat] || 0;
+  });
+
+  // 実効倍率 = setMul × (1 + accRate/100 + petMul/100) × (1 + petFinal/100)
+  const mul = setMul
+    * (1 + (totalAccRate + totalPetMul) / 100)
+    * (1 + totalPetFinal / 100);
+
+  return Math.max(1, mul);
+};
 refreshBuildSelect();
 applyState(loadAutoState());
 recalc();
