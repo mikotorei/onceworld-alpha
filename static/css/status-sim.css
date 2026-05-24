@@ -368,3 +368,19 @@
     width: 100%;
   }
 }
+
+/* ---- シリーズ一括選択 ---- */
+.series-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 8px 0 12px;
+}
+
+.series-select-label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
