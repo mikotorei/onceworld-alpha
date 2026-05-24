@@ -104,6 +104,46 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
 // 振り分け上限計算
 // ============================================================
 
+
+// ============================================================
+// 振り分けポイント計算
+// ============================================================
+
+function calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount) {
+  const maxLv   = Math.min(200, Math.max(1, Math.floor(Number(lv)   || 1)));
+  const t       = Math.min(30,  Math.max(0, Math.floor(Number(tenme) || 0)));
+  const pen     = Math.max(0, Math.floor(Number(penCount    || 0)));
+  const altar   = Math.max(0, Math.floor(Number(altarCount  || 0)));
+  const tensho  = Math.max(0, Math.floor(Number(tenshoCount || 0)));
+
+  // ① レベルによる獲得ポイント累積
+  let lvPoints = 0;
+  for (let l = 1; l <= maxLv; l++) {
+    if (l % 10 !== 0) {
+      lvPoints += Math.floor(l * 0.1 + 5);
+    } else {
+      lvPoints += Math.floor(l * 1.1 + 3);
+    }
+  }
+
+  // ② 転生の極致ボーナス
+  let tenmeBonus = 0;
+  if (t >= 1 && t <= 9) {
+    tenmeBonus = 300 * t * t;
+  } else if (t >= 10) {
+    tenmeBonus = Math.floor(30000 + 5000 * Math.pow(t - 9, 1.25));
+  }
+
+  // ③ 天命輪廻倍率
+  let base = lvPoints * (1 + t) + tenmeBonus;
+
+  // ④ コスモキューブ
+  if (hasCosmoCube && t > 0) base += t * 10000;
+
+  // ⑤ ヨハネ補正 + ステータス天晶
+  return Math.floor(base * (1 + pen * 0.01) * (1 + altar * 0.002)) + tensho * 10000;
+}
+
 function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
   const BASE       = 10000;
   const sage       = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop      || 0)))) * 10;
