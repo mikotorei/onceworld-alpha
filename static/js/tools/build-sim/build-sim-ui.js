@@ -1069,7 +1069,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
   } catch(e) {
     console.error("探索エラー:", e);
     const wrap = $("bs-equip-result");
-    if (wrap) wrap.textContent = "探索中にエラーが発生しました。ページを再読み込みして再試行してください。";
+    if (wrap) wrap.textContent = "エラー: " + (e?.message || String(e));
   } finally {
     if (btn) btn.textContent = "この条件で装備を探索";
   }
