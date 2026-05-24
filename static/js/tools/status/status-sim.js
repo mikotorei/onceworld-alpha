@@ -205,6 +205,42 @@ function applyArmorSetBonus(sumStats, enabled) {
   return o;
 }
 
+
+// シリーズ別防具5部位マッピング（5部位完備のもの）
+const SERIES_ARMOR_MAP = {
+  demon:    { head:"demon_helm",      body:"demon_armor",   hands:"demon_gauntlets", feet:"demon_shoes",    shield:"demon_shield"    },
+  dragon:   { head:"dragon_head",     body:"dragon_armor",  hands:"dragon_bracer",   feet:"dragon_leg",     shield:"dragon_shield"   },
+  inferno:  { head:"inferno_helm",    body:"inferno_armor", hands:"inferno_arm",     feet:"inferno_boots",  shield:"inferno_shield"  },
+  leather:  { head:"leather_cap",     body:"leather_clothes",hands:"leather_gloves", feet:"leather_shoes",  shield:"leather_shield"  },
+  mage:     { head:"mage_hood",       body:"mage_robe",     hands:"mage_gauntlet",   feet:"mage_shoes",     shield:"mage_shield"     },
+  metal:    { head:"metal_helm",      body:"iron_armor",    hands:"iron_gauntlets",  feet:"iron_boots",     shield:"iron_shield"     },
+  platinum: { head:"platinum_helm",   body:"platinum_armor",hands:"platinum_arm",    feet:"platinum_boots", shield:"platinum_shield" },
+  tyrant:   { head:"tyrant_helm",     body:"tyrant_jacket", hands:"tyrant_arm",      feet:"tyrant_shoes",   shield:"tyrant_shield"   },
+};
+
+const SERIES_LABEL = {
+  demon:"悪魔", dragon:"ドラゴン", inferno:"獄炎", leather:"皮",
+  mage:"魔道士", metal:"鉄", platinum:"白金", tyrant:"暴君"
+};
+
+function applySeriesArmor(seriesKey) {
+  const map = SERIES_ARMOR_MAP[seriesKey];
+  if (!map) return;
+  const armorSlots = ["head","body","hands","feet","shield"];
+  armorSlots.forEach(slot => {
+    const id = map[slot];
+    if (!id) return;
+    const select = $("select_" + slot);
+    const lvInput = $("level_" + slot);
+    const glvInput = $("glevel_" + slot);
+    if (select) select.value = id;
+    if (lvInput) lvInput.value = "0";
+    if (glvInput) glvInput.value = "0";
+    setEquipInputFromSelected(slot, id);
+  });
+  recalc();
+}
+
 function equipSearchId(key)  { return "equip_search_" + key; }
 function equipSuggestId(key) { return "equip_suggest_" + key; }
 function closeEquipSuggest(key) { const s=$(equipSuggestId(key)); if(!s)return; s.hidden=true; s.innerHTML=""; }
@@ -229,7 +265,7 @@ function updateAccessoryMaxLvBtn(key) {
   const item = id ? equipmentMap.get(String(id)) : null;
   const maxLv = item?.max_level || null;
   if (maxLv && maxLv > 1) {
-    btn.textContent = "Lv" + maxLv;
+    btn.textContent = "Lv.max";
     btn.hidden = false;
   } else {
     btn.hidden = true;
@@ -713,6 +749,13 @@ document.addEventListener("click", e => {
     if (e.target===input || (suggest&&suggest.contains(e.target))) inside=true;
   });
   if (!inside) { closeAllEquipSuggests(); closeAllPetSuggests(); }
+});
+
+// シリーズ一括選択ボタン
+document.querySelectorAll("[data-series]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    applySeriesArmor(btn.getAttribute("data-series"));
+  });
 });
 
 if ($("recalcBtn"))         $("recalcBtn").addEventListener("click", recalc);
