@@ -105,11 +105,16 @@ function updatePointLimitDisplay() {
 }
 
 function estimateBasePointMultiplier(simState, stat) {
+  // status-sim.jsの正確な実効倍率計算を使用
+  if (window.statusSimGetEffectiveMul) {
+    return window.statusSimGetEffectiveMul(stat);
+  }
+  // フォールバック：旧計算（精度低）
   const ft = window.lastFinalTotal || {};
   const finalVal = Math.round(Number(ft?.[stat] || 0));
   if (finalVal <= 0) return 1;
-  const shaker    = Math.max(0, Number(simState?.shaker || 0));
-  const baseVal   = Math.max(0, Number(simState?.base?.[stat]    || 0));
+  const shaker     = Math.max(0, Number(simState?.shaker || 0));
+  const baseVal    = Math.max(0, Number(simState?.base?.[stat]    || 0));
   const proteinVal = Math.max(0, Number(simState?.protein?.[stat] || 0));
   const basePlusProtein = baseVal + proteinVal * (1 + shaker * 0.01);
   if (basePlusProtein <= 0) return 1;
