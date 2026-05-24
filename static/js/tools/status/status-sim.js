@@ -758,6 +758,30 @@ document.querySelectorAll("[data-series]").forEach(btn => {
   });
 });
 
+// 素材強化1100一括
+$("enhance1100AllBtn")?.addEventListener("click", () => {
+  const armorKeys = ["weapon","head","body","hands","feet","shield"];
+  armorKeys.forEach(k => {
+    const el = $("level_" + k);
+    if (el) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+  });
+  recalc();
+});
+
+// 検索欄クリアボタン（×）
+document.querySelectorAll("[data-clear-search]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.getAttribute("data-clear-search");
+    const input = $(equipSearchId(key)) || $(petInputId(key));
+    if (input) { input.value = ""; input.dispatchEvent(new Event("input")); }
+    const select = $("select_" + key);
+    if (select) { select.value = ""; }
+    closeEquipSuggest(key);
+    closePetSuggest(key);
+    recalc();
+  });
+});
+
 if ($("recalcBtn"))         $("recalcBtn").addEventListener("click", recalc);
 if ($("proteinAll1000Btn")) $("proteinAll1000Btn").addEventListener("click", setProteinAll1000);
 if ($("saveBuildBtn"))      $("saveBuildBtn").addEventListener("click", saveNamedBuild);
@@ -767,24 +791,8 @@ if ($("buildSlotSelect"))   $("buildSlotSelect").addEventListener("change", () =
 if ($("resetBtn")) {
   $("resetBtn").addEventListener("click", () => {
     if ($("basePointTotal")) $("basePointTotal").value="0";
-    if ($("shakerCount"))    $("shakerCount").value="0";
     BASE_STATS.forEach(k => {
-      if ($("base_"   +k)) $("base_"   +k).value="0";
-      if ($("protein_"+k)) $("protein_"+k).value="0";
-    });
-    EQUIP_KEYS.forEach(k => {
-      if ($("select_"+k)) $("select_"+k).value="";
-      if ($("level_" +k)) $("level_" +k).value=k.startsWith("accessory")?"1":"0";
-      if ($("glevel_"+k)) $("glevel_"+k).value="0";
-      if ($("effect_"+k)) $("effect_"+k).textContent="-";
-      const input=$(equipSearchId(k)); if(input) input.value="";
-      closeEquipSuggest(k);
-    });
-    PET_KEYS.forEach(k => {
-      if ($("select_"+k)) $("select_"+k).value="";
-      if ($("stage_" +k)) $("stage_" +k).value="0";
-      const input=$(petInputId(k)); if(input) input.value="";
-      closePetSuggest(k);
+      if ($("base_"+k)) $("base_"+k).value="0";
     });
     recalc();
   });
