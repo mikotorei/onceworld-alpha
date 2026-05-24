@@ -220,10 +220,24 @@ function selectEquipById(key, id) {
   recalc();
 }
 
+const STAT_KEYS = ["vit","spd","atk","int","def","mdef","luk"];
 function filterEquipItems(key, query) {
   const q = normalizeJP(query);
   if (!q) return [];
-  return (equipItemsCacheBySlot.get(key)||[]).filter(i=>normalizeJP(i.name).includes(q)).slice(0,50);
+  return (equipItemsCacheBySlot.get(key)||[]).filter(i => {
+    // 名前で一致
+    if (normalizeJP(i.name).includes(q)) return true;
+    // ステータス名で一致（アクセサリのみ）
+    if (key.startsWith("accessory")) {
+      const item = equipmentMap.get(String(i.id));
+      if (!item) return false;
+      return STAT_KEYS.some(stat => {
+        if (!normalizeJP(stat).includes(q)) return false;
+        return (item.base_add?.[stat] || 0) !== 0 || (item.base_rate?.[stat] || 0) !== 0;
+      });
+    }
+    return false;
+  }).slice(0, 200);
 }
 
 function openEquipSuggest(key, items) {
@@ -554,7 +568,12 @@ try {
     { key:"feet",    filter: i => i.category==="armor" && i.slot==="feet" },
     { key:"shield",  filter: i => i.category==="armor" && i.slot==="shield" },
   ];
-  const accessoryItems = items.filter(i => i.category==="accessory");
+  const accessoryItems = items.filter(i =>
+    i.category === "accessory" && (
+      Object.values(i.base_add  || {}).some(v => v !== 0) ||
+      Object.values(i.base_rate || {}).some(v => v !== 0)
+    )
+  );
   slotDefs.forEach(({ key, filter }) => {
     const filtered = items.filter(filter);
     equipItemsCacheBySlot.set(key, filtered.map(i=>({ id:String(i.id), name:i.name })));
