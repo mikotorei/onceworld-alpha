@@ -864,6 +864,46 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
       }
     }
 
+     // ② 素材強化テーブル
+     const matSlotsInSec = slots.filter(s => s.item && s.addedLv > 0);
+     if (matSlotsInSec.length > 0) {
+       const matTitleEl = document.createElement("div");
+       matTitleEl.className = "bs-equip-subtitle";
+       matTitleEl.textContent = "② 素材強化で補う（+lv追加）";
+       sec.appendChild(matTitleEl);
+       const matTbl = document.createElement("table");
+       matTbl.className = "bs-equip-table";
+       const matThead = document.createElement("tr");
+       ["スロット","装備名","現在+lv","推奨+lv","追加lv数","現在値","強化後"].forEach(h => {
+         const th = document.createElement("th");
+         th.textContent = h;
+         th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;text-align:left;";
+         matThead.appendChild(th);
+       });
+       matTbl.appendChild(matThead);
+       matSlotsInSec.forEach(s => {
+         const tr = document.createElement("tr");
+         tr.style.borderBottom = "1px solid #eee";
+         [
+           { text: s.label, cls: "bs-equip-slot" },
+           { text: s.item.name },
+           { text: "+" + s.currentLv },
+           { text: "+" + s.neededLv },
+           { text: "+" + s.addedLv + "lv", cls: "bs-glv-needed" },
+           { text: fmt(s.currentStatVal) },
+           { text: fmt(s.newLvStatVal), cls: "bs-glv-needed" },
+         ].forEach(c => {
+           const td = document.createElement("td");
+           td.textContent = c.text;
+           td.style.cssText = "padding:6px 8px;font-size:14px;";
+           if (c.cls) td.className = c.cls;
+           tr.appendChild(td);
+         });
+         matTbl.appendChild(tr);
+       });
+       sec.appendChild(matTbl);
+     }
+
     // G強化テーブル
     const armorTitle = document.createElement("div");
     armorTitle.className = "bs-equip-subtitle";
