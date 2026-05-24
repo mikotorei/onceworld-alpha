@@ -466,11 +466,60 @@ function renderGlvAnalysis(analysis, stat, needed) {
     }
   }
 
+  // ② 素材強化テーブル
+  const matSlots = analysis.slots.filter(s => s.item && s.addedLv > 0);
+  if (matSlots.length > 0) {
+    const matTitle = document.createElement("div");
+    matTitle.className = "bs-equip-subtitle";
+    matTitle.textContent = "② 素材強化で補う（+lv追加）";
+    wrap.appendChild(matTitle);
+    const matTable = document.createElement("table");
+    matTable.className = "bs-equip-table";
+    const matThead = document.createElement("tr");
+    ["スロット","装備名","現在+lv","推奨+lv","追加lv数","現在値","強化後"].forEach(h => {
+      const th = document.createElement("th");
+      th.textContent = h;
+      th.style.cssText = "padding:6px 8px;font-size:12px;color:#666;border-bottom:1px solid #ddd;white-space:nowrap;text-align:left;";
+      matThead.appendChild(th);
+    });
+    matTable.appendChild(matThead);
+    matSlots.forEach(s => {
+      const tr = document.createElement("tr");
+      tr.style.borderBottom = "1px solid #eee";
+      [
+        { text: s.label, cls: "bs-equip-slot" },
+        { text: s.item.name },
+        { text: "+" + s.currentLv },
+        { text: "+" + s.neededLv },
+        { text: "+" + s.addedLv + "lv", cls: "bs-glv-needed" },
+        { text: fmt(s.currentStatVal) },
+        { text: fmt(s.newLvStatVal), cls: "bs-glv-needed" },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c.text;
+        td.style.cssText = "padding:6px 8px;font-size:14px;";
+        if (c.cls) td.className = c.cls;
+        tr.appendChild(td);
+      });
+      matTable.appendChild(tr);
+    });
+    wrap.appendChild(matTable);
+  }
+
   // ② G強化テーブル
   const armorTitle = document.createElement("div");
   armorTitle.className = "bs-equip-subtitle";
-  armorTitle.textContent = "② G強化で残りを補う（perG効率順に割り振り）";
+  armorTitle.textContent = "③ G強化で残りを補う（perG効率順に割り振り）";
   wrap.appendChild(armorTitle);
+
+  if (analysis.noEnhanceable) {
+    const noEnhP = document.createElement("p");
+    noEnhP.className = "bs-ng";
+    noEnhP.textContent = "⚠️ G強化可能な装備がありません（素材強化+1100が必要です）。";
+    wrap.appendChild(noEnhP);
+    renderAccTable(wrap, analysis.accSlots, stat);
+    return;
+  }
 
   const table = document.createElement("table");
   table.className = "bs-equip-table";
