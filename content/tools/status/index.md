@@ -203,6 +203,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="lv-row">
       <span class="lvtag">Lv</span>
       <div class="lvbox"><input id="level_accessory1" type="number" min="1" value="1"></div>
+      <button id="maxlv_btn_accessory1" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
     </div>
     <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory1">-</div></div>
   </div>
@@ -219,6 +220,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="lv-row">
       <span class="lvtag">Lv</span>
       <div class="lvbox"><input id="level_accessory2" type="number" min="1" value="1"></div>
+      <button id="maxlv_btn_accessory2" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
     </div>
     <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory2">-</div></div>
   </div>
@@ -235,6 +237,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="lv-row">
       <span class="lvtag">Lv</span>
       <div class="lvbox"><input id="level_accessory3" type="number" min="1" value="1"></div>
+      <button id="maxlv_btn_accessory3" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
     </div>
     <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory3">-</div></div>
   </div>
@@ -251,6 +254,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="lv-row">
       <span class="lvtag">Lv</span>
       <div class="lvbox"><input id="level_accessory4" type="number" min="1" value="1"></div>
+      <button id="maxlv_btn_accessory4" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
     </div>
     <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory4">-</div></div>
   </div>
