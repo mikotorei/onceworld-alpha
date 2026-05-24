@@ -14,6 +14,97 @@
 
     <div class="status-sim">
 
+      <details class="fold" id="foldStatPointCalc" open>
+        <summary>振り分けポイント・上限の計算</summary>
+        <div class="bs-point-calc-wrap">
+<div class="bs-point-sub-section">
+        <summary>振り分けポイントを計算する</summary>
+        <div class="bs-point-limit-grid">
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">キャラLv</span>
+            <input id="bs-chara-lv" type="number" min="1" max="200" value="200" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-chara-lv').value='200';document.getElementById('bs-chara-lv').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">（上限200）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">天命輪廻</span>
+            <input id="bs-sp-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sp-tenme-count').value='30';document.getElementById('bs-sp-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">回（上限30）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">コスモキューブ</span>
+            <div class="chip-group">
+              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
+              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="1" aria-pressed="false">所持</button>
+            </div>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ヨハネの羽ペン</span>
+            <input id="bs-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-pen-count').value='1000';document.getElementById('bs-pen-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1000個）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ヨハネの祭壇</span>
+            <input id="bs-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-altar-count').value='1000';document.getElementById('bs-altar-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1000個）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ステータス天晶</span>
+            <input id="bs-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tensho-count').value='1000';document.getElementById('bs-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1000個）</span>
+          </div>
+          <div class="bs-point-limit-result">
+            <span class="bs-point-limit-label">獲得振り分けポイント</span>
+            <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
+            <span class="bs-label-text">pt</span>
+          </div>
+          <div class="bs-point-limit-row" style="margin-top:4px">
+            <button id="bs-apply-stat-point-btn" type="button" class="chip-btn">ビルド入力の振り分け合計に反映</button>
+          </div>
+        </div>
+      </div>
+<div class="bs-point-sub-section">
+        <summary>振り分け上限を計算する</summary>
+        <div class="bs-point-limit-grid">
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">賢者の落とし物</span>
+            <input id="bs-sage-drop" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sage-drop').value='1000';document.getElementById('bs-sage-drop').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1,000個）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">禁域の書物</span>
+            <input id="bs-forbidden-book" type="number" min="0" max="1000" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-forbidden-book').value='1000';document.getElementById('bs-forbidden-book').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">個（最大1,000個）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">超越の契約書</span>
+            <div class="chip-group">
+              <button class="chip-btn bs-contract-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
+              <button class="chip-btn bs-contract-btn" type="button" data-val="1" aria-pressed="false">所持</button>
+            </div>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">天命輪廻</span>
+            <input id="bs-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
+            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tenme-count').value='30';document.getElementById('bs-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
+            <span class="bs-label-text">回（上限30）</span>
+          </div>
+          <div class="bs-point-limit-result">
+            <span class="bs-point-limit-label">計算された上限</span>
+            <span id="bs-point-limit-display" class="bs-point-limit-total">10,000</span>
+            <span class="bs-label-text">ポイント</span>
+          </div>
+        </div>
+      </div>
+        </div>
+      </details>
+
       <h2>振り分けポイント</h2>
       <div class="row">
         <label class="pill">合計 <input id="basePointTotal" type="number" min="0" value="0"></label>
@@ -94,6 +185,9 @@
              <button class="chip-btn" type="button" data-series="tyrant">暴君</button>
            </div>
          </div>
+         <div class="series-select-row">
+           <button id="enhance1100AllBtn" type="button" class="chip-btn">武器・防具すべて+1100</button>
+         </div>
         <div class="equip-grid">
 
           <div class="equip-row">
@@ -101,6 +195,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_weapon" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="weapon">×</button>
                 <div id="equip_suggest_weapon" class="equip-suggest" hidden></div>
                 <select id="select_weapon" hidden></select>
               </div>
@@ -118,6 +213,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_head" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="head">×</button>
                 <div id="equip_suggest_head" class="equip-suggest" hidden></div>
                 <select id="select_head" hidden></select>
               </div>
@@ -135,6 +231,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_body" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="body">×</button>
                 <div id="equip_suggest_body" class="equip-suggest" hidden></div>
                 <select id="select_body" hidden></select>
               </div>
@@ -152,6 +249,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_hands" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="hands">×</button>
                 <div id="equip_suggest_hands" class="equip-suggest" hidden></div>
                 <select id="select_hands" hidden></select>
               </div>
@@ -169,6 +267,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_feet" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="feet">×</button>
                 <div id="equip_suggest_feet" class="equip-suggest" hidden></div>
                 <select id="select_feet" hidden></select>
               </div>
@@ -186,6 +285,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_shield" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="shield">×</button>
                 <div id="equip_suggest_shield" class="equip-suggest" hidden></div>
                 <select id="select_shield" hidden></select>
               </div>
@@ -203,6 +303,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_accessory1" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="accessory1">×</button>
                 <div id="equip_suggest_accessory1" class="equip-suggest" hidden></div>
                 <select id="select_accessory1" hidden></select>
               </div>
@@ -220,6 +321,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_accessory2" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="accessory2">×</button>
                 <div id="equip_suggest_accessory2" class="equip-suggest" hidden></div>
                 <select id="select_accessory2" hidden></select>
               </div>
@@ -237,6 +339,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_accessory3" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="accessory3">×</button>
                 <div id="equip_suggest_accessory3" class="equip-suggest" hidden></div>
                 <select id="select_accessory3" hidden></select>
               </div>
@@ -254,6 +357,7 @@
             <div class="main">
               <div class="equip-search-wrap">
                 <input id="equip_search_accessory4" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="accessory4">×</button>
                 <div id="equip_suggest_accessory4" class="equip-suggest" hidden></div>
                 <select id="select_accessory4" hidden></select>
               </div>
@@ -278,6 +382,7 @@
             <div class="main">
               <div class="pet-search-wrap">
                 <input id="pet_search_pet1" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="pet1">×</button>
                 <div id="pet_suggest_pet1" class="pet-suggest" hidden></div>
                 <select id="select_pet1" hidden></select>
               </div>
@@ -301,6 +406,7 @@
             <div class="main">
               <div class="pet-search-wrap">
                 <input id="pet_search_pet2" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="pet2">×</button>
                 <div id="pet_suggest_pet2" class="pet-suggest" hidden></div>
                 <select id="select_pet2" hidden></select>
               </div>
@@ -324,6 +430,7 @@
             <div class="main">
               <div class="pet-search-wrap">
                 <input id="pet_search_pet3" type="text" placeholder="名前で検索して選択" autocomplete="off">
+                <button type="button" class="search-clear-btn" data-clear-search="pet3">×</button>
                 <div id="pet_suggest_pet3" class="pet-suggest" hidden></div>
                 <select id="select_pet3" hidden></select>
               </div>
@@ -434,91 +541,6 @@
   {{/* ---- 逆算パネル ---- */}}
   <div data-panel="reverse" hidden>
     <section class="bs-panel-section">
-      <details class="fold bs-point-limit-fold" id="bs-stat-point-fold">
-        <summary>振り分けポイントを計算する</summary>
-        <div class="bs-point-limit-grid">
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">キャラLv</span>
-            <input id="bs-chara-lv" type="number" min="1" max="200" value="200" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-chara-lv').value='200';document.getElementById('bs-chara-lv').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">（上限200）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">天命輪廻</span>
-            <input id="bs-sp-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sp-tenme-count').value='30';document.getElementById('bs-sp-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">回（上限30）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">コスモキューブ</span>
-            <div class="chip-group">
-              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
-              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="1" aria-pressed="false">所持</button>
-            </div>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ヨハネの羽ペン</span>
-            <input id="bs-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-pen-count').value='1000';document.getElementById('bs-pen-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ヨハネの祭壇</span>
-            <input id="bs-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-altar-count').value='1000';document.getElementById('bs-altar-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ステータス天晶</span>
-            <input id="bs-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tensho-count').value='1000';document.getElementById('bs-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-result">
-            <span class="bs-point-limit-label">獲得振り分けポイント</span>
-            <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
-            <span class="bs-label-text">pt</span>
-          </div>
-          <div class="bs-point-limit-row" style="margin-top:4px">
-            <button id="bs-apply-stat-point-btn" type="button" class="chip-btn">ビルド入力の振り分け合計に反映</button>
-          </div>
-        </div>
-      </details>
-      <details class="fold bs-point-limit-fold" id="bs-point-limit-fold">
-        <summary>振り分け上限を計算する</summary>
-        <div class="bs-point-limit-grid">
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">賢者の落とし物</span>
-            <input id="bs-sage-drop" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sage-drop').value='1000';document.getElementById('bs-sage-drop').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1,000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">禁域の書物</span>
-            <input id="bs-forbidden-book" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-forbidden-book').value='1000';document.getElementById('bs-forbidden-book').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1,000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">超越の契約書</span>
-            <div class="chip-group">
-              <button class="chip-btn bs-contract-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
-              <button class="chip-btn bs-contract-btn" type="button" data-val="1" aria-pressed="false">所持</button>
-            </div>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">天命輪廻</span>
-            <input id="bs-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tenme-count').value='30';document.getElementById('bs-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">回（上限30）</span>
-          </div>
-          <div class="bs-point-limit-result">
-            <span class="bs-point-limit-label">計算された上限</span>
-            <span id="bs-point-limit-display" class="bs-point-limit-total">10,000</span>
-            <span class="bs-label-text">ポイント</span>
-          </div>
-        </div>
-      </details>
       <div class="enemy-section">
         <div class="enemy-row">
           <span class="enemy-label">目標モンスター</span>
