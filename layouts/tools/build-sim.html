@@ -459,6 +459,51 @@
         <button id="bs-reverse-btn" type="button" class="chip-btn bs-run-btn">逆算する</button>
       </div>
       <div id="bs-reverse-result" class="bs-results"></div>
+      <details class="fold bs-point-limit-fold" id="bs-stat-point-fold">
+        <summary>振り分けポイントを計算する</summary>
+        <div class="bs-point-limit-grid">
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">キャラLv</span>
+            <input id="bs-chara-lv" type="number" min="1" max="200" value="200" class="lv-input">
+            <span class="bs-label-text">（上限200）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">天命輪廻</span>
+            <input id="bs-sp-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
+            <span class="bs-label-text">回（上限30）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">コスモキューブ</span>
+            <div class="chip-group">
+              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="0" aria-pressed="true">未所持</button>
+              <button class="chip-btn bs-cosmocube-btn" type="button" data-val="1" aria-pressed="false">所持</button>
+            </div>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ヨハネの羽ペン</span>
+            <input id="bs-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <span class="bs-label-text">個（最大11倍）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ヨハネの祭壇</span>
+            <input id="bs-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <span class="bs-label-text">個（最大3倍）</span>
+          </div>
+          <div class="bs-point-limit-row">
+            <span class="bs-point-limit-label">ステータス天晶</span>
+            <input id="bs-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
+            <span class="bs-label-text">個（+1万pt/個）</span>
+          </div>
+          <div class="bs-point-limit-result">
+            <span class="bs-point-limit-label">獲得振り分けポイント</span>
+            <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
+            <span class="bs-label-text">pt</span>
+          </div>
+          <div class="bs-point-limit-row" style="margin-top:4px">
+            <button id="bs-apply-stat-point-btn" type="button" class="chip-btn">ビルド入力の振り分け合計に反映</button>
+          </div>
+        </div>
+      </details>
       <details class="fold bs-point-limit-fold" id="bs-point-limit-fold">
         <summary>振り分け上限を計算する</summary>
         <div class="bs-point-limit-grid">
