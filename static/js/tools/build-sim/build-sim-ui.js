@@ -316,7 +316,7 @@ function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId) {
     closeSuggest();
   });
 
-  return { getPicked: () => picked };
+  return { getPicked: () => picked, clear: function() { picked = null; search.value = ""; closeSuggest(); if (lvInput) lvInput.value = ""; if (scWrap) scWrap.innerHTML = ""; } };
 }
 
 let reverseSearchHandle = null;
@@ -1206,6 +1206,13 @@ reverseSearchHandle = setupMonsterSearch(
   "bs-reverse-lv",
   "bs-reverse-lv-shortcuts"
 );
+
+ $("bs-reverse-monster-clear")?.addEventListener("click", () => {
+   reverseSearchHandle?.clear();
+   const rr = $("bs-reverse-result"); if (rr) rr.innerHTML = "";
+   const sw = $("bs-search-equip-wrap"); if (sw) sw.hidden = true;
+   lastReverseResult = null;
+ });
 
 $("bs-reverse-btn")?.addEventListener("click", () => {
   renderReverseResult();
