@@ -1106,6 +1106,31 @@ document.querySelectorAll(".bs-reverse-hit-btn").forEach(btn => {
   });
 });
 
+// 素材強化1100一括
+$("enhance1100AllBtn")?.addEventListener("click", () => {
+  const armorKeys = ["weapon","head","body","hands","feet","shield"];
+  armorKeys.forEach(k => {
+    const el = document.getElementById("level_" + k);
+    if (el) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+  });
+  window.statusSimRecalc?.();
+});
+
+// 検索欄クリア（×ボタン）
+document.querySelectorAll("[data-clear-search]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.getAttribute("data-clear-search");
+    const equipInput = document.getElementById("equip_search_" + key);
+    const petInput   = document.getElementById("pet_search_"   + key);
+    if (equipInput) { equipInput.value = ""; equipInput.dispatchEvent(new Event("input")); }
+    if (petInput)   { petInput.value   = ""; petInput.dispatchEvent(new Event("input")); }
+    const select = document.getElementById("select_" + key);
+    if (select) select.value = "";
+    window.statusSimRecalc?.();
+    saveSimState();
+  });
+});
+
 // 魔法アイテムALL1000
 $("bs-magic-all1000-btn")?.addEventListener("click", () => {
   const ids = ["bs-analysis-book", "bs-analysis-book-advanced", "bs-crystal-count"];
