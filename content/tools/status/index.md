@@ -110,7 +110,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_weapon" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="weapon">×</button>
         <div id="equip_suggest_weapon" class="equip-suggest" hidden></div>
         <select id="select_weapon" hidden></select>
       </div>
@@ -128,7 +127,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_head" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="head">×</button>
         <div id="equip_suggest_head" class="equip-suggest" hidden></div>
         <select id="select_head" hidden></select>
       </div>
@@ -146,7 +144,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_body" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="body">×</button>
         <div id="equip_suggest_body" class="equip-suggest" hidden></div>
         <select id="select_body" hidden></select>
       </div>
@@ -164,7 +161,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_hands" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="hands">×</button>
         <div id="equip_suggest_hands" class="equip-suggest" hidden></div>
         <select id="select_hands" hidden></select>
       </div>
@@ -182,7 +178,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_feet" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="feet">×</button>
         <div id="equip_suggest_feet" class="equip-suggest" hidden></div>
         <select id="select_feet" hidden></select>
       </div>
@@ -200,7 +195,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_shield" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="shield">×</button>
         <div id="equip_suggest_shield" class="equip-suggest" hidden></div>
         <select id="select_shield" hidden></select>
       </div>
@@ -218,7 +212,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_accessory1" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="accessory1">×</button>
         <div id="equip_suggest_accessory1" class="equip-suggest" hidden></div>
         <select id="select_accessory1" hidden></select>
       </div>
@@ -236,7 +229,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_accessory2" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="accessory2">×</button>
         <div id="equip_suggest_accessory2" class="equip-suggest" hidden></div>
         <select id="select_accessory2" hidden></select>
       </div>
@@ -254,7 +246,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_accessory3" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="accessory3">×</button>
         <div id="equip_suggest_accessory3" class="equip-suggest" hidden></div>
         <select id="select_accessory3" hidden></select>
       </div>
@@ -272,7 +263,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="equip-search-wrap">
         <input id="equip_search_accessory4" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="accessory4">×</button>
         <div id="equip_suggest_accessory4" class="equip-suggest" hidden></div>
         <select id="select_accessory4" hidden></select>
       </div>
@@ -297,7 +287,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="pet-search-wrap">
         <input id="pet_search_pet1" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="pet1">×</button>
         <div id="pet_suggest_pet1" class="pet-suggest" hidden></div>
         <select id="select_pet1" hidden></select>
       </div>
@@ -321,7 +310,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="pet-search-wrap">
         <input id="pet_search_pet2" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="pet2">×</button>
         <div id="pet_suggest_pet2" class="pet-suggest" hidden></div>
         <select id="select_pet2" hidden></select>
       </div>
@@ -345,7 +333,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     <div class="main">
       <div class="pet-search-wrap">
         <input id="pet_search_pet3" type="text" placeholder="名前で検索して選択" autocomplete="off">
-        <button type="button" class="search-clear-btn" data-clear-search="pet3">×</button>
         <div id="pet_suggest_pet3" class="pet-suggest" hidden></div>
         <select id="select_pet3" hidden></select>
       </div>
