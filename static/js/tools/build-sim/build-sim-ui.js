@@ -579,9 +579,15 @@ function renderGlvAnalysis(analysis, stat, needed) {
   wrap.appendChild(table);
 
   if (analysis.stillShort) {
+    const maxStat1 = analysis.slots.reduce((s2, s) => {
+      if (!s.item) return s2;
+      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+    }, 0);
+    const em1 = (typeof window.statusSimGetEffectiveMul==="function") ? window.statusSimGetEffectiveMul(stat) : 1;
+    const sf1 = Math.max(0, needed - Math.round(maxStat1 * em1));
     const p = document.createElement("p");
     p.className = "bs-ng";
-    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
+    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。あと " + fmt(sf1) + " 不足。装備の見直しが必要です。";
     wrap.appendChild(p);
   }
 
@@ -799,11 +805,16 @@ function renderHitEquipResult(analysis) {
   }
   wrap.appendChild(table);
   if (analysis.stillShort) {
+    const maxStat2 = analysis.slots.reduce((s2, s) => {
+      if (!s.item) return s2;
+      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, "luk", 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+    }, 0);
+    const em2 = (typeof window.statusSimGetEffectiveMul==="function") ? window.statusSimGetEffectiveMul("luk") : 1;
+    const sf2 = Math.max(0, (lastHitResult?.neededLuk||0) - Math.round(maxStat2 * em2));
     const p = document.createElement("p"); p.className = "bs-ng";
-    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
+    p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。あと " + fmt(sf2) + " 不足。装備の見直しが必要です。";
     wrap.appendChild(p);
   }
-  renderAccTable(wrap, analysis.accSlots, "luk");
 }
 
 function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
@@ -960,7 +971,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
 
     if (stillShort) {
       const p = document.createElement("p"); p.className = "bs-ng";
-      p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足。装備の見直しが必要です。";
+      p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
       sec.appendChild(p);
     }
     return sec;
