@@ -217,7 +217,23 @@ function selectEquipById(key, id) {
   select.value = String(id||"");
   setEquipInputFromSelected(key, id);
   closeEquipSuggest(key);
+  updateAccessoryMaxLvBtn(key);
   recalc();
+}
+
+function updateAccessoryMaxLvBtn(key) {
+  if (!key.startsWith("accessory")) return;
+  const btn = $("maxlv_btn_" + key);
+  if (!btn) return;
+  const id   = $("select_" + key)?.value || "";
+  const item = id ? equipmentMap.get(String(id)) : null;
+  const maxLv = item?.max_level || null;
+  if (maxLv && maxLv > 1) {
+    btn.textContent = "Lv" + maxLv;
+    btn.hidden = false;
+  } else {
+    btn.hidden = true;
+  }
 }
 
 const STAT_KEYS = ["vit","spd","atk","int","def","mdef","luk"];
@@ -374,6 +390,7 @@ function applyState(saved) {
     if ($("level_" +k)) $("level_" +k).value = String(k.startsWith("accessory") ? clamp1(v?.lv||1) : clampLv(v?.lv||0));
     if ($("glevel_"+k)) $("glevel_"+k).value = String(clampG(v?.glv||0));
     setEquipInputFromSelected(k, v?.id||"");
+    updateAccessoryMaxLvBtn(k);
   });
   Object.entries(saved.pets||{}).forEach(([k,v]) => {
     if ($("select_"+k)) $("select_"+k).value = String(v?.id||"");
@@ -613,7 +630,27 @@ window.statusSimCollectState = collectState;
 refreshBuildSelect();
 applyState(loadAutoState());
 recalc();
+// 初期状態でmaxLvボタンを更新
+["accessory1","accessory2","accessory3","accessory4"].forEach(k => updateAccessoryMaxLvBtn(k));
 window.dispatchEvent(new CustomEvent("statusSimReady"));
+
+// アクセサリ maxLv ボタン
+["accessory1","accessory2","accessory3","accessory4"].forEach(key => {
+  const btn = $("maxlv_btn_" + key);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const id   = $("select_" + key)?.value || "";
+    const item = id ? equipmentMap.get(String(id)) : null;
+    const maxLv = item?.max_level || null;
+    if (!maxLv) return;
+    const lvInput = $("level_" + key);
+    if (lvInput) {
+      lvInput.value = String(maxLv);
+      lvInput.dispatchEvent(new Event("input"));
+    }
+    recalc();
+  });
+});
 
 document.querySelectorAll("input[type=number], select:not([hidden])").forEach(el => {
   ["input","change"].forEach(ev => {
