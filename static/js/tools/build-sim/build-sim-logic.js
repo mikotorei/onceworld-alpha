@@ -237,6 +237,64 @@ function calcAccessoryStat(item, stat, lv) {
 // remainingFinal: finalTotal換算の不足値
 // effectiveMul: ステポイント1ptあたりのfinalTotal寄与倍率
 // ============================================================
+
+// ============================================================
+// 素材強化最適化（共通関数）
+// currentLv → 1100 までの範囲で stat を補う
+// armorSlots: 各スロットの情報
+// stat: "atk" / "luk" など
+// remainingFinal: finalTotal換算の不足値
+// effectiveMul: 実効倍率
+// 戻り値: 補填後の残り不足値（finalTotal換算）
+// ============================================================
+function applyOptimalMatEnhancement(armorSlots, stat, remainingFinal, effectiveMul) {
+  const mul = (effectiveMul > 0) ? effectiveMul : 1;
+  let remaining = Math.ceil(remainingFinal / mul);
+  if (remaining <= 0) return 0;
+
+  // 各スロットで「現在lv → 1100」で得られるstat増加量と効率を計算
+  // 1lv追加でのstat増加 = base_add × 0.1（切り捨て）
+  const candidates = [];
+  armorSlots.forEach(s => {
+    if (!s.item || s.item.no_enhance) return;
+    const base = Number(s.item.base_add?.[stat] || 0);
+    if (base === 0) return;
+    const currentLv = s.currentLv;
+    if (currentLv >= 1100) return; // 既に1100達成済み
+    const maxAddableLv = 1100 - currentLv;
+    const statPer1Lv   = base * 0.1; // 1lv追加あたりのstat増加（小数のまま）
+    const totalStat    = Math.floor(base * (1 + 1100 * 0.1)) - Math.floor(base * (1 + currentLv * 0.1));
+    candidates.push({ slot: s, base, currentLv, maxAddableLv, statPer1Lv, totalStat });
+  });
+
+  // 効率順（statPer1Lv降順）でソート
+  candidates.sort((a, b) => b.statPer1Lv - a.statPer1Lv);
+
+  for (const c of candidates) {
+    if (remaining <= 0) break;
+    const s = c.slot;
+    if (c.totalStat <= remaining) {
+      // このスロットを1100まで全部使う
+      remaining         -= c.totalStat;
+      s.neededLv         = 1100;
+      s.addedLv          = 1100 - c.currentLv;
+      s.newLvStatVal     = Math.floor(c.base * (1 + 1100 * 0.1));
+    } else {
+      // 一部使う: 必要なlv数を逆算
+      const neededLv = Math.ceil(remaining / c.statPer1Lv);
+      const targetLv = Math.min(1100, c.currentLv + neededLv);
+      s.neededLv         = targetLv;
+      s.addedLv          = targetLv - c.currentLv;
+      s.newLvStatVal     = Math.floor(c.base * (1 + targetLv * 0.1));
+      remaining          = 0;
+    }
+    // canEnhanceをtrue（+1100で達成可能）にマーク
+    if (s.neededLv >= 1100) s.canEnhanceAfterMat = true;
+  }
+
+  return remaining * mul; // finalTotal換算で返す
+}
+
 function applyOptimalGEnhancement(armorSlots, stat, remainingFinal, effectiveMul) {
   const mul = (effectiveMul > 0) ? effectiveMul : 1;
   let remaining = Math.ceil(remainingFinal / mul);
@@ -320,7 +378,8 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
       slot, label: SLOT_LABEL[slot], item,
       currentLv, currentGlv, base, canEnhance,
       currentStatVal, maxGStatVal, perG,
-      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
+      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal,
+      neededLv: currentLv, addedLv: 0, newLvStatVal: Math.floor((base || 0) * (1 + currentLv * 0.1))
     };
   });
 
@@ -363,12 +422,28 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   }
 
   // ============================================================
-  // ② ステ振りで届かなかった残りをG強化で補う（レンジベース最適化）
+  // ② 素材強化で補う（currentLv → +1100）
   // ============================================================
-  const stillShort = applyOptimalGEnhancement(armorAnalysis, stat, remainingAfterStat, effectiveMultiplier);
+  let remainingAfterMat = remainingAfterStat;
+  const effectiveMulForG = (effectiveMultiplier > 0) ? effectiveMultiplier : 1;
+  const hasNonMaxLvSlots = armorAnalysis.some(s =>
+    s.item && !s.item.no_enhance && Number(s.item.base_add?.[stat] || 0) > 0 && s.currentLv < 1100
+  );
+  if (hasNonMaxLvSlots && remainingAfterMat > 0) {
+    remainingAfterMat = applyOptimalMatEnhancement(armorAnalysis, stat, remainingAfterMat, effectiveMulForG);
+  }
+
+  // ③ G強化で残りを補う（+1100達成済みのスロットのみ）
+  // 素材強化で1100になったスロットもG強化対象に
+  armorAnalysis.forEach(s => { if (s.canEnhanceAfterMat) s.canEnhance = true; });
+  const noEnhanceable = armorAnalysis.filter(s => s.canEnhance).length === 0;
+  const stillShort    = noEnhanceable
+    ? remainingAfterMat > 0
+    : applyOptimalGEnhancement(armorAnalysis, stat, remainingAfterMat, effectiveMulForG);
   const accSlots = buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat);
-  return { achieved: false, shortfall, stillShort, slots: armorAnalysis, accSlots, statPointResult };
+  return { achieved: false, shortfall, stillShort, noEnhanceable, slots: armorAnalysis, accSlots, statPointResult };
 }
+
 
 function buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap, stat) {
   return ACCESSORY_SLOTS.map(slot => {
@@ -455,7 +530,8 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
       slot, label: SLOT_LABEL[slot], item,
       currentLv, currentGlv, base, canEnhance,
       currentStatVal, maxGStatVal, perG,
-      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
+      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal,
+      neededLv: currentLv, addedLv: 0, newLvStatVal: Math.floor((base || 0) * (1 + currentLv * 0.1))
     };
   });
 
@@ -545,7 +621,8 @@ function analyzeAtkAndLukNeeded(
       slot, label: SLOT_LABEL[slot], item,
       currentLv, currentGlv, base, canEnhance,
       currentStatVal, maxGStatVal, perG,
-      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal
+      neededGlv: currentGlv, addedGlv: 0, newStatVal: currentStatVal,
+      neededLv: currentLv, addedLv: 0, newLvStatVal: Math.floor((base || 0) * (1 + currentLv * 0.1))
     };
   });
 
