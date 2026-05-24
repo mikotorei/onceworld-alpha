@@ -827,7 +827,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
   header.textContent = "ATK " + fmt(neededAtk) + " ＋ 命中" + hitRate + "%(LUK " + fmt(neededLuk) + ") 同時達成分析";
   wrap.appendChild(header);
 
-  function makeStatSection(title, slots, statPointResult, stillShort, stat, alreadyAchieved) {
+  function makeStatSection(title, slots, statPointResult, stillShort, stat, alreadyAchieved, needed) {
     const sec = document.createElement("div");
     sec.style.marginBottom = "20px";
 
@@ -970,8 +970,18 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
     sec.appendChild(table);
 
     if (stillShort) {
+      let shortfallTxt = "";
+      if (needed != null) {
+        const maxStatSec = slots.reduce((s2, s) => {
+          if (!s.item) return s2;
+          return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+        }, 0);
+        const emSec = (typeof window.statusSimGetEffectiveMul === "function") ? window.statusSimGetEffectiveMul(stat) : 1;
+        const sfSec = Math.max(0, needed - Math.round(maxStatSec * emSec));
+        shortfallTxt = "あと " + fmt(sfSec) + " 不足。";
+      }
       const p = document.createElement("p"); p.className = "bs-ng";
-      p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。装備の見直しが必要です。";
+      p.textContent = "⚠️ ステポイント全振り＋全スロットG300でも不足します。" + shortfallTxt + "装備の見直しが必要です。";
       sec.appendChild(p);
     }
     return sec;
@@ -979,7 +989,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
 
   wrap.appendChild(makeStatSection(
     "【ATK " + fmt(neededAtk) + " 達成】",
-    analysis.atkSlots, analysis.atkStatPointResult, analysis.atkStillShort, "atk", analysis.atkAlreadyAchieved
+    analysis.atkSlots, analysis.atkStatPointResult, analysis.atkStillShort, "atk", analysis.atkAlreadyAchieved, neededAtk
   ));
 
   const divider = document.createElement("hr");
@@ -988,7 +998,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
 
   wrap.appendChild(makeStatSection(
     "【命中" + hitRate + "% (LUK " + fmt(neededLuk) + ") 達成】（atk消費後の残りポイントで計算）",
-    analysis.lukSlots, analysis.lukStatPointResult, analysis.lukStillShort, "luk", analysis.lukAlreadyAchieved
+    analysis.lukSlots, analysis.lukStatPointResult, analysis.lukStillShort, "luk", analysis.lukAlreadyAchieved, neededLuk
   ));
 
   // アクセサリ（luk系）
