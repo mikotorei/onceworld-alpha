@@ -39,6 +39,7 @@ const state = {
   debuffDark:      false,
   npanLimit:       3,
   hasContract:     false,
+  hasCosmoCube:    false,
   reverseHitRate:  0
 };
 
@@ -76,6 +77,25 @@ function getPointLimitInputs() {
   return { sageDrop, forbiddenBook, hasContract: state.hasContract, tenmeCount };
 }
 
+function getStatPointInputs() {
+  return {
+    lv:          Math.max(1, Math.min(200, parseInt($("bs-chara-lv")?.value         || "200", 10) || 200)),
+    tenme:       Math.max(0, Math.min(30,  parseInt($("bs-sp-tenme-count")?.value   || "0",   10) || 0)),
+    hasCosmoCube: state.hasCosmoCube,
+    penCount:    Math.max(0, parseInt($("bs-pen-count")?.value    || "0", 10) || 0),
+    altarCount:  Math.max(0, parseInt($("bs-altar-count")?.value  || "0", 10) || 0),
+    tenshoCount: Math.max(0, parseInt($("bs-tensho-count")?.value || "0", 10) || 0),
+  };
+}
+
+function updateStatPointDisplay() {
+  const { lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount } = getStatPointInputs();
+  const pts = calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount);
+  const el = $("bs-stat-point-display");
+  if (el) el.textContent = pts.toLocaleString("ja-JP");
+  return pts;
+}
+
 function updatePointLimitDisplay() {
   const { sageDrop, forbiddenBook, hasContract, tenmeCount } = getPointLimitInputs();
   const limit = calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount);
@@ -99,9 +119,11 @@ function estimateBasePointMultiplier(simState, stat) {
 function saveSimState() {
   try {
     const inputs = getPointLimitInputs();
+    const spInputs = getStatPointInputs();
     localStorage.setItem(SIM_STATE_KEY, JSON.stringify({
       state,
-      pointLimit: inputs
+      pointLimit: inputs,
+      statPoint: spInputs
     }));
   } catch (e) {}
 }
@@ -125,6 +147,14 @@ function loadSimState() {
       if ($("bs-sage-drop"))      $("bs-sage-drop").value      = String(d.pointLimit.sageDrop      || 0);
       if ($("bs-forbidden-book")) $("bs-forbidden-book").value = String(d.pointLimit.forbiddenBook || 0);
       if ($("bs-tenme-count"))    $("bs-tenme-count").value    = String(d.pointLimit.tenmeCount    || 0);
+    }
+    if (d.statPoint) {
+      if ($("bs-chara-lv"))       $("bs-chara-lv").value       = String(d.statPoint.lv         || 200);
+      if ($("bs-sp-tenme-count")) $("bs-sp-tenme-count").value = String(d.statPoint.tenme       || 0);
+      if ($("bs-pen-count"))      $("bs-pen-count").value      = String(d.statPoint.penCount    || 0);
+      if ($("bs-altar-count"))    $("bs-altar-count").value    = String(d.statPoint.altarCount  || 0);
+      if ($("bs-tensho-count"))   $("bs-tensho-count").value   = String(d.statPoint.tenshoCount || 0);
+      state.hasCosmoCube = !!d.statPoint.hasCosmoCube;
     }
   } catch (e) {}
 }
@@ -155,6 +185,11 @@ function applyModeUI() {
   // 逆算タブ命中ボタン
   document.querySelectorAll(".bs-reverse-hit-btn").forEach(b => {
     b.setAttribute("aria-pressed", b.getAttribute("data-rate") === String(state.reverseHitRate) ? "true" : "false");
+  });
+
+  // コスモキューブボタン
+  document.querySelectorAll(".bs-cosmocube-btn").forEach(b => {
+    b.setAttribute("aria-pressed", b.getAttribute("data-val") === (state.hasCosmoCube ? "1" : "0") ? "true" : "false");
   });
 
   // 超越の契約書ボタン
@@ -873,6 +908,34 @@ setupHitMonsterSearch();
 ["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor",
  "bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => attachCommaInputBehavior(id, 0));
 
+// 振り分けポイント計算入力
+["bs-chara-lv", "bs-sp-tenme-count", "bs-pen-count", "bs-altar-count", "bs-tensho-count"].forEach(id => {
+  $(id)?.addEventListener("input", () => { updateStatPointDisplay(); saveSimState(); });
+  $(id)?.addEventListener("blur",  () => { updateStatPointDisplay(); saveSimState(); });
+});
+
+// コスモキューブボタン
+document.querySelectorAll(".bs-cosmocube-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.hasCosmoCube = btn.getAttribute("data-val") === "1";
+    document.querySelectorAll(".bs-cosmocube-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (state.hasCosmoCube ? "1" : "0") ? "true" : "false");
+    });
+    updateStatPointDisplay();
+    saveSimState();
+  });
+});
+
+// 振り分けポイントをビルド入力の合計に反映
+$("bs-apply-stat-point-btn")?.addEventListener("click", () => {
+  const pts = updateStatPointDisplay();
+  const el  = document.getElementById("basePointTotal");
+  if (el) {
+    el.value = String(pts);
+    el.dispatchEvent(new Event("input"));
+  }
+});
+
 // 振り分け上限入力→リアルタイム計算
 ["bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => {
   $(id)?.addEventListener("input", () => { updatePointLimitDisplay(); saveSimState(); });
@@ -893,6 +956,7 @@ document.querySelectorAll(".bs-contract-btn").forEach(btn => {
 
 // 初期表示を更新
 updatePointLimitDisplay();
+updateStatPointDisplay();
 
 document.querySelectorAll("[data-bs-attack-type]").forEach(btn => {
   btn.addEventListener("click", () => {
