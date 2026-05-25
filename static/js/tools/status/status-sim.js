@@ -824,9 +824,7 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
       ? Math.max(0, parseInt(statPtEl.textContent.replace(/,/g, ""), 10) || 0)
       : Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
     // 有効上限 = 振り分け上限と持ちポイントの小さい方（どちらも0なら0）
-    const effectiveLimit = pointLimit > 0 && owned > 0
-      ? Math.min(pointLimit, owned)
-      : Math.max(pointLimit, owned);
+    const effectiveLimit = Math.max(pointLimit, owned);
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
