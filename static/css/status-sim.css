@@ -53,23 +53,27 @@
   align-items: center;
   flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .pill-input-wrap input[type="number"] {
   width: 100%;
-  padding-right: 40px !important;
+  min-width: 0;
+  padding-right: 44px !important;
   box-sizing: border-box;
+  flex: 1;
 }
 
 .pill-input-wrap .base-max-btn {
   position: absolute;
   right: 4px;
   font-size: 10px !important;
-  padding: 2px 5px !important;
+  padding: 2px 6px !important;
   border-radius: 8px;
-  line-height: 1.2;
+  line-height: 1.4;
   height: auto;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .status-sim input[type="number"],
