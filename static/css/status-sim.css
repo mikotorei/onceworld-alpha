@@ -46,6 +46,32 @@
   background: rgba(0,0,0,.02);
 }
 
+/* pillの入力欄ラッパー（maxボタンを内包） */
+.pill-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.pill-input-wrap input[type="number"] {
+  width: 100%;
+  padding-right: 40px !important;
+  box-sizing: border-box;
+}
+
+.pill-input-wrap .base-max-btn {
+  position: absolute;
+  right: 4px;
+  font-size: 10px !important;
+  padding: 2px 5px !important;
+  border-radius: 8px;
+  line-height: 1.2;
+  height: auto;
+  min-width: 0;
+}
+
 .status-sim input[type="number"],
 .status-sim select {
   border: 1px solid rgba(0,0,0,.18);
