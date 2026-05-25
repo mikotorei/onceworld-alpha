@@ -715,8 +715,8 @@ function analyzeAtkAndLukNeeded(
     lukSlots.forEach(s => { if (s.canEnhanceAfterMat) s.canEnhance = true; });
 
     // luk G強化
-    applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, lukEffMulG);
-    lukRemaining = 0;
+    const _lukGStillShort = applyOptimalGEnhancement(lukSlots, "luk", lukRemaining, lukEffMulG);
+    lukRemaining = _lukGStillShort ? 1 : 0;
   }
 
   const lukStillShort = lukRemaining > 0;
