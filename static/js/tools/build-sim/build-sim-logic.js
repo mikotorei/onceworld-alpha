@@ -25,8 +25,9 @@ function calcPhysicalKillInfo(heroAtk, heroSpd, monster, lv, heroElement, debuff
   const dmg = damageRangeTotal(heroAtk, physDef, hits, elemMod, 1.0);
   const avg = Math.floor((dmg.min + dmg.max) / 2);
   const npan = avg > 0 ? Math.ceil(hp / avg) : null;
+  const npanMin = dmg.min > 0 ? Math.ceil(hp / dmg.min) : null;
   const oneShot = oneShotLineRequiredAttack(physDef, hits, hp, elemMod, 1.0);
-  return { hp, hits, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, oneShot, element: scaled.element };
+  return { hp, hits, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, npanMin, oneShot, element: scaled.element };
 }
 
 function calcMagicKillInfo(heroInt, analysisBook, analysisBookAdvanced, crystalCount, spell, monster, lv, heroElement, debuffWood) {
@@ -72,15 +73,17 @@ function scanAllMonsters(monsters, heroStats, options) {
   return results;
 }
 
-function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuffDark, targetNpan) {
+function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuffDark, targetNpan, useMinRandom) {
   const state = { debuffWood, debuffDark };
   const scaled = buildEnemyScaled(monster, lv, state);
   const physDef = calcEnemyPhysDef(scaled.def, scaled.mdef);
   const hp = calcMonsterHp(monster, lv);
   const hits = hitsFromSpd(heroSpd);
   const elemMod = getElementModifier(heroElement, scaled.element);
-  const neededAvg = hp / targetNpan;
-  const neededBase = neededAvg / (hits * elemMod);
+  // 最低乱数の場合は0.9倍で割り戻す（最低ダメージでnパン達成できるatk）
+  const randomMod = useMinRandom ? 0.9 : 1.0;
+  const neededDmg = hp / targetNpan;
+  const neededBase = neededDmg / (hits * elemMod * randomMod);
   return Math.max(0, Math.ceil((neededBase + physDef * 4) / 7));
 }
 
