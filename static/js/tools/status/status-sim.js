@@ -813,18 +813,20 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
     const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
-    // 振り分け上限（賢者・禁域等）
+    // 振り分け上限（賢者・禁域等）- bs-point-limit-displayから取得
     const limitEl = $("bs-point-limit-display");
     const pointLimit = limitEl
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
-    // 持っているポイント（Lv・天命等）
-    const owned = Math.max(0, parseInt($('basePointTotal')?.value || '0', 10) || 0);
-    // 有効な上限 = min(振り分け上限, 持っているポイント)
-    // どちらか小さい方を超えて入力できない
-    const effectiveLimit = pointLimit > 0
+    // 持っているポイント - bs-stat-point-displayから取得（振り分けポイント計算欄）
+    const statPointEl = $("bs-stat-point-display");
+    const owned = statPointEl
+      ? Math.max(0, parseInt(statPointEl.textContent.replace(/,/g, "") || "0", 10) || 0)
+      : Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
+    // 有効上限 = min(振り分け上限, 持っているポイント)
+    const effectiveLimit = (pointLimit > 0 && owned > 0)
       ? Math.min(pointLimit, owned)
-      : owned;
+      : (pointLimit > 0 ? pointLimit : owned);
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
