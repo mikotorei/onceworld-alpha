@@ -116,9 +116,9 @@ function calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tens
   const altar   = Math.max(0, Math.floor(Number(altarCount  || 0)));
   const tensho  = Math.max(0, Math.floor(Number(tenshoCount || 0)));
 
-  // ① レベルによる獲得ポイント累積
+  // ① レベルによる獲得ポイント累積（Lv2からレベルアップでポイント取得）
   let lvPoints = 0;
-  for (let l = 1; l <= maxLv; l++) {
+  for (let l = 2; l <= maxLv; l++) {
     if (l % 10 !== 0) {
       lvPoints += Math.floor(l * 0.1 + 5);
     } else {
