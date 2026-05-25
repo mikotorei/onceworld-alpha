@@ -809,22 +809,28 @@ document.querySelectorAll("[data-series]").forEach(btn => {
 });
 
 // 振り分けmax ボタン
-// 上限（bs-point-limit-display）- 他ステ使用分 を入力
 document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
     const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
-    // 振り分け上限（賢者・禁域等で計算した上限）
+    // 振り分け上限（賢者・禁域等）
     const limitEl = $("bs-point-limit-display");
-    const upperLimit = limitEl
+    const pointLimit = limitEl
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
+    // 持っているポイント（Lv・天命等）
+    const owned = state.basePointTotal || 0;
+    // 有効な上限 = min(振り分け上限, 持っているポイント)
+    // どちらか小さい方を超えて入力できない
+    const effectiveLimit = pointLimit > 0
+      ? Math.min(pointLimit, owned)
+      : owned;
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
       .reduce((s, k) => s + Math.max(0, parseInt($("base_" + k)?.value || "0", 10) || 0), 0);
-    // 上限 - 他ステ使用分 = このステに割り振れる最大値
-    const maxForStat = Math.max(0, upperLimit - usedOther);
+    // 有効上限 - 他ステ使用分
+    const maxForStat = Math.max(0, effectiveLimit - usedOther);
     const el = $("base_" + stat);
     if (el) {
       el.value = String(maxForStat);
