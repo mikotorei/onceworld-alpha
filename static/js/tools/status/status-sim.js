@@ -808,6 +808,25 @@ document.querySelectorAll("[data-series]").forEach(btn => {
   });
 });
 
+// 振り分けmax ボタン
+document.querySelectorAll(".base-max-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const stat = btn.getAttribute("data-stat");
+    const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
+    const total = Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
+    const usedOther = BASE_STATS_ALL
+      .filter(k => k !== stat)
+      .reduce((s, k) => s + Math.max(0, parseInt($("base_" + k)?.value || "0", 10) || 0), 0);
+    const remaining = Math.max(0, total - usedOther);
+    const el = $("base_" + stat);
+    if (el) {
+      el.value = String(remaining);
+      el.dispatchEvent(new Event("input"));
+    }
+    recalc();
+  });
+});
+
 // ステータス絞り込みボタン
 document.querySelectorAll(".stat-filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
