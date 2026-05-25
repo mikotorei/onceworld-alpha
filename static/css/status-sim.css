@@ -384,3 +384,19 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ---- ステータス絞り込み ---- */
+.stat-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 10px;
+}
+
+.stat-filter-label {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
