@@ -210,7 +210,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <div class="stat-filter-row">
   <span class="stat-filter-label">ステ絞り込み</span>
   <div class="chip-group">
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">全て</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
   <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
   <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
   <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
@@ -293,6 +293,19 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <details class="fold" id="foldPet" open>
   <summary>ペットスキル</summary>
+  <div class="stat-filter-row">
+  <span class="stat-filter-label">ステ絞り込み</span>
+  <div class="chip-group">
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="int" aria-pressed="false">INT</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="def" aria-pressed="false">DEF</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="mdef" aria-pressed="false">MDEF</button>
+  <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
+  </div>
+  </div>
   <div class="equip-grid">
 
   <div class="equip-row pet-row">
