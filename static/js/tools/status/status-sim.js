@@ -809,7 +809,7 @@ document.querySelectorAll("[data-series]").forEach(btn => {
 });
 
 // 振り分けmax ボタン
-// 振り分け上限（bs-point-limit-display）まで入力。ポイントが足りない場合は残り全て。
+// 上限（bs-point-limit-display）- 他ステ使用分 を入力
 document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
@@ -819,20 +819,12 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
     const upperLimit = limitEl
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
-    // 持っているポイント（Lv・天命等で計算した値）
-    const owned = Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
       .reduce((s, k) => s + Math.max(0, parseInt($("base_" + k)?.value || "0", 10) || 0), 0);
-    // 上限までの残り
-    const remainToLimit = Math.max(0, upperLimit - usedOther);
-    // 持っているポイントの残り
-    const remainOwned  = Math.max(0, owned - usedOther);
-    // 上限 ≤ 持っているポイント → 上限まで、それ以外 → 残りポイント全て
-    const maxForStat = (upperLimit > 0 && owned >= upperLimit)
-      ? remainToLimit
-      : remainOwned;
+    // 上限 - 他ステ使用分 = このステに割り振れる最大値
+    const maxForStat = Math.max(0, upperLimit - usedOther);
     const el = $("base_" + stat);
     if (el) {
       el.value = String(maxForStat);
