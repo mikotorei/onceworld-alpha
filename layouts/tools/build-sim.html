@@ -582,13 +582,31 @@
           <input id="bs-reverse-npan" type="text" inputmode="numeric" value="1" class="lv-input">
           <span class="bs-label-text">パン以内</span>
         </div>
-        <div class="enemy-row mt bs-phys-only">
+        <div class="enemy-row mt">
+          <span class="enemy-label">逆算モード</span>
+          <div class="chip-group">
+            <button class="chip-btn bs-calc-mode-btn" type="button" data-mode="damage"  aria-pressed="true">与ダメ</button>
+            <button class="chip-btn bs-calc-mode-btn" type="button" data-mode="nullify" aria-pressed="false">無効化</button>
+          </div>
+        </div>
+        <div class="enemy-row mt bs-damage-mode bs-phys-only">
           <span class="enemy-label">命中確率も探索</span>
           <div class="chip-group">
             <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="0"  aria-pressed="true">しない</button>
             <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="1"  aria-pressed="false">1%</button>
             <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="50" aria-pressed="false">50%</button>
             <button class="chip-btn bs-reverse-hit-btn" type="button" data-rate="99" aria-pressed="false">99%</button>
+          </div>
+        </div>
+        <div class="enemy-row mt bs-nullify-mode" hidden>
+          <span class="enemy-label">攻撃タイプ</span>
+          <div id="bs-nullify-attack-type" class="bs-label-text">（モンスター選択後に自動取得）</div>
+        </div>
+        <div class="enemy-row mt bs-nullify-mode" hidden>
+          <span class="enemy-label">無効化対象</span>
+          <div class="chip-group">
+            <button class="chip-btn bs-nullify-target-btn" type="button" data-target="auto" aria-pressed="true">自動</button>
+            <button class="chip-btn bs-nullify-target-btn" type="button" data-target="both" aria-pressed="false">両方</button>
           </div>
         </div>
       </div>
