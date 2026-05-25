@@ -147,7 +147,6 @@ function loadSimState() {
       state.hasContract    = !!d.state.hasContract;
       state.reverseHitRate = [0,1,50,99].includes(Number(d.state.reverseHitRate)) ? Number(d.state.reverseHitRate) : 0;
       if (["damage","nullify"].includes(d.state.calcMode)) state.calcMode = d.state.calcMode;
-      if (["auto","both"].includes(d.state.nullifyTarget)) state.nullifyTarget = d.state.nullifyTarget;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
     }
     if (d.pointLimit) {
@@ -205,10 +204,7 @@ function applyModeUI() {
     el.hidden = state.calcMode !== "nullify";
   });
 
-  // 無効化対象ボタン
-  document.querySelectorAll(".bs-nullify-target-btn").forEach(b => {
-    b.setAttribute("aria-pressed", b.getAttribute("data-target") === state.nullifyTarget ? "true" : "false");
-  });
+
 
   // コスモキューブボタン
   document.querySelectorAll(".bs-cosmocube-btn").forEach(b => {
@@ -1033,23 +1029,18 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
 function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
   const scaled = buildEnemyScaled(picked, lv, { debuffWood: false, debuffDark: false });
   const attackType = picked.attack_type || "";
-  const isPhys = attackType.includes("物理");
+  const isPhys  = attackType.includes("物理");
   const isMagic = attackType.includes("魔法");
-  const useBoth = state.nullifyTarget === "both";
 
-  // 攻撃タイプ表示を更新
-  const typeEl = $("bs-nullify-attack-type");
-  if (typeEl) typeEl.textContent = attackType || "不明";
+  // 攻撃タイプに応じて表示対象を決定（両方含む場合は両方）
+  const showDef  = isPhys  || (!isPhys && !isMagic);
+  const showMdef = isMagic || (!isPhys && !isMagic);
 
   appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）");
   appendResult(wrap, "敵の攻撃タイプ: " + (attackType || "不明"));
 
   const currentDef  = Math.round(Number((window.lastFinalTotal || {}).def  || 0));
   const currentMdef = Math.round(Number((window.lastFinalTotal || {}).mdef || 0));
-
-  // 物理無効化
-  const showDef  = useBoth || isPhys  || (!isPhys && !isMagic);
-  const showMdef = useBoth || isMagic || (!isPhys && !isMagic);
 
   if (showDef) {
     const neededDef = requiredStatForNullify(scaled.atk);
@@ -1077,8 +1068,9 @@ function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
 
   // 探索ボタン表示
   lastReverseResult = {
-    stat: useBoth ? "both" : (isMagic ? "mdef" : "def"),
-    needed: showDef ? requiredStatForNullify(scaled.atk) : 0,
+    stat: isMagic ? "mdef" : "def",
+    needed: 0,
+    neededDef:  showDef  ? requiredStatForNullify(scaled.atk) : 0,
     neededMdef: showMdef ? requiredStatForNullify(scaled.int) : 0,
     neededLuk: 0, hitRate: 0,
     isNullify: true,
@@ -1210,17 +1202,6 @@ document.querySelectorAll(".bs-calc-mode-btn").forEach(btn => {
     const rr = $("bs-reverse-result"); if (rr) rr.innerHTML = "";
     const sw = $("bs-search-equip-wrap"); if (sw) sw.hidden = true;
     lastReverseResult = null;
-  });
-});
-
-// 無効化対象ボタン
-document.querySelectorAll(".bs-nullify-target-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    state.nullifyTarget = btn.getAttribute("data-target");
-    document.querySelectorAll(".bs-nullify-target-btn").forEach(b => {
-      b.setAttribute("aria-pressed", b.getAttribute("data-target") === state.nullifyTarget ? "true" : "false");
-    });
-    saveSimState();
   });
 });
 
@@ -1360,6 +1341,34 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
     const currentFinalTotal = window.lastFinalTotal || {};
     const overridePointLimit = updatePointLimitDisplay();
 
+    // 無効化モード探索
+    if (lastReverseResult?.isNullify) {
+      const wrapN = $("bs-equip-result");
+      if (wrapN) wrapN.innerHTML = "";
+
+      if (lastReverseResult.showDef && lastReverseResult.neededDef > 0) {
+        const headerD = document.createElement("div");
+        headerD.className = "bs-area-title";
+        headerD.textContent = "【物理無効化 DEF " + fmt(lastReverseResult.neededDef) + " 達成のための探索】";
+        if (wrapN) wrapN.appendChild(headerD);
+        const effMulD = estimateBasePointMultiplier(simState, "def");
+        const analysisD = analyzeGlvNeeded(equipState, equipItemsMap, "def", lastReverseResult.neededDef, currentFinalTotal, simState, effMulD, overridePointLimit);
+        renderGlvAnalysis(analysisD, "def", lastReverseResult.neededDef);
+      }
+
+      if (lastReverseResult.showMdef && lastReverseResult.neededMdef > 0) {
+        const wrapM = $("bs-equip-result");
+        if (wrapM && lastReverseResult.showDef) {
+          const divider = document.createElement("hr"); divider.style.margin = "16px 0"; wrapM.appendChild(divider);
+          const headerM = document.createElement("div"); headerM.className = "bs-area-title";
+          headerM.textContent = "【魔法無効化 MDEF " + fmt(lastReverseResult.neededMdef) + " 達成のための探索】";
+          wrapM.appendChild(headerM);
+        }
+        const effMulM = estimateBasePointMultiplier(simState, "mdef");
+        const analysisM = analyzeGlvNeeded(equipState, equipItemsMap, "mdef", lastReverseResult.neededMdef, currentFinalTotal, simState, effMulM, overridePointLimit);
+        renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef);
+      }
+    } else {
     // atk+luk同時探索（物理かつhitRate指定あり）
     if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
       const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
@@ -1387,6 +1396,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       );
       renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
     }
+    } // end else (非無効化モード)
   } catch(e) {
     console.error("探索エラー:", e);
     const wrap = $("bs-equip-result");
