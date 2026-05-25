@@ -668,7 +668,7 @@ try {
     wireEquipSearch(key);
   });
   ACCESSORY_KEYS.forEach(key => {
-    equipItemsCacheBySlot.set(key, accessoryItems.map(i=>({ id:String(i.id), name:i.name })));
+    equipItemsCacheBySlot.set(key, accessoryItems.map(i=>({ id:String(i.id), name:i.name, statSet:i.statSet||new Set() })));
     fillSelect($("select_"+key), accessoryItems);
     wireEquipSearch(key);
   });
