@@ -159,6 +159,34 @@ function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
 // ============================================================
 
 
+
+// ============================================================
+// 無効化逆算
+// ============================================================
+
+// 敵攻撃無効化に必要なdef/mdef
+function requiredStatForNullify(enemyAttack) {
+  const a = Math.floor(Number(enemyAttack || 0));
+  if (a <= 0) return 0;
+  const x = (a * 7 - 10) / 4;
+  return Math.max(0, Math.floor(x) + 1);
+}
+
+// 現在のdef/mdefで何ダメージ受けるか（min〜max）
+function calcReceivedDamage(heroStat, enemyAttack, elementModifier) {
+  const a = Math.floor(Number(enemyAttack || 0));
+  const d = Math.floor(Number(heroStat   || 0));
+  const em = Number(elementModifier || 1);
+  const base = (a * 7) - (d * 4);
+  if (base <= 0) return { min: 0, max: 0, nullified: true };
+  const modified = base * em;
+  return {
+    min: Math.floor(modified * 0.9),
+    max: Math.floor(modified * 1.1),
+    nullified: false
+  };
+}
+
 // ============================================================
 // G強化コスト計算
 // ============================================================
