@@ -146,6 +146,8 @@ function loadSimState() {
       state.debuffDark     = !!d.state.debuffDark;
       state.hasContract    = !!d.state.hasContract;
       state.reverseHitRate = [0,1,50,99].includes(Number(d.state.reverseHitRate)) ? Number(d.state.reverseHitRate) : 0;
+      if (["damage","nullify"].includes(d.state.calcMode)) state.calcMode = d.state.calcMode;
+      if (["auto","both"].includes(d.state.nullifyTarget)) state.nullifyTarget = d.state.nullifyTarget;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
     }
     if (d.pointLimit) {
@@ -190,6 +192,22 @@ function applyModeUI() {
   // 逆算タブ命中ボタン
   document.querySelectorAll(".bs-reverse-hit-btn").forEach(b => {
     b.setAttribute("aria-pressed", b.getAttribute("data-rate") === String(state.reverseHitRate) ? "true" : "false");
+  });
+
+  // 逆算モード切り替え
+  document.querySelectorAll(".bs-calc-mode-btn").forEach(b => {
+    b.setAttribute("aria-pressed", b.getAttribute("data-mode") === state.calcMode ? "true" : "false");
+  });
+  document.querySelectorAll(".bs-damage-mode").forEach(el => {
+    el.hidden = state.calcMode !== "damage";
+  });
+  document.querySelectorAll(".bs-nullify-mode").forEach(el => {
+    el.hidden = state.calcMode !== "nullify";
+  });
+
+  // 無効化対象ボタン
+  document.querySelectorAll(".bs-nullify-target-btn").forEach(b => {
+    b.setAttribute("aria-pressed", b.getAttribute("data-target") === state.nullifyTarget ? "true" : "false");
   });
 
   // コスモキューブボタン
@@ -248,7 +266,7 @@ function normalizeJP(s) {
     .replace(/[\u30A1-\u30F6]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 }
 
-function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId) {
+function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId, onSelect) {
   const search  = $(searchId);
   const suggest = $(suggestId);
   const lvInput = $(lvInputId);
@@ -282,8 +300,9 @@ function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId) {
       btn.type = "button";
       btn.textContent = m.title;
       btn.addEventListener("click", () => {
-        picked = m;
-        search.value = m.title;
+         picked = m;
+         search.value = m.title;
+         if (onSelect) onSelect(m);
         closeSuggest();
         renderShortcuts(m);
       });
@@ -337,6 +356,12 @@ function renderReverseResult() {
   const targetNpan = Math.max(1, parseFormattedInt(npanEl, 1));
   const hero       = getHeroStats();
   const lvLabel    = lv > 0 ? "Lv" + fmt(lv) : "基本";
+
+  // 無効化モード
+  if (state.calcMode === "nullify") {
+    renderNullifyResult(wrap, picked, lv, lvLabel, hero);
+    return;
+  }
 
   let neededVal = 0, statKey = "";
 
@@ -1005,6 +1030,66 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
   renderAccTable(wrap, analysis.accSlots, "luk");
 }
 
+function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
+  const scaled = buildEnemyScaled(picked, lv, { debuffWood: false, debuffDark: false });
+  const attackType = picked.attack_type || "";
+  const isPhys = attackType.includes("物理");
+  const isMagic = attackType.includes("魔法");
+  const useBoth = state.nullifyTarget === "both";
+
+  // 攻撃タイプ表示を更新
+  const typeEl = $("bs-nullify-attack-type");
+  if (typeEl) typeEl.textContent = attackType || "不明";
+
+  appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）");
+  appendResult(wrap, "敵の攻撃タイプ: " + (attackType || "不明"));
+
+  const currentDef  = Math.round(Number((window.lastFinalTotal || {}).def  || 0));
+  const currentMdef = Math.round(Number((window.lastFinalTotal || {}).mdef || 0));
+
+  // 物理無効化
+  const showDef  = useBoth || isPhys  || (!isPhys && !isMagic);
+  const showMdef = useBoth || isMagic || (!isPhys && !isMagic);
+
+  if (showDef) {
+    const neededDef = requiredStatForNullify(scaled.atk);
+    const dmg = calcReceivedDamage(currentDef, scaled.atk, getElementModifier(state.heroElement, scaled.element));
+    const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+    appendResult(wrap, "【物理無効化】");
+    appendResult(wrap, "必要DEF: " + fmt(neededDef) + " 以上");
+    appendResult(wrap, "現在のDEF(" + fmt(currentDef) + ")での被ダメ: " +
+      (dmg.nullified ? "無効化済み✅" : fmt(dmg.min) + "〜" + fmt(dmg.max)));
+    appendJudge(wrap, dmg.nullified || currentDef >= neededDef,
+      "あと DEF " + fmt(Math.max(0, neededDef - currentDef)) + " 不足");
+  }
+
+  if (showMdef) {
+    const neededMdef = requiredStatForNullify(scaled.int);
+    const dmg = calcReceivedDamage(currentMdef, scaled.int, getElementModifier(state.heroElement, scaled.element));
+    const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+    appendResult(wrap, "【魔法無効化】");
+    appendResult(wrap, "必要MDEF: " + fmt(neededMdef) + " 以上");
+    appendResult(wrap, "現在のMDEF(" + fmt(currentMdef) + ")での被ダメ: " +
+      (dmg.nullified ? "無効化済み✅" : fmt(dmg.min) + "〜" + fmt(dmg.max)));
+    appendJudge(wrap, dmg.nullified || currentMdef >= neededMdef,
+      "あと MDEF " + fmt(Math.max(0, neededMdef - currentMdef)) + " 不足");
+  }
+
+  // 探索ボタン表示
+  lastReverseResult = {
+    stat: useBoth ? "both" : (isMagic ? "mdef" : "def"),
+    needed: showDef ? requiredStatForNullify(scaled.atk) : 0,
+    neededMdef: showMdef ? requiredStatForNullify(scaled.int) : 0,
+    neededLuk: 0, hitRate: 0,
+    isNullify: true,
+    showDef, showMdef
+  };
+  const searchWrap = $("bs-search-equip-wrap");
+  if (searchWrap) searchWrap.hidden = false;
+  const equipResult = $("bs-equip-result");
+  if (equipResult) equipResult.innerHTML = "";
+}
+
 function tenkuFloorToLv(floor) {
   const n = Math.floor(Number(floor));
   if (!Number.isFinite(n) || n < 1) return null;
@@ -1113,6 +1198,30 @@ $("bs-tenku-apply")?.addEventListener("click", () => {
   const lv = tenkuFloorToLv(floorEl.value.replace(/,/g, ""));
   if (lv === null) { alert("有効なフロア数を入力してください（1以上の整数）"); return; }
   lvEl.value = formatIntString(lv);
+});
+
+// 逆算モード切り替え
+document.querySelectorAll(".bs-calc-mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.calcMode = btn.getAttribute("data-mode");
+    applyModeUI();
+    saveSimState();
+    // 結果をクリア
+    const rr = $("bs-reverse-result"); if (rr) rr.innerHTML = "";
+    const sw = $("bs-search-equip-wrap"); if (sw) sw.hidden = true;
+    lastReverseResult = null;
+  });
+});
+
+// 無効化対象ボタン
+document.querySelectorAll(".bs-nullify-target-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.nullifyTarget = btn.getAttribute("data-target");
+    document.querySelectorAll(".bs-nullify-target-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-target") === state.nullifyTarget ? "true" : "false");
+    });
+    saveSimState();
+  });
 });
 
 // 逆算タブ：命中確率選択ボタン
