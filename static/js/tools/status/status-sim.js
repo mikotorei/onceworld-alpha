@@ -17,6 +17,27 @@ const PET_NAMES_URL  = base + "/pet-names/index.json";
 const equipmentMap = new Map();
 const petSkillMap  = new Map();
 const petNameMap   = new Map();
+
+// ステータス絞り込みフィルタ（複数選択可・OR条件）
+const statFilter = new Set(); // 空=全て表示
+
+function isStatFilterActive() { return statFilter.size > 0; }
+
+function matchesStatFilter(stats) {
+  if (!isStatFilterActive()) return true;
+  return [...statFilter].some(s => stats.has(s));
+}
+
+function updateStatFilterButtons() {
+  document.querySelectorAll(".stat-filter-btn").forEach(btn => {
+    const s = btn.getAttribute("data-stat");
+    if (s === "all") {
+      btn.setAttribute("aria-pressed", statFilter.size === 0 ? "true" : "false");
+    } else {
+      btn.setAttribute("aria-pressed", statFilter.has(s) ? "true" : "false");
+    }
+  });
+}
 const equipNameMap = new Map();
 const equipItemsCacheBySlot = new Map();
 let petItemsCache = [];
@@ -275,17 +296,21 @@ function updateAccessoryMaxLvBtn(key) {
 const STAT_KEYS = ["vit","spd","atk","int","def","mdef","luk"];
 function filterEquipItems(key, query) {
   const q = normalizeJP(query);
-  if (!q) return [];
-  return (equipItemsCacheBySlot.get(key)||[]).filter(i => {
-    // 名前で一致
+  const isAcc = key.startsWith("accessory");
+  const pool = (equipItemsCacheBySlot.get(key)||[]).filter(i => {
+    // statフィルタ（アクセのみ）
+    if (isAcc && isStatFilterActive()) {
+      if (!matchesStatFilter(i.statSet || new Set())) return false;
+    }
+    return true;
+  });
+  if (!q) return pool.slice(0, 200);
+  return pool.filter(i => {
     if (normalizeJP(i.name).includes(q)) return true;
-    // ステータス名で一致（アクセサリのみ）
-    if (key.startsWith("accessory")) {
-      const item = equipmentMap.get(String(i.id));
-      if (!item) return false;
+    if (isAcc) {
       return STAT_KEYS.some(stat => {
         if (!normalizeJP(stat).includes(q)) return false;
-        return (item.base_add?.[stat] || 0) !== 0 || (item.base_rate?.[stat] || 0) !== 0;
+        return (i.base_add?.[stat] || 0) !== 0 || (i.base_rate?.[stat] || 0) !== 0;
       });
     }
     return false;
@@ -320,9 +345,7 @@ function wireEquipSearch(key) {
   });
   input.addEventListener("focus", () => {
     const q = input.value || "";
-    const items = q.trim() === ""
-      ? (equipItemsCacheBySlot.get(key) || []).map(i => ({ id: String(i.id), name: i.name })).slice(0, 200)
-      : filterEquipItems(key, q);
+    const items = filterEquipItems(key, q);
     if (items.length === 0) closeEquipSuggest(key);
     else { closeAllEquipSuggests(); closeAllPetSuggests(); openEquipSuggest(key, items); }
   });
@@ -345,10 +368,16 @@ function selectPetById(key, id) {
 
 function filterPetItems(query) {
   const q = normalizeJP(query);
-  if (!q) return [];
-  return petItemsCache.filter(i=>{
-    return normalizeJP(i.name).includes(q) || normalizeJP(i.search||"").includes(q);
-  }).slice(0,50);
+  const pool = petItemsCache.filter(i => {
+    if (isStatFilterActive()) {
+      if (!matchesStatFilter(i.statSet || new Set())) return false;
+    }
+    return true;
+  });
+  if (!q) return pool.slice(0, 200);
+  return pool.filter(i =>
+    normalizeJP(i.name).includes(q) || normalizeJP(i.search||"").includes(q)
+  ).slice(0, 200);
 }
 
 function openPetSuggest(key, items) {
@@ -379,9 +408,7 @@ function wirePetSearch(key) {
   });
   input.addEventListener("focus", () => {
     const q = input.value || "";
-    const items = q.trim() === ""
-      ? petItemsCache.slice(0, 200)
-      : filterPetItems(q);
+    const items = filterPetItems(q);
     if (items.length === 0) closePetSuggest(key);
     else { closeAllPetSuggests(); closeAllEquipSuggests(); openPetSuggest(key, items); }
   });
@@ -621,12 +648,19 @@ try {
     { key:"feet",    filter: i => i.category==="armor" && i.slot==="feet" },
     { key:"shield",  filter: i => i.category==="armor" && i.slot==="shield" },
   ];
+  const STAT_KEYS_FILTER = ["vit","spd","atk","int","def","mdef","luk"];
   const accessoryItems = items.filter(i =>
     i.category === "accessory" && (
       Object.values(i.base_add  || {}).some(v => v !== 0) ||
       Object.values(i.base_rate || {}).some(v => v !== 0)
     )
-  );
+  ).map(i => {
+    const stats = new Set();
+    STAT_KEYS_FILTER.forEach(s => {
+      if ((i.base_add?.[s] || 0) !== 0 || (i.base_rate?.[s] || 0) !== 0) stats.add(s);
+    });
+    return { ...i, statSet: stats };
+  });
   slotDefs.forEach(({ key, filter }) => {
     const filtered = items.filter(filter);
     equipItemsCacheBySlot.set(key, filtered.map(i=>({ id:String(i.id), name:i.name })));
@@ -654,6 +688,22 @@ try {
     .filter(item => validIds.has(String(item.id)))
     .map(item => ({ id:String(item.id), name:item.title, search:item.search||item.title }))
     .sort((a,b) => String(a.id).localeCompare(String(b.id),"ja"));
+  // ペットのstatSetを付加（pet-skills.jsonから）
+  const STAT_KEYS_FILTER = ["vit","spd","atk","int","def","mdef","luk"];
+  try {
+    const skillsRes = await fetch(PET_SKILLS_URL, { cache: "default" });
+    const skillsData = await skillsRes.json();
+    petItems.forEach(item => {
+      const stages = skillsData[String(item.id)] || [];
+      const stats = new Set();
+      stages.forEach(stage => {
+        ["add","mul","final_mul"].forEach(t => {
+          if (stage[t]) Object.keys(stage[t]).forEach(k => { if (STAT_KEYS_FILTER.includes(k)) stats.add(k); });
+        });
+      });
+      item.statSet = stats;
+    });
+  } catch(e) {}
   petItemsCache = petItems;
   petItems.forEach(item => petNameMap.set(String(item.id), item.name));
   PET_KEYS.forEach(k => { fillSelect($("select_"+k), petItems); wirePetSearch(k); });
@@ -755,6 +805,23 @@ document.addEventListener("click", e => {
 document.querySelectorAll("[data-series]").forEach(btn => {
   btn.addEventListener("click", () => {
     applySeriesArmor(btn.getAttribute("data-series"));
+  });
+});
+
+// ステータス絞り込みボタン
+document.querySelectorAll(".stat-filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const s = btn.getAttribute("data-stat");
+    if (s === "all") {
+      statFilter.clear();
+    } else {
+      if (statFilter.has(s)) statFilter.delete(s);
+      else statFilter.add(s);
+    }
+    updateStatFilterButtons();
+    // 開いているサジェストを全て閉じる（次回foucusで再フィルタ）
+    closeAllEquipSuggests();
+    closeAllPetSuggests();
   });
 });
 
