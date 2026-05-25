@@ -819,7 +819,7 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
     // 持っているポイント（Lv・天命等）
-    const owned = state.basePointTotal || 0;
+    const owned = Math.max(0, parseInt($('basePointTotal')?.value || '0', 10) || 0);
     // 有効な上限 = min(振り分け上限, 持っているポイント)
     // どちらか小さい方を超えて入力できない
     const effectiveLimit = pointLimit > 0
