@@ -813,25 +813,25 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
     const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
-    // 振り分け上限（賢者・禁域等）- bs-point-limit-displayから取得
+    // 振り分け上限（賢者・禁域等で計算）
     const limitEl = $("bs-point-limit-display");
     const pointLimit = limitEl
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
-    // 持っているポイント - bs-stat-point-displayから取得（振り分けポイント計算欄）
-    const statPointEl = $("bs-stat-point-display");
-    const owned = statPointEl
-      ? Math.max(0, parseInt(statPointEl.textContent.replace(/,/g, "") || "0", 10) || 0)
+    // 持っているポイント：振り分けポイント計算欄の値を優先、なければbasePointTotal
+    const statPtEl = $("bs-stat-point-display");
+    const owned = statPtEl && statPtEl.textContent.trim() !== ""
+      ? Math.max(0, parseInt(statPtEl.textContent.replace(/,/g, ""), 10) || 0)
       : Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
-    // 有効上限 = min(振り分け上限, 持っているポイント)
-    const effectiveLimit = (pointLimit > 0 && owned > 0)
+    // 有効上限 = 振り分け上限と持ちポイントの小さい方（どちらも0なら0）
+    const effectiveLimit = pointLimit > 0 && owned > 0
       ? Math.min(pointLimit, owned)
-      : (pointLimit > 0 ? pointLimit : owned);
+      : Math.max(pointLimit, owned);
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
       .reduce((s, k) => s + Math.max(0, parseInt($("base_" + k)?.value || "0", 10) || 0), 0);
-    // 有効上限 - 他ステ使用分
+    // 入力値 = 有効上限 - 他ステ使用分
     const maxForStat = Math.max(0, effectiveLimit - usedOther);
     const el = $("base_" + stat);
     if (el) {
