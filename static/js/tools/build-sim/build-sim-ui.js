@@ -147,6 +147,7 @@ function loadSimState() {
       state.hasContract    = !!d.state.hasContract;
       state.reverseHitRate = [0,1,50,99].includes(Number(d.state.reverseHitRate)) ? Number(d.state.reverseHitRate) : 0;
       if (["damage","nullify"].includes(d.state.calcMode)) state.calcMode = d.state.calcMode;
+      state.useMinRandom = !!d.state.useMinRandom;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
     }
     if (d.pointLimit) {
@@ -187,6 +188,11 @@ function applyModeUI() {
   $("bs-debuff-wood")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
   $("bs-debuff-dark")?.setAttribute("aria-pressed", state.debuffDark ? "true" : "false");
   $("bs-debuff-wood-magic")?.setAttribute("aria-pressed", state.debuffWood ? "true" : "false");
+
+  // 乱数ボタン
+  document.querySelectorAll(".bs-random-btn").forEach(b => {
+    b.setAttribute("aria-pressed", b.getAttribute("data-random") === (state.useMinRandom ? "min" : "avg") ? "true" : "false");
+  });
 
   // 逆算タブ命中ボタン
   document.querySelectorAll(".bs-reverse-hit-btn").forEach(b => {
@@ -362,12 +368,14 @@ function renderReverseResult() {
   let neededVal = 0, statKey = "";
 
   if (state.attackType === "physical") {
-    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan);
+    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom);
     const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark);
     statKey = "atk";
-    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内");
+    const randomLabel = state.useMinRandom ? "（最低乱数）" : "（平均）";
+    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内" + randomLabel);
     appendResult(wrap, "必要atk: " + fmt(neededVal) + " 以上");
-    appendResult(wrap, "現在のatk(" + fmt(hero.atk) + ")での討伐: " + (current.npan != null ? current.npan + "パン" : "計算不可"));
+    const currentNpan = state.useMinRandom ? current.npanMin : current.npan;
+    appendResult(wrap, "現在のatk(" + fmt(hero.atk) + ")での討伐: " + (currentNpan != null ? currentNpan + "パン" : "計算不可"));
     appendJudge(wrap, hero.atk >= neededVal, "あと atk " + fmt(neededVal - hero.atk) + " 不足");
 
     // 命中も同時計算
@@ -1202,6 +1210,17 @@ document.querySelectorAll(".bs-calc-mode-btn").forEach(btn => {
     const rr = $("bs-reverse-result"); if (rr) rr.innerHTML = "";
     const sw = $("bs-search-equip-wrap"); if (sw) sw.hidden = true;
     lastReverseResult = null;
+  });
+});
+
+// 乱数ボタン
+document.querySelectorAll(".bs-random-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.useMinRandom = btn.getAttribute("data-random") === "min";
+    document.querySelectorAll(".bs-random-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-random") === (state.useMinRandom ? "min" : "avg") ? "true" : "false");
+    });
+    saveSimState();
   });
 });
 
