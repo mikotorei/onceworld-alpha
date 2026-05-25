@@ -809,37 +809,22 @@ document.querySelectorAll("[data-series]").forEach(btn => {
 });
 
 // 振り分けmax ボタン
-// 振り分け上限（calcBasePointLimit）まで入力。ポイントが足りない場合は残り全て。
+// 振り分け上限（basePointTotal）まで入力。ポイントが足りない場合は残り全て。
 document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
     const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
-    // 振り分け上限（賢者・禁域等から計算）
-    const upperLimit = typeof calcBasePointLimit === "function"
-      ? calcBasePointLimit(
-          parseInt($("bs-sage-drop")?.value     || "0", 10) || 0,
-          parseInt($("bs-forbidden-book")?.value || "0", 10) || 0,
-          !!document.querySelector(".bs-contract-btn[aria-pressed='true'][data-val='1']"),
-          parseInt($("bs-tenme-count")?.value    || "0", 10) || 0
-        )
-      : 0;
-    // 持っているポイント（振り分けポイント計算欄）
-    const owned = Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
+    // 振り分け上限 = basePointTotal（ビルドシミュではupdatePointLimitDisplayの値が入っている）
+    const upperLimit = Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
     // 他ステータスの使用済みポイント
     const usedOther = BASE_STATS_ALL
       .filter(k => k !== stat)
       .reduce((s, k) => s + Math.max(0, parseInt($("base_" + k)?.value || "0", 10) || 0), 0);
     // 振り分け上限までの残り
     const remainToLimit = Math.max(0, upperLimit - usedOther);
-    // 持っているポイントの残り
-    const remainOwned  = Math.max(0, owned - usedOther);
-    // 上限まで入れられるなら上限、足りなければ持っているポイントの残り
-    const maxForStat = upperLimit > 0
-      ? (owned >= upperLimit ? remainToLimit : remainOwned)
-      : remainOwned;
     const el = $("base_" + stat);
     if (el) {
-      el.value = String(maxForStat);
+      el.value = String(remainToLimit);
       el.dispatchEvent(new Event("input"));
     }
     recalc();
