@@ -577,7 +577,7 @@
             <button id="bs-tenku-apply" type="button" class="chip-btn">Lvに反映</button>
           </div>
         </div>
-        <div class="enemy-row mt">
+        <div class="enemy-row mt bs-damage-mode">
           <span class="enemy-label">目標発数</span>
           <input id="bs-reverse-npan" type="text" inputmode="numeric" value="1" class="lv-input">
           <span class="bs-label-text">パン以内</span>
@@ -599,15 +599,8 @@
           </div>
         </div>
         <div class="enemy-row mt bs-nullify-mode" hidden>
-          <span class="enemy-label">攻撃タイプ</span>
-          <div id="bs-nullify-attack-type" class="bs-label-text">（モンスター選択後に自動取得）</div>
-        </div>
-        <div class="enemy-row mt bs-nullify-mode" hidden>
-          <span class="enemy-label">無効化対象</span>
-          <div class="chip-group">
-            <button class="chip-btn bs-nullify-target-btn" type="button" data-target="auto" aria-pressed="true">自動</button>
-            <button class="chip-btn bs-nullify-target-btn" type="button" data-target="both" aria-pressed="false">両方</button>
-          </div>
+          <span class="enemy-label">敵の攻撃タイプ</span>
+          <span id="bs-nullify-attack-type" class="bs-label-text">—</span>
         </div>
       </div>
       <div class="action-section">
