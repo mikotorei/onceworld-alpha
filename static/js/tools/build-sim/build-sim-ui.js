@@ -399,12 +399,14 @@ function renderReverseResult() {
       lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
     }
   } else {
-    neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan);
+    neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan, state.useMinRandom);
     const current = calcMagicKillInfo(hero.int, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, picked, lv, state.heroElement, state.debuffWood);
     statKey = "int";
-    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内");
+    const randomLabelMag = state.useMinRandom ? "（最低乱数）" : "（平均）";
+    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内" + randomLabelMag);
     appendResult(wrap, "必要int: " + fmt(neededVal) + " 以上");
-    appendResult(wrap, "現在のint(" + fmt(hero.int) + ")での討伐: " + (current.npan != null ? current.npan + "パン" : "計算不可"));
+    const currentNpanMag = state.useMinRandom ? current.npanMin : current.npan;
+    appendResult(wrap, "現在のint(" + fmt(hero.int) + ")での討伐: " + (currentNpanMag != null ? currentNpanMag + "パン" : "計算不可"));
     appendJudge(wrap, hero.int >= neededVal, "あと int " + fmt(neededVal - hero.int) + " 不足");
     lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
   }
