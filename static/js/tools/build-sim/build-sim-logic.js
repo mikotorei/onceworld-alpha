@@ -41,13 +41,14 @@ function calcMagicKillInfo(heroInt, analysisBook, analysisBookAdvanced, crystalC
     heroElement, enemyElement: scaled.element
   });
   const avg = Math.floor((dmg.min + dmg.max) / 2);
-  const npan = avg > 0 ? Math.ceil(hp / avg) : null;
+  const npan    = avg     > 0 ? Math.ceil(hp / avg)     : null;
+  const npanMin = dmg.min > 0 ? Math.ceil(hp / dmg.min) : null;
   const oneShot = calcMagicOneShotRequiredInt({
     hp, analysisBook, analysisBookAdvanced, crystalCount,
     spell, enemyMagDef: magDef,
     heroElement, enemyElement: scaled.element
   });
-  return { hp, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, oneShot, element: scaled.element };
+  return { hp, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, npanMin, oneShot, element: scaled.element };
 }
 
 function scanAllMonsters(monsters, heroStats, options) {
@@ -87,7 +88,7 @@ function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuf
   return Math.max(0, Math.ceil((neededBase + physDef * 4) / 7));
 }
 
-function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crystalCount, spell, heroElement, debuffWood, targetNpan) {
+function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crystalCount, spell, heroElement, debuffWood, targetNpan, useMinRandom) {
   const state = { debuffWood, debuffDark: false };
   const scaled = buildEnemyScaled(monster, lv, state);
   const magDef = calcEnemyMagDef(scaled.def, scaled.mdef);
@@ -98,7 +99,9 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
   const crystalMul = getCrystalMultiplier(crystalCount);
   const totalMod = 4 * elemMod;
   if (totalMod <= 0 || spellMul <= 0 || crystalMul <= 0) return 0;
-  const neededFinalBase = (hp / targetNpan) / totalMod;
+  // 最低乱数の場合は0.9で割り戻す
+  const randomMod = useMinRandom ? 0.9 : 1.0;
+  const neededFinalBase = (hp / targetNpan) / (totalMod * randomMod);
   const neededPreDef = neededFinalBase + magDef;
   return Math.max(0, Math.ceil(neededPreDef / (1.25 * spellMul * crystalMul) - analysisBonus));
 }
