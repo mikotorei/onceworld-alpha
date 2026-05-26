@@ -394,7 +394,12 @@ function renderReverseResult() {
       appendResult(wrap, "命中" + state.reverseHitRate + "% 必要luk: " + fmt(neededLuk) + " 以上");
       appendResult(wrap, "現在のluk(" + fmt(heroLuk) + ")での命中率: 約" + currentRate + "%");
       appendJudge(wrap, heroLuk >= neededLuk, "あと luk " + fmt(neededLuk - heroLuk) + " 不足");
-      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk, hitRate: state.reverseHitRate };
+      // hitRate=1の場合はatkのみ探索（luk探索なし）
+      lastReverseResult = {
+        stat: statKey, needed: neededVal,
+        neededLuk: state.reverseHitRate === 1 ? 0 : neededLuk,
+        hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate
+      };
     } else {
       lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
     }
