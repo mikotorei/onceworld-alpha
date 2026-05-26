@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   function applyGLevel(v) {
-    v = Math.min(100, Math.max(0, isNaN(v) ? 0 : v));
+    v = Math.min(300, Math.max(0, isNaN(v) ? 0 : v));
     gLevel = v;
     if (gInput) gInput.value = v;
     if (gSlider) gSlider.value = v;
