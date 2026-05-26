@@ -100,9 +100,9 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
   if (elemMod <= 0 || spellMul <= 0 || crystalMul <= 0) return 0;
   // 最低乱数の場合は0.9で割り戻す
   const randomMod = useMinRandom ? 0.9 : 1.0;
-  // (HP÷回数÷相性÷乱数) + magDef×4 の形で計算
-  const neededBase    = (hp / targetNpan) / (elemMod * randomMod);
-  const neededWithDef = neededBase + magDef * 4;
+  // 仕様式: ((HP÷回数÷相性÷乱数÷4) + magDef) ÷ (1.25×呪文×魔晶) - 解析書
+  const neededBase    = (hp / targetNpan) / (elemMod * randomMod) / 4;
+  const neededWithDef = neededBase + magDef;
   return Math.max(0, Math.ceil(neededWithDef / (1.25 * spellMul * crystalMul) - analysisBonus));
 }
 
