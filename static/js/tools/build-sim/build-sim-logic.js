@@ -444,10 +444,12 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
 
     remainingAfterStat = Math.max(0, shortfall - actualFinalGain);
 
+    // 表示用の残りは「所持ポイント - 全ステ合計使用済み」
+    const displayFreePoints = Math.max(0, basePointTotal - usedPoints);
     statPointResult = {
       neededBaseIncrease,
       usedBasePoints,
-      freePoints,
+      freePoints: displayFreePoints,
       basePointTotal,
       usedPoints,
       achievable: neededBaseIncrease <= freePoints,
@@ -592,8 +594,9 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
     const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
     remainingAfterStat = Math.max(0, shortfall - actualFinalGain);
+    const displayFreePoints = Math.max(0, basePointTotal - usedPoints);
     statPointResult = {
-      neededBaseIncrease, usedBasePoints, freePoints,
+      neededBaseIncrease, usedBasePoints, freePoints: displayFreePoints,
       basePointTotal, usedPoints,
       achievable: neededBaseIncrease <= freePoints,
       partialGain: actualFinalGain
@@ -684,8 +687,9 @@ function analyzeAtkAndLukNeeded(
     const usedBasePoints     = Math.min(neededBaseIncrease, atkFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveAtkMultiplier);
     atkRemainingAfterStat    = Math.max(0, atkShortfall - actualFinalGain);
+    const atkDisplayFree = Math.max(0, basePointTotal - usedPoints);
     atkStatPointResult = {
-      neededBaseIncrease, usedBasePoints, freePoints: atkFreePoints,
+      neededBaseIncrease, usedBasePoints, freePoints: atkDisplayFree,
       basePointTotal, usedPoints,
       achievable: neededBaseIncrease <= atkFreePoints,
       partialGain: actualFinalGain
@@ -715,8 +719,9 @@ function analyzeAtkAndLukNeeded(
     const usedBasePoints     = Math.min(neededBaseIncrease, lukFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
     lukRemainingAfterStat    = Math.max(0, lukShortfall - actualFinalGain);
+    const lukDisplayFree = Math.max(0, basePointTotal - usedPoints);
     lukStatPointResult = {
-      neededBaseIncrease, usedBasePoints, freePoints: lukFreePoints,
+      neededBaseIncrease, usedBasePoints, freePoints: lukDisplayFree,
       basePointTotal, usedPoints,
       achievable: neededBaseIncrease <= lukFreePoints,
       partialGain: actualFinalGain
