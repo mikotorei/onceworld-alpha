@@ -1401,13 +1401,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
     // atk+luk同時探索（物理かつhitRate指定あり）
     if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
       const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
-      const ft2 = window.lastFinalTotal || {};
-      const finalLuk = Math.round(Number(ft2?.luk || 0));
-      const shaker   = Math.max(0, Number(simState?.shaker || 0));
-      const baseLuk  = Math.max(0, Number(simState?.base?.luk    || 0));
-      const protLuk  = Math.max(0, Number(simState?.protein?.luk || 0));
-      const bpLuk    = baseLuk + protLuk * (1 + shaker * 0.01);
-      const effectiveLukMul = bpLuk > 0 ? Math.max(1, finalLuk / bpLuk) : 1;
+      const effectiveLukMul = estimateBasePointMultiplier(simState, "luk");
 
       const analysis = analyzeAtkAndLukNeeded(
         equipState, equipItemsMap,
