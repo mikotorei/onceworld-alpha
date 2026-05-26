@@ -506,27 +506,42 @@ function buildAccAnalysis(ACCESSORY_SLOTS, SLOT_LABEL, equipState, equipItemsMap
 // 命中に必要なlukを計算
 // rate: 1, 50, 99
 // enemyLuk: スケール済み敵luk（buildEnemyScaledのluk）
-function calcRequiredLukForHitRate(enemyLuk, rate) {
-  const luk = Math.floor(Number(enemyLuk || 0));
-  if (rate <= 1)  return Math.floor(luk / 2);
-  if (rate >= 99) return luk;
-  // 線形補間: 1%→luk/2, 99%→luk
-  const min = luk / 2;
-  const max = luk;
-  return Math.ceil(min + (max - min) * (rate - 1) / 98);
+// 命中率計算（wiki仕様）
+// 等倍以上→約99%, 1/2→約50%, 1/3→約5%, 1/4以下→約1%
+// 区間ごとに対数線形補間
+// 区間1: ratio 0.25〜0.5 → hitRate 1〜50%  (log線形)
+// 区間2: ratio 0.5〜1.0  → hitRate 50〜99% (log線形)
+const _HIT_A1 = (Math.log(50) - Math.log(1))  / (0.5  - 0.25);
+const _HIT_B1 = Math.log(1)  - _HIT_A1 * 0.25;
+const _HIT_A2 = (Math.log(99) - Math.log(50)) / (1.0  - 0.5);
+const _HIT_B2 = Math.log(50) - _HIT_A2 * 0.5;
+
+function calcHitRateFromRatio(ratio) {
+  if (ratio >= 1.0)  return 99;
+  if (ratio <= 0.25) return 1;
+  if (ratio <= 0.5) return Math.min(99, Math.max(1, Math.round(Math.exp(_HIT_A1 * ratio + _HIT_B1))));
+  return Math.min(99, Math.max(1, Math.round(Math.exp(_HIT_A2 * ratio + _HIT_B2))));
 }
 
-// 現在のlukで何%命中するか
+function calcRequiredLukForHitRate(enemyLuk, rate) {
+  const luk = Math.floor(Number(enemyLuk || 0));
+  if (luk <= 0) return 0;
+  if (rate >= 99) return luk;
+  if (rate <= 1)  return Math.floor(luk * 0.25);
+  // 目標ratioをニュートン法で逆算
+  let lo = 0.25, hi = 1.0;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (calcHitRateFromRatio(mid) < rate) lo = mid; else hi = mid;
+  }
+  return Math.ceil((lo + hi) / 2 * luk);
+}
+
 function calcHitRateFromLuk(heroLuk, enemyLuk) {
   const el = Math.floor(Number(enemyLuk || 0));
   const hl = Math.floor(Number(heroLuk  || 0));
   if (el <= 0) return 100;
-  const min = Math.floor(el / 2);
-  const max = el;
-  if (hl >= max) return 99;
-  if (hl <= min) return 1;
-  // 線形補間で逆算
-  return Math.round(1 + (hl - min) / (max - min) * 98);
+  return calcHitRateFromRatio(hl / el);
 }
 
 // luk探索：G強化・ステポイントでlukを補う
