@@ -97,13 +97,13 @@ function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crysta
   const analysisBonus = calcAnalysisBonus(analysisBook, analysisBookAdvanced);
   const spellMul = getSpellMultiplier(spell);
   const crystalMul = getCrystalMultiplier(crystalCount);
-  const totalMod = 4 * elemMod;
-  if (totalMod <= 0 || spellMul <= 0 || crystalMul <= 0) return 0;
+  if (elemMod <= 0 || spellMul <= 0 || crystalMul <= 0) return 0;
   // 最低乱数の場合は0.9で割り戻す
   const randomMod = useMinRandom ? 0.9 : 1.0;
-  const neededFinalBase = (hp / targetNpan) / (totalMod * randomMod);
-  const neededPreDef = neededFinalBase + magDef;
-  return Math.max(0, Math.ceil(neededPreDef / (1.25 * spellMul * crystalMul) - analysisBonus));
+  // (HP÷回数÷相性÷乱数) + magDef×4 の形で計算
+  const neededBase    = (hp / targetNpan) / (elemMod * randomMod);
+  const neededWithDef = neededBase + magDef * 4;
+  return Math.max(0, Math.ceil(neededWithDef / (1.25 * spellMul * crystalMul) - analysisBonus));
 }
 
 // ============================================================
