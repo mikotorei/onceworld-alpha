@@ -415,8 +415,14 @@ function wirePetSearch(key) {
 }
 
 function collectState() {
+  // 振り分けポイント（所持）をbs-stat-point-displayから取得
+  const statPtEl = $("bs-stat-point-display");
+  const statPointTotal = statPtEl
+    ? Math.max(0, parseInt(statPtEl.textContent.replace(/,/g, "") || "0", 10) || 0)
+    : clamp0($("basePointTotal")?.value);
   return {
     basePointTotal: clamp0($("basePointTotal")?.value),
+    statPointTotal,
     base:    Object.fromEntries(BASE_STATS.map(k=>[k, clamp0($("base_"   +k)?.value)])),
     shaker:  clamp0($("shakerCount")?.value),
     protein: Object.fromEntries(BASE_STATS.map(k=>[k, clamp0($("protein_"+k)?.value)])),
