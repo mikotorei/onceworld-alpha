@@ -633,12 +633,12 @@ function analyzeAtkAndLukNeeded(
     ? overridePointLimit
     : Math.max(0, Number(simState?.basePointTotal || 0));
   const usedPoints    = BASE_STATS.reduce((s, k) => s + Math.max(0, Number(simState?.base?.[k] || 0)), 0);
+  const ownedPoints   = Math.max(0, Number(simState?.statPointTotal || 0));
   const usedAtkStat   = Math.max(0, Number(simState?.base?.["atk"] || 0));
   const usedLukStat2  = Math.max(0, Number(simState?.base?.["luk"] || 0));
-  let   atkFreePoints = Math.max(0, basePointTotal - usedAtkStat);
-  let   lukFreePoints = Math.max(0, basePointTotal - usedLukStat2);
-  let   freePoints    = atkFreePoints; // 後方互換のため残す
-
+  const ownedRemaining  = Math.max(0, ownedPoints - usedPoints);
+  let   atkFreePoints   = Math.min(Math.max(0, basePointTotal - usedAtkStat), ownedRemaining);
+  let   freePoints      = atkFreePoints;
   const currentAtk = Math.round(Number(currentFinalTotal?.atk || 0));
   const currentLuk = Math.round(Number(currentFinalTotal?.luk || 0));
   let atkShortfall = Math.max(0, neededAtk - currentAtk);
@@ -687,7 +687,8 @@ function analyzeAtkAndLukNeeded(
     const usedBasePoints     = Math.min(neededBaseIncrease, atkFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveAtkMultiplier);
     atkRemainingAfterStat    = Math.max(0, atkShortfall - actualFinalGain);
-    const atkDisplayFree = Math.max(0, basePointTotal - usedPoints);
+    // 表示用: 所持ポイント残り（全ステ使用済みを引く）
+    const atkDisplayFree = ownedRemaining;
     atkStatPointResult = {
       neededBaseIncrease, usedBasePoints, freePoints: atkDisplayFree,
       basePointTotal, usedPoints,
@@ -711,6 +712,11 @@ function analyzeAtkAndLukNeeded(
   // ============================================================
   // STEP3: lukをステポイントで補う（atk消費後の残りポイントで）
   // ============================================================
+  // LUKに使える = min(上限 - base.luk, 所持残り - atk実際消費)
+  const atkActuallyUsed = atkStatPointResult ? atkStatPointResult.usedBasePoints : 0;
+  const ownedAfterAtk   = Math.max(0, ownedRemaining - atkActuallyUsed);
+  const lukFreePoints   = Math.min(Math.max(0, basePointTotal - usedLukStat2), ownedAfterAtk);
+
   let lukStatPointResult = null;
   let lukRemainingAfterStat = lukShortfall;
 
@@ -719,7 +725,8 @@ function analyzeAtkAndLukNeeded(
     const usedBasePoints     = Math.min(neededBaseIncrease, lukFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
     lukRemainingAfterStat    = Math.max(0, lukShortfall - actualFinalGain);
-    const lukDisplayFree = Math.max(0, basePointTotal - usedPoints);
+    // 表示用: atk消費後の所持残り
+    const lukDisplayFree = ownedAfterAtk;
     lukStatPointResult = {
       neededBaseIncrease, usedBasePoints, freePoints: lukDisplayFree,
       basePointTotal, usedPoints,
