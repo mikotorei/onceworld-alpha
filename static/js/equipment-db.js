@@ -90,18 +90,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     return val.toLocaleString("ja-JP");
   }
 
-  // 1強化あたりの必要G（基礎値合計ベース・固定）
-  function calcRequiredGPerLevel(item) {
-    const total = statList.reduce((sum, stat) => {
-      return sum + Number(item.base_add?.[stat] ?? 0);
-    }, 0);
-    return Math.floor(total / 10 * 100000000);
+  // 装備のステータス合計（MOV含む）
+  function calcStatSum(item) {
+    return statList.reduce((sum, stat) => sum + Number(item.base_add?.[stat] ?? 0), 0);
   }
 
-  // N回分の合計必要G
+  // N回分の合計必要G（仕様通り）
+  // G1〜G100: S×1,000万G/回
+  // G101〜G200: S×1,000万G + 100億G/回
+  // G201〜G300: S×1,000万G + 500億G/回
   function calcTotalRequiredG(item, gLv) {
     if (gLv === 0) return 0;
-    return calcRequiredGPerLevel(item) * gLv;
+    const S = calcStatSum(item);
+    const baseCost = S * 10000000; // S × 1,000万G
+    let total = 0;
+    for (let g = 1; g <= gLv; g++) {
+      if (g <= 100)      total += baseCost;
+      else if (g <= 200) total += baseCost + 10000000000;   // +100億G
+      else               total += baseCost + 50000000000;   // +500億G
+    }
+    return total;
   }
 
   function formatRequiredG(val) {
