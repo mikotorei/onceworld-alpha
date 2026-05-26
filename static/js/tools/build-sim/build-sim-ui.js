@@ -40,7 +40,10 @@ const state = {
   npanLimit:       3,
   hasContract:     false,
   hasCosmoCube:    false,
-  reverseHitRate:  0
+  reverseHitRate:  0,
+  useMinRandom:    false,
+  calcMode:        "damage",
+  nullifyTarget:   "auto"
 };
 
 let lastReverseResult = null;
