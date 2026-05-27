@@ -166,6 +166,27 @@ function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
 
 
 
+
+// ============================================================
+// 会心率計算
+// 自LUK ≤ 敵LUK → 0%, 自LUK = 敵LUK×2 → 10%, 敵LUK×10以上 → 90%上限
+// ============================================================
+function calcCritRate(heroLuk, enemyLuk) {
+  const el = Math.floor(Number(enemyLuk || 0));
+  const hl = Math.floor(Number(heroLuk  || 0));
+  if (el <= 0 || hl <= el) return 0;
+  return Math.min(90, Math.floor((hl / el - 1) * 10));
+}
+
+function requiredLukForCritRate(enemyLuk, targetRate) {
+  const el = Math.floor(Number(enemyLuk || 0));
+  if (el <= 0 || targetRate <= 0) return 0;
+  const rate = Math.min(90, Math.max(0, targetRate));
+  // rate = (ratio - 1) × 10 → ratio = rate/10 + 1
+  const ratio = rate / 10 + 1;
+  return Math.ceil(el * ratio);
+}
+
 // ============================================================
 // 無効化逆算
 // ============================================================
