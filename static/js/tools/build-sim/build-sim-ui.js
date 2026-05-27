@@ -418,7 +418,7 @@ function renderReverseResult() {
 
     // 会心率計算
     const critRateEl = $("bs-reverse-crit");
-    const targetCritRate = critRateEl ? Math.min(90, Math.max(10, parseInt(critRateEl.value, 10) || 0)) : 0;
+    const targetCritRate = critRateEl ? Math.min(90, Math.max(0, parseInt(critRateEl.value, 10) || 0)) : 0;
     let neededLukForCrit = 0;
     if (targetCritRate > 0) {
       const scaledForCrit = buildEnemyScaled(picked, lv, { debuffWood: state.debuffWood, debuffDark: state.debuffDark });
@@ -1290,13 +1290,14 @@ function updateSpdShortage() {
 
 $("bs-reverse-hits")?.addEventListener("input", updateSpdShortage);
 
-// 会心率入力値を10〜90にclamp
+// 会心率入力値を10〜90にclamp（0は未入力扱い）
 $("bs-reverse-crit")?.addEventListener("change", () => {
   const el = $("bs-reverse-crit");
   if (!el) return;
   const v = parseInt(el.value, 10);
-  if (!isNaN(v) && v < 10 && v !== 0) el.value = "10";
-  if (!isNaN(v) && v > 90) el.value = "90";
+  if (isNaN(v) || v === 0) { el.value = "0"; return; }
+  if (v < 10) el.value = "10";
+  else if (v > 90) el.value = "90";
 });
 
 // 乱数ボタン
