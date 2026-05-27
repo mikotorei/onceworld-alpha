@@ -1470,44 +1470,24 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef, true, headerM.textContent);
       }
     } else {
-      // ① ATK探索（ATKが必要な場合）
-      if (lastReverseResult.needed > 0) {
-        if (lastReverseResult.stat === "atk" && lastReverseResult.hitRate > 0 && lastReverseResult.neededLuk > 0) {
-          // ATK+LUK同時探索
-          const effectiveAtkMul = estimateBasePointMultiplier(simState, "atk");
-          const effectiveLukMul = estimateBasePointMultiplier(simState, "luk");
-          const analysis = analyzeAtkAndLukNeeded(
-            equipState, equipItemsMap,
-            lastReverseResult.needed, lastReverseResult.neededLuk,
-            currentFinalTotal, simState,
-            effectiveAtkMul, effectiveLukMul, overridePointLimit
-          );
-          renderAtkLukAnalysis(analysis, lastReverseResult.needed, lastReverseResult.neededLuk, lastReverseResult.hitRate);
-        } else {
-          // ATK単独探索
-          const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
-          const analysis = analyzeGlvNeeded(
-            equipState, equipItemsMap,
-            lastReverseResult.stat, lastReverseResult.needed,
-            currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
-          );
-          renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+       // ① ATK探索（独立）
+       if (lastReverseResult.needed > 0) {
+         const effectiveMultiplier = estimateBasePointMultiplier(simState, lastReverseResult.stat);
+         const analysis = analyzeGlvNeeded(
+           equipState, equipItemsMap,
+           lastReverseResult.stat, lastReverseResult.needed,
+           currentFinalTotal, simState, effectiveMultiplier, overridePointLimit
+         );
+         renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
+       }
 
-          // LUK探索（ATK単独でhitRate=0の場合はスキップ済み、neededLukがある場合）
-          if (lastReverseResult.neededLuk > 0) {
-            const wrapLuk = $("bs-equip-result");
-            if (wrapLuk) {
-              const divLuk = document.createElement("hr"); divLuk.style.margin = "16px 0"; wrapLuk.appendChild(divLuk);
-              const hLuk = document.createElement("div"); hLuk.className = "bs-area-title";
-              hLuk.textContent = "【命中LUK 探索】";
-              wrapLuk.appendChild(hLuk);
-            }
-            const effMulLuk = estimateBasePointMultiplier(simState, "luk");
-            const analysisLuk = analyzeLukNeeded(equipState, equipItemsMap, lastReverseResult.neededLuk, currentFinalTotal.luk || 0, simState, effMulLuk, overridePointLimit);
-            renderGlvAnalysis(analysisLuk, "luk", lastReverseResult.neededLuk, true);
-          }
-        }
-      }
+       // ② 命中LUK探索（独立）
+       if (lastReverseResult.neededLuk > 0 && lastReverseResult.hitRate > 0) {
+         const hitTitle = "【命中" + lastReverseResult.hitRate + "% (LUK " + fmt(lastReverseResult.neededLuk) + ") を達成するためには】";
+         const effMulHit = estimateBasePointMultiplier(simState, "luk");
+         const analysisHit = analyzeGlvNeeded(equipState, equipItemsMap, "luk", lastReverseResult.neededLuk, currentFinalTotal, simState, effMulHit, overridePointLimit);
+         renderGlvAnalysis(analysisHit, "luk", lastReverseResult.neededLuk, true, hitTitle);
+       }
 
       // ② SPD探索（多段数不足の場合）
       if (lastReverseResult?.spdShortfall > 0 && lastReverseResult?.neededSpd > 0) {
