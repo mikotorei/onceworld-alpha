@@ -368,8 +368,13 @@ function renderReverseResult() {
     return;
   }
 
-  // 多段数SPD不足チェック更新
+  // 多段数SPD不足チェック更新・表示
   updateSpdShortage();
+  const hitsEl = $("bs-reverse-hits");
+  const targetHits = hitsEl ? Math.min(11, Math.max(1, parseInt(hitsEl.value, 10) || 1)) : 1;
+  const neededSpd  = typeof requiredSpdForHits === "function" ? requiredSpdForHits(targetHits) : 0;
+  const heroSpd    = Math.round(Number(window.lastFinalTotal?.spd || 0));
+  const spdShortfall = Math.max(0, neededSpd - heroSpd);
 
   let neededVal = 0, statKey = "";
 
@@ -398,13 +403,26 @@ function renderReverseResult() {
       appendResult(wrap, "現在のluk(" + fmt(heroLuk) + ")での命中率: 約" + currentRate + "%");
       appendJudge(wrap, heroLuk >= neededLuk, "あと luk " + fmt(neededLuk - heroLuk) + " 不足");
       // hitRate=1の場合はatkのみ探索（luk探索なし）
-      lastReverseResult = {
+      // SPD不足を逆算結果に追加
+    if (targetHits > 1 && spdShortfall > 0) {
+      const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+      appendResult(wrap, "【多段×" + targetHits + " 達成（SPD " + fmt(neededSpd) + " 以上）】");
+      appendResult(wrap, "現在のSPD: " + fmt(heroSpd));
+      appendJudge(wrap, false, "あと SPD " + fmt(spdShortfall) + " 不足");
+    } else if (targetHits > 1) {
+      const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+      appendResult(wrap, "【多段×" + targetHits + "】 ✅ SPD達成済み（" + fmt(heroSpd) + "）");
+    }
+
+    lastReverseResult = {
         stat: statKey, needed: neededVal,
         neededLuk: state.reverseHitRate === 1 ? 0 : neededLuk,
-        hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate
+        hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate,
+        neededSpd: spdShortfall > 0 ? neededSpd : 0,
+        spdShortfall
       };
     } else {
-      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
+      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0, neededSpd: 0, spdShortfall: 0 };
     }
   } else {
     neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan, state.useMinRandom);
@@ -416,7 +434,7 @@ function renderReverseResult() {
     const currentNpanMag = state.useMinRandom ? current.npanMin : current.npan;
     appendResult(wrap, "現在のint(" + fmt(hero.int) + ")での討伐: " + (currentNpanMag != null ? currentNpanMag + "パン" : "計算不可"));
     appendJudge(wrap, hero.int >= neededVal, "あと int " + fmt(neededVal - hero.int) + " 不足");
-    lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0 };
+    lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0, neededSpd: 0, spdShortfall: 0 };
   }
 
   const searchWrap = $("bs-search-equip-wrap");
@@ -1443,6 +1461,20 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       );
       renderGlvAnalysis(analysis, lastReverseResult.stat, lastReverseResult.needed);
     }
+      // SPD探索（多段数不足の場合）
+      if (lastReverseResult?.spdShortfall > 0 && lastReverseResult?.neededSpd > 0) {
+        const wrapSpd = $("bs-equip-result");
+        if (wrapSpd) {
+          const divSpd = document.createElement("hr"); divSpd.style.margin = "16px 0"; wrapSpd.appendChild(divSpd);
+          const hSpd = document.createElement("div"); hSpd.className = "bs-area-title";
+          hSpd.textContent = "【多段×" + ($("bs-reverse-hits")?.value || "?") + " SPD " + fmt(lastReverseResult.neededSpd) + " 達成のための探索】";
+          wrapSpd.appendChild(hSpd);
+        }
+        const effMulSpd = estimateBasePointMultiplier(simState, "spd");
+        const analysisSpd = analyzeGlvNeeded(equipState, equipItemsMap, "spd", lastReverseResult.neededSpd, currentFinalTotal, simState, effMulSpd, overridePointLimit);
+        renderGlvAnalysis(analysisSpd, "spd", lastReverseResult.neededSpd);
+      }
+
     } // end else (非無効化モード)
   } catch(e) {
     console.error("探索エラー:", e);
