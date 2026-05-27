@@ -496,7 +496,7 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle, hide
   // customTitleがある場合はそれを使い、内部タイトルは出さない
   const header = document.createElement("div");
   header.className = "bs-area-title " + (STAT_COLOR[stat] || "");
-  header.textContent = customTitle || `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのステポイント・G強化分析`;
+  header.textContent = customTitle || `【${STAT_LABEL[stat]||stat} ${fmt(needed)} を達成するための探索】`;
   wrap.appendChild(header);
 
   if (analysis.achieved) {
@@ -800,7 +800,7 @@ function renderHitEquipResult(analysis) {
   wrap.innerHTML = "";
   const header = document.createElement("div");
    header.className = "bs-area-title title-hit";
-  header.textContent = "命中" + (lastHitResult?.rate || 50) + "% 達成のための LUK " + fmt(lastHitResult?.neededLuk || 0) + " 探索";
+  header.textContent = "【命中" + (lastHitResult?.rate || 50) + "% LUK " + fmt(lastHitResult?.neededLuk || 0) + " を達成するための探索】";
   wrap.appendChild(header);
   if (analysis.achieved) {
     const p = document.createElement("p");
@@ -1455,7 +1455,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       if (lastReverseResult.showDef && lastReverseResult.neededDef > 0) {
         const headerD = document.createElement("div");
         headerD.className = "bs-area-title title-def";
-        headerD.textContent = "【物理無効化 DEF " + fmt(lastReverseResult.neededDef) + " 達成のための探索】";
+        headerD.textContent = "【DEF " + fmt(lastReverseResult.neededDef) + " を達成するための探索】";
         const effMulD = estimateBasePointMultiplier(simState, "def");
         const analysisD = analyzeGlvNeeded(equipState, equipItemsMap, "def", lastReverseResult.neededDef, currentFinalTotal, simState, effMulD, overridePointLimit);
         renderGlvAnalysis(analysisD, "def", lastReverseResult.neededDef, false, headerD.textContent);
@@ -1466,7 +1466,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         if (wrapM && lastReverseResult.showDef) {
           const divider = document.createElement("hr"); divider.className = "bs-section-divider"; wrapM.appendChild(divider);
           const headerM = document.createElement("div"); headerM.className = "bs-area-title title-mdef";
-          headerM.textContent = "【魔法無効化 MDEF " + fmt(lastReverseResult.neededMdef) + " 達成のための探索】";
+          headerM.textContent = "【MDEF " + fmt(lastReverseResult.neededMdef) + " を達成するための探索】";
         }
         const effMulM = estimateBasePointMultiplier(simState, "mdef");
         const analysisM = analyzeGlvNeeded(equipState, equipItemsMap, "mdef", lastReverseResult.neededMdef, currentFinalTotal, simState, effMulM, overridePointLimit);
@@ -1486,7 +1486,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
 
        // ② 命中LUK探索（独立）
        if (lastReverseResult.neededLuk > 0 && lastReverseResult.hitRate > 0) {
-         const hitTitle = "【命中" + lastReverseResult.hitRate + "% (LUK " + fmt(lastReverseResult.neededLuk) + ") を達成するためには】";
+         const hitTitle = "【命中" + lastReverseResult.hitRate + "% LUK " + fmt(lastReverseResult.neededLuk) + " を達成するための探索】";
          const effMulHit = estimateBasePointMultiplier(simState, "luk");
          const analysisHit = analyzeGlvNeeded(equipState, equipItemsMap, "luk", lastReverseResult.neededLuk, currentFinalTotal, simState, effMulHit, overridePointLimit);
          renderGlvAnalysis(analysisHit, "luk", lastReverseResult.neededLuk, true, hitTitle);
@@ -1495,7 +1495,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       // ② SPD探索（多段数不足の場合）
       if (lastReverseResult?.spdShortfall > 0 && lastReverseResult?.neededSpd > 0) {
         const wrapSpd = $("bs-equip-result");
-        const spdTitle = "【多段×" + ($("bs-reverse-hits")?.value || "?") + " SPD " + fmt(lastReverseResult.neededSpd) + " 達成のための探索】";
+        const spdTitle = "【多段×" + ($("bs-reverse-hits")?.value || "?") + " SPD " + fmt(lastReverseResult.neededSpd) + " を達成するための探索】";
         const effMulSpd = estimateBasePointMultiplier(simState, "spd");
         const analysisSpd = analyzeGlvNeeded(equipState, equipItemsMap, "spd", lastReverseResult.neededSpd, currentFinalTotal, simState, effMulSpd, overridePointLimit);
         renderGlvAnalysis(analysisSpd, "spd", lastReverseResult.neededSpd, true, spdTitle);
@@ -1504,7 +1504,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       // ③ 会心率LUK探索（目標会心率が設定されている場合）
       if (lastReverseResult?.neededLukForCrit > 0) {
         const wrapCrit = $("bs-equip-result");
-        const critTitle = "【会心率" + lastReverseResult.targetCritRate + "% LUK " + fmt(lastReverseResult.neededLukForCrit) + " 達成のための探索】";
+        const critTitle = "【会心率" + lastReverseResult.targetCritRate + "% LUK " + fmt(lastReverseResult.neededLukForCrit) + " を達成するための探索】";
         const effMulCrit = estimateBasePointMultiplier(simState, "luk");
         const analysisCrit = analyzeGlvNeeded(equipState, equipItemsMap, "luk", lastReverseResult.neededLukForCrit, currentFinalTotal, simState, effMulCrit, overridePointLimit);
         renderGlvAnalysis(analysisCrit, "luk", lastReverseResult.neededLukForCrit, true, critTitle);
