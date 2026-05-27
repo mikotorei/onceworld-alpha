@@ -368,6 +368,9 @@ function renderReverseResult() {
     return;
   }
 
+  // 多段数SPD不足チェック更新
+  updateSpdShortage();
+
   let neededVal = 0, statKey = "";
 
   if (state.attackType === "physical") {
@@ -1222,6 +1225,27 @@ document.querySelectorAll(".bs-calc-mode-btn").forEach(btn => {
     lastReverseResult = null;
   });
 });
+
+// 多段数入力 → SPD不足表示
+function updateSpdShortage() {
+  const hitsEl = $("bs-reverse-hits");
+  const noteEl = $("bs-spd-shortage");
+  if (!hitsEl || !noteEl) return;
+  const targetHits = Math.min(11, Math.max(1, parseInt(hitsEl.value, 10) || 1));
+  const neededSpd  = typeof requiredSpdForHits === "function" ? requiredSpdForHits(targetHits) : 0;
+  const heroSpd    = Math.round(Number(window.lastFinalTotal?.spd || 0));
+  if (targetHits <= 1 || neededSpd === 0) {
+    noteEl.textContent = "";
+  } else if (heroSpd >= neededSpd) {
+    noteEl.textContent = "✅ 達成済み（×" + targetHits + "）";
+    noteEl.style.color = "#2a2";
+  } else {
+    noteEl.textContent = "あと SPD " + (neededSpd - heroSpd).toLocaleString("ja-JP") + " 不足";
+    noteEl.style.color = "#d44";
+  }
+}
+
+$("bs-reverse-hits")?.addEventListener("input", updateSpdShortage);
 
 // 乱数ボタン
 document.querySelectorAll(".bs-random-btn").forEach(btn => {
