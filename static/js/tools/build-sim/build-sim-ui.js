@@ -1075,7 +1075,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
   }
 
   wrap.appendChild(makeStatSection(
-    "【ATK " + fmt(neededAtk) + " を達成するためには】",
+    "【ATK " + fmt(neededAtk) + " を達成するための探索】",
     analysis.atkSlots, analysis.atkStatPointResult, analysis.atkStillShort, "atk", analysis.atkAlreadyAchieved, neededAtk
   ));
 
@@ -1084,7 +1084,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
   wrap.appendChild(divider);
 
   wrap.appendChild(makeStatSection(
-    "【命中" + hitRate + "% (LUK " + fmt(neededLuk) + ") を達成するためには】",
+    "【命中" + hitRate + "% LUK " + fmt(neededLuk) + " を達成するための探索】",
     analysis.lukSlots, analysis.lukStatPointResult, analysis.lukStillShort, "luk", analysis.lukAlreadyAchieved, neededLuk
   ));
 
