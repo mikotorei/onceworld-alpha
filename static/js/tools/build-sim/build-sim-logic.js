@@ -443,7 +443,8 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   let remainingAfterStat = shortfall;
 
   if (effectiveMultiplier > 0 && freePointsActual > 0) {
-    let neededBaseIncrease = Math.ceil(shortfall / effectiveMultiplier);
+    // floorStats処理による誤差を考慮して+1で安全マージンを確保
+    let neededBaseIncrease = Math.ceil((shortfall + 1) / effectiveMultiplier);
     while (Math.floor(neededBaseIncrease * effectiveMultiplier) < shortfall) neededBaseIncrease++;
     const usedBasePoints     = Math.min(neededBaseIncrease, freePointsActual);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveMultiplier);
