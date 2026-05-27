@@ -371,3 +371,35 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+/* ---- 乱数・多段数 横並びグループ ---- */
+.bs-inline-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bs-field-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bs-field-label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+}
+
+.bs-field-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bs-spd-note {
+  font-size: 12px;
+  color: #d44;
+  margin-top: 2px;
+}
