@@ -403,3 +403,31 @@
   color: #d44;
   margin-top: 2px;
 }
+
+/* ---- 探索セクション見出し色分け ---- */
+.bs-area-title {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin: 0 0 8px;
+  color: #fff;
+  background: #555;
+}
+
+.bs-area-title.title-atk  { background: #cc0033; }
+.bs-area-title.title-int  { background: #0055cc; }
+.bs-area-title.title-spd  { background: #222222; }
+.bs-area-title.title-hit  { background: #e07800; }
+.bs-area-title.title-crit { background: #cc9900; }
+.bs-area-title.title-def  { background: #6600aa; }
+.bs-area-title.title-mdef { background: #440077; }
+.bs-area-title.title-luk  { background: #e07800; }
+.bs-area-title.title-vit  { background: #555555; }
+
+/* セクション間の仕切り線 */
+.bs-section-divider {
+  border: none;
+  border-top: 2px solid #ddd;
+  margin: 20px 0;
+}
