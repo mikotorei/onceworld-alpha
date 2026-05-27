@@ -549,7 +549,7 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle, hide
     } else {
       const partialP = document.createElement("p");
       partialP.className = "bs-ng";
-      partialP.textContent = `⚠️ 残り ${fmt(sp.freePoints)} ポイントを全振りしても不足（${fmt(sp.partialGain)} 分補填） → 残りをG強化で補います`;
+      partialP.textContent = `⚠️ 振り分け上限 ${fmt(sp.basePointTotal)} ポイントを全振りしても不足（${fmt(sp.partialGain)} 分補填） → 残りをG強化で補います`;
       spBox.appendChild(partialP);
       wrap.appendChild(spBox);
     }
@@ -836,7 +836,7 @@ function renderHitEquipResult(analysis) {
       return;
     } else {
       judgeP.className = "bs-ng";
-      judgeP.textContent = "⚠️ 残り " + fmt(sp.freePoints) + " ポイントを全振りしても不足 → 残りをG強化で補います";
+      judgeP.textContent = "⚠️ 振り分け上限 " + fmt(sp.basePointTotal) + " ポイントを全振りしても不足 → 残りをG強化で補います";
       spBox.appendChild(judgeP); wrap.appendChild(spBox);
     }
   }
@@ -957,7 +957,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
         return sec;
       } else {
         judgeP.className = "bs-ng";
-        judgeP.textContent = "⚠️ 残り " + fmt(sp.freePoints) + " ポイントを全振りしても不足 → G強化で補います";
+        judgeP.textContent = "⚠️ 振り分け上限 " + fmt(sp.basePointTotal) + " ポイントを全振りしても不足 → G強化で補います";
         spBox.appendChild(judgeP); sec.appendChild(spBox);
       }
     }
