@@ -590,10 +590,22 @@
           </div>
         </div>
         <div class="enemy-row mt bs-damage-mode">
-          <span class="enemy-label">乱数</span>
-          <div class="chip-group">
-            <button class="chip-btn bs-random-btn" type="button" data-random="avg" aria-pressed="true">平均</button>
-            <button class="chip-btn bs-random-btn" type="button" data-random="min" aria-pressed="false">最低</button>
+          <div class="bs-inline-group">
+            <div class="bs-field-block">
+              <span class="bs-field-label">乱数</span>
+              <div class="chip-group">
+                <button class="chip-btn bs-random-btn" type="button" data-random="avg" aria-pressed="true">平均</button>
+                <button class="chip-btn bs-random-btn" type="button" data-random="min" aria-pressed="false">最低</button>
+              </div>
+            </div>
+            <div class="bs-field-block">
+              <span class="bs-field-label">多段数</span>
+              <div class="bs-field-row">
+                <input id="bs-reverse-hits" type="number" min="1" max="11" value="1" class="lv-input">
+                <span class="bs-label-text">段</span>
+              </div>
+              <div id="bs-spd-shortage" class="bs-spd-note"></div>
+            </div>
           </div>
         </div>
         <div class="enemy-row mt bs-damage-mode bs-phys-only">
