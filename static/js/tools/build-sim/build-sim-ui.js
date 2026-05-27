@@ -390,9 +390,10 @@ function renderReverseResult() {
     appendJudge(wrap, hero.atk >= neededVal, "あと atk " + fmt(neededVal - hero.atk) + " 不足");
 
     // 命中も同時計算
+    let neededLuk = 0;
     if (state.reverseHitRate > 0) {
       const scaled   = buildEnemyScaled(picked, lv, { debuffWood: state.debuffWood, debuffDark: state.debuffDark });
-      const neededLuk = calcRequiredLukForHitRate(scaled.luk, state.reverseHitRate);
+      neededLuk = calcRequiredLukForHitRate(scaled.luk, state.reverseHitRate);
       const ft = window.lastFinalTotal || {};
       const heroLuk = Math.max(0, Math.round(ft.luk || 0));
       const currentRate = calcHitRateFromLuk(heroLuk, scaled.luk);
@@ -402,28 +403,26 @@ function renderReverseResult() {
       appendResult(wrap, "命中" + state.reverseHitRate + "% 必要luk: " + fmt(neededLuk) + " 以上");
       appendResult(wrap, "現在のluk(" + fmt(heroLuk) + ")での命中率: 約" + currentRate + "%");
       appendJudge(wrap, heroLuk >= neededLuk, "あと luk " + fmt(neededLuk - heroLuk) + " 不足");
-      // hitRate=1の場合はatkのみ探索（luk探索なし）
-      // SPD不足を逆算結果に追加
+    }
+
+    // SPD不足表示（命中の有無に関わらず）
     if (targetHits > 1 && spdShortfall > 0) {
-      const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+      const sepSpd = document.createElement("hr"); sepSpd.style.margin = "8px 0"; wrap.appendChild(sepSpd);
       appendResult(wrap, "【多段×" + targetHits + " 達成（SPD " + fmt(neededSpd) + " 以上）】");
       appendResult(wrap, "現在のSPD: " + fmt(heroSpd));
       appendJudge(wrap, false, "あと SPD " + fmt(spdShortfall) + " 不足");
     } else if (targetHits > 1) {
-      const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
+      const sepSpd = document.createElement("hr"); sepSpd.style.margin = "8px 0"; wrap.appendChild(sepSpd);
       appendResult(wrap, "【多段×" + targetHits + "】 ✅ SPD達成済み（" + fmt(heroSpd) + "）");
     }
 
     lastReverseResult = {
-        stat: statKey, needed: neededVal,
-        neededLuk: state.reverseHitRate === 1 ? 0 : neededLuk,
-        hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate,
-        neededSpd: spdShortfall > 0 ? neededSpd : 0,
-        spdShortfall
-      };
-    } else {
-      lastReverseResult = { stat: statKey, needed: neededVal, neededLuk: 0, hitRate: 0, neededSpd: 0, spdShortfall: 0 };
-    }
+      stat: statKey, needed: neededVal,
+      neededLuk: state.reverseHitRate === 1 ? 0 : neededLuk,
+      hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate,
+      neededSpd: spdShortfall > 0 ? neededSpd : 0,
+      spdShortfall
+    };
   } else {
     neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan, state.useMinRandom);
     const current = calcMagicKillInfo(hero.int, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, picked, lv, state.heroElement, state.debuffWood);
