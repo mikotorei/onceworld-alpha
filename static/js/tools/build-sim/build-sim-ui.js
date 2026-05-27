@@ -802,7 +802,7 @@ function renderHitEquipResult(analysis) {
   if (!wrap) return;
   wrap.innerHTML = "";
   const header = document.createElement("div");
-  header.className = "bs-area-title";
+   header.className = "bs-area-title title-hit";
   header.textContent = "命中" + (lastHitResult?.rate || 50) + "% 達成のための LUK " + fmt(lastHitResult?.neededLuk || 0) + " 探索";
   wrap.appendChild(header);
   if (analysis.achieved) {
@@ -913,7 +913,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
   wrap.innerHTML = "";
 
   const header = document.createElement("div");
-  header.className = "bs-area-title";
+   header.className = "bs-area-title title-atk";
   header.textContent = "ATK " + fmt(neededAtk) + " ＋ 命中" + hitRate + "%(LUK " + fmt(neededLuk) + ") 同時達成分析";
   wrap.appendChild(header);
 
@@ -922,7 +922,8 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
     sec.style.marginBottom = "20px";
 
     const secTitle = document.createElement("div");
-    secTitle.className = "bs-area-title";
+    const STAT_COLOR_SEC = { atk:"title-atk", int:"title-int", spd:"title-spd", def:"title-def", mdef:"title-mdef", vit:"title-vit", luk:"title-hit" };
+    secTitle.className = "bs-area-title " + (STAT_COLOR_SEC[stat] || "");
     secTitle.style.fontSize = "14px";
     secTitle.textContent = title;
     sec.appendChild(secTitle);
