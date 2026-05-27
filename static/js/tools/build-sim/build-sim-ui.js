@@ -416,12 +416,35 @@ function renderReverseResult() {
       appendResult(wrap, "【多段×" + targetHits + "】 ✅ SPD達成済み（" + fmt(heroSpd) + "）");
     }
 
+    // 会心率計算
+    const critRateEl = $("bs-reverse-crit");
+    const targetCritRate = critRateEl ? Math.min(90, Math.max(0, parseInt(critRateEl.value, 10) || 0)) : 0;
+    let neededLukForCrit = 0;
+    if (targetCritRate > 0) {
+      const scaledForCrit = buildEnemyScaled(picked, lv, { debuffWood: state.debuffWood, debuffDark: state.debuffDark });
+      const enemyLukForCrit = scaledForCrit.luk;
+      const heroLukForCrit  = Math.round(Number(window.lastFinalTotal?.luk || 0));
+      const currentCritRate = calcCritRate(heroLukForCrit, enemyLukForCrit);
+      neededLukForCrit = requiredLukForCritRate(enemyLukForCrit, targetCritRate);
+      const critShortfall = Math.max(0, neededLukForCrit - heroLukForCrit);
+      const sepCrit = document.createElement("hr"); sepCrit.style.margin = "8px 0"; wrap.appendChild(sepCrit);
+      appendResult(wrap, "【会心率" + targetCritRate + "% 達成（必要LUK " + fmt(neededLukForCrit) + " 以上）】");
+      appendResult(wrap, "現在のLUK(" + fmt(heroLukForCrit) + ")での会心率: " + currentCritRate + "%");
+      if (critShortfall > 0) {
+        appendJudge(wrap, false, "あと LUK " + fmt(critShortfall) + " 不足");
+      } else {
+        appendJudge(wrap, true, "");
+      }
+    }
+
     lastReverseResult = {
       stat: statKey, needed: neededVal,
       neededLuk: state.reverseHitRate === 1 ? 0 : neededLuk,
       hitRate: state.reverseHitRate === 1 ? 0 : state.reverseHitRate,
       neededSpd: spdShortfall > 0 ? neededSpd : 0,
-      spdShortfall
+      spdShortfall,
+      neededLukForCrit: targetCritRate > 0 ? neededLukForCrit : 0,
+      targetCritRate
     };
   } else {
     neededVal = reverseMagicInt(picked, lv, hero.analysisBook, hero.analysisBookAdvanced, hero.crystalCount, state.spell, state.heroElement, state.debuffWood, targetNpan, state.useMinRandom);
@@ -1497,6 +1520,20 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         const effMulSpd = estimateBasePointMultiplier(simState, "spd");
         const analysisSpd = analyzeGlvNeeded(equipState, equipItemsMap, "spd", lastReverseResult.neededSpd, currentFinalTotal, simState, effMulSpd, overridePointLimit);
         renderGlvAnalysis(analysisSpd, "spd", lastReverseResult.neededSpd, true);
+      }
+
+      // ③ 会心率LUK探索（目標会心率が設定されている場合）
+      if (lastReverseResult?.neededLukForCrit > 0) {
+        const wrapCrit = $("bs-equip-result");
+        if (wrapCrit) {
+          const divCrit = document.createElement("hr"); divCrit.style.margin = "16px 0"; wrapCrit.appendChild(divCrit);
+          const hCrit = document.createElement("div"); hCrit.className = "bs-area-title";
+          hCrit.textContent = "【会心率" + lastReverseResult.targetCritRate + "% LUK " + fmt(lastReverseResult.neededLukForCrit) + " 達成のための探索】";
+          wrapCrit.appendChild(hCrit);
+        }
+        const effMulCrit = estimateBasePointMultiplier(simState, "luk");
+        const analysisCrit = analyzeGlvNeeded(equipState, equipItemsMap, "luk", lastReverseResult.neededLukForCrit, currentFinalTotal, simState, effMulCrit, overridePointLimit);
+        renderGlvAnalysis(analysisCrit, "luk", lastReverseResult.neededLukForCrit, true);
       }
 
     } // end else (非無効化モード)
