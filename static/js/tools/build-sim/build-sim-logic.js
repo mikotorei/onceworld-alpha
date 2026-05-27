@@ -175,16 +175,18 @@ function calcCritRate(heroLuk, enemyLuk) {
   const el = Math.floor(Number(enemyLuk || 0));
   const hl = Math.floor(Number(heroLuk  || 0));
   if (el <= 0 || hl <= el) return 0;
-  return Math.min(90, Math.floor((hl / el - 1) * 10));
+  if (hl >= el * 10) return 90;
+  // 自LUK = 敵LUK+1 で10%スタート、敵LUK×10で90%上限（線形補間）
+  return Math.floor(10 + (hl - el - 1) / (el * 10 - el - 1) * 80);
 }
 
 function requiredLukForCritRate(enemyLuk, targetRate) {
   const el = Math.floor(Number(enemyLuk || 0));
   if (el <= 0 || targetRate <= 0) return 0;
-  const rate = Math.min(90, Math.max(0, targetRate));
-  // rate = (ratio - 1) × 10 → ratio = rate/10 + 1
-  const ratio = rate / 10 + 1;
-  return Math.ceil(el * ratio);
+  const rate = Math.min(90, Math.max(10, targetRate));
+  if (rate >= 90) return el * 10;
+  // 逆算: 10〜90%の範囲で敵LUK+1〜敵LUK×10に線形マッピング
+  return Math.ceil(el + 1 + (rate - 10) / 80 * (el * 10 - el - 1));
 }
 
 // ============================================================
