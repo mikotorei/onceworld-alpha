@@ -443,7 +443,8 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   let remainingAfterStat = shortfall;
 
   if (effectiveMultiplier > 0 && freePointsActual > 0) {
-    const neededBaseIncrease = Math.ceil(shortfall / effectiveMultiplier);
+    let neededBaseIncrease = Math.ceil(shortfall / effectiveMultiplier);
+    while (Math.floor(neededBaseIncrease * effectiveMultiplier) < shortfall) neededBaseIncrease++;
     const usedBasePoints     = Math.min(neededBaseIncrease, freePointsActual);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveMultiplier);
 
@@ -612,7 +613,8 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
   let remainingAfterStat = shortfall;
 
   if (effectiveLukMultiplier > 0 && freePoints > 0) {
-    const neededBaseIncrease = Math.ceil(shortfall / effectiveLukMultiplier);
+    let neededBaseIncrease = Math.ceil(shortfall / effectiveLukMultiplier);
+    while (Math.floor(neededBaseIncrease * effectiveLukMultiplier) < shortfall) neededBaseIncrease++;
     const usedBasePoints     = Math.min(neededBaseIncrease, freePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
     remainingAfterStat = Math.max(0, shortfall - actualFinalGain);
@@ -705,7 +707,8 @@ function analyzeAtkAndLukNeeded(
   let atkRemainingAfterStat = atkShortfall;
 
   if (!atkAlreadyAchieved && effectiveAtkMultiplier > 0 && atkFreePoints > 0) {
-    const neededBaseIncrease = Math.ceil(atkShortfall / effectiveAtkMultiplier);
+    let neededBaseIncrease = Math.ceil(atkShortfall / effectiveAtkMultiplier);
+    while (Math.floor(neededBaseIncrease * effectiveAtkMultiplier) < atkShortfall) neededBaseIncrease++;
     const usedBasePoints     = Math.min(neededBaseIncrease, atkFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveAtkMultiplier);
     atkRemainingAfterStat    = Math.max(0, atkShortfall - actualFinalGain);
@@ -743,7 +746,8 @@ function analyzeAtkAndLukNeeded(
   let lukRemainingAfterStat = lukShortfall;
 
   if (!lukAlreadyAchieved && effectiveLukMultiplier > 0 && lukFreePoints > 0) {
-    const neededBaseIncrease = Math.ceil(lukShortfall / effectiveLukMultiplier);
+    let neededBaseIncrease = Math.ceil(lukShortfall / effectiveLukMultiplier);
+    while (Math.floor(neededBaseIncrease * effectiveLukMultiplier) < lukShortfall) neededBaseIncrease++;
     const usedBasePoints     = Math.min(neededBaseIncrease, lukFreePoints);
     const actualFinalGain    = Math.floor(usedBasePoints * effectiveLukMultiplier);
     lukRemainingAfterStat    = Math.max(0, lukShortfall - actualFinalGain);
