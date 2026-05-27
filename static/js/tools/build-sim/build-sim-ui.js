@@ -478,7 +478,7 @@ function appendJudge(wrap, ok, ngText) {
   wrap.appendChild(p);
 }
 
-function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle) {
+function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle, hideAcc) {
   const wrap = $("bs-equip-result");
   if (!wrap) return;
   if (!appendMode) wrap.innerHTML = "";
@@ -504,7 +504,6 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle) {
     p.className = "bs-ok";
     p.textContent = "✅ 現在の装備・強化レベルで既に達成しています";
     wrap.appendChild(p);
-    renderAccTable(wrap, analysis.accSlots, stat);
     return;
   }
 
@@ -546,7 +545,6 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle) {
       judgeP.textContent = `✅ ${STAT_LABEL[stat]||stat} に ${fmt(sp.neededBaseIncrease)} ポイント振り分けることで達成可能です（G強化不要）`;
       spBox.appendChild(judgeP);
       wrap.appendChild(spBox);
-      renderAccTable(wrap, analysis.accSlots, stat);
       return;
     } else {
       const partialP = document.createElement("p");
@@ -608,7 +606,6 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle) {
     noEnhP.className = "bs-ng";
     noEnhP.textContent = "⚠️ G強化可能な装備がありません（素材強化+1100が必要です）。";
     wrap.appendChild(noEnhP);
-    renderAccTable(wrap, analysis.accSlots, stat);
     return;
   }
 
@@ -682,7 +679,6 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle) {
     wrap.appendChild(p);
   }
 
-  renderAccTable(wrap, analysis.accSlots, stat);
 }
 
 function renderAccTable(wrap, accSlots, stat) {
@@ -837,7 +833,6 @@ function renderHitEquipResult(analysis) {
       judgeP.className = "bs-ok";
       judgeP.textContent = "✅ LUK に " + fmt(sp.neededBaseIncrease) + " ポイント振り分けることで達成可能です（G強化不要）";
       spBox.appendChild(judgeP); wrap.appendChild(spBox);
-      renderAccTable(wrap, analysis.accSlots, "luk");
       return;
     } else {
       judgeP.className = "bs-ng";
@@ -1093,8 +1088,6 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
     analysis.lukSlots, analysis.lukStatPointResult, analysis.lukStillShort, "luk", analysis.lukAlreadyAchieved, neededLuk
   ));
 
-  // アクセサリ（luk系）
-  renderAccTable(wrap, analysis.accSlots, "luk");
 }
 
 function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
@@ -1505,6 +1498,30 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         const effMulCrit = estimateBasePointMultiplier(simState, "luk");
         const analysisCrit = analyzeGlvNeeded(equipState, equipItemsMap, "luk", lastReverseResult.neededLukForCrit, currentFinalTotal, simState, effMulCrit, overridePointLimit);
         renderGlvAnalysis(analysisCrit, "luk", lastReverseResult.neededLukForCrit, true, critTitle);
+      }
+
+      // 全探索完了後にアクセサリーを1回だけ表示
+      // 最後に実行された探索のaccSlotsを使用
+      {
+        const wrapAcc = $("bs-equip-result");
+        if (wrapAcc) {
+          // 最後の探索結果からaccSlotsを取得して表示
+          const lastStat = lastReverseResult?.neededLukForCrit > 0 ? "luk"
+            : lastReverseResult?.spdShortfall > 0 ? "spd"
+            : lastReverseResult?.neededLuk > 0 ? "luk"
+            : (lastReverseResult?.stat || "atk");
+          const effMulAcc = estimateBasePointMultiplier(simState, lastStat);
+          const analysisAcc = analyzeGlvNeeded(equipState, equipItemsMap, lastStat,
+            lastReverseResult?.neededLukForCrit > 0 ? lastReverseResult.neededLukForCrit
+            : lastReverseResult?.spdShortfall > 0 ? lastReverseResult.neededSpd
+            : lastReverseResult?.neededLuk > 0 ? lastReverseResult.neededLuk
+            : lastReverseResult?.needed || 0,
+            currentFinalTotal, simState, effMulAcc, overridePointLimit);
+          if (analysisAcc?.accSlots) {
+            const sep = document.createElement("hr"); sep.className = "bs-section-divider"; wrapAcc.appendChild(sep);
+            renderAccTable(wrapAcc, analysisAcc.accSlots, lastStat);
+          }
+        }
       }
 
     } // end else (非無効化モード)
