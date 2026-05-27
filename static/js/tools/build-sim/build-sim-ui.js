@@ -1468,7 +1468,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         }
         const effMulM = estimateBasePointMultiplier(simState, "mdef");
         const analysisM = analyzeGlvNeeded(equipState, equipItemsMap, "mdef", lastReverseResult.neededMdef, currentFinalTotal, simState, effMulM, overridePointLimit);
-        renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef);
+        renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef, true);
       }
     } else {
       // ① ATK探索（ATKが必要な場合）
@@ -1505,7 +1505,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
             }
             const effMulLuk = estimateBasePointMultiplier(simState, "luk");
             const analysisLuk = analyzeLukNeeded(equipState, equipItemsMap, lastReverseResult.neededLuk, currentFinalTotal.luk || 0, simState, effMulLuk, overridePointLimit);
-            renderGlvAnalysis(analysisLuk, "luk", lastReverseResult.neededLuk);
+            renderGlvAnalysis(analysisLuk, "luk", lastReverseResult.neededLuk, true);
           }
         }
       }
