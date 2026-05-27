@@ -486,14 +486,15 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode) {
   // 追記モードの場合はセパレータを追加
   if (appendMode && wrap.children.length > 0) {
     const sep = document.createElement("hr");
-    sep.style.margin = "16px 0";
+    sep.className = "bs-section-divider";
     wrap.appendChild(sep);
   }
 
   const STAT_LABEL = { atk:"ATK", int:"INT", spd:"SPD", def:"DEF", mdef:"MDEF", vit:"VIT", luk:"LUK" };
+  const STAT_COLOR  = { atk:"title-atk", int:"title-int", spd:"title-spd", def:"title-def", mdef:"title-mdef", vit:"title-vit", luk:"title-luk" };
 
   const header = document.createElement("div");
-  header.className = "bs-area-title";
+  header.className = "bs-area-title " + (STAT_COLOR[stat] || "");
   header.textContent = `現在の装備で ${STAT_LABEL[stat]||stat} ${fmt(needed)} 達成するためのステポイント・G強化分析`;
   wrap.appendChild(header);
 
@@ -1448,7 +1449,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
 
       if (lastReverseResult.showDef && lastReverseResult.neededDef > 0) {
         const headerD = document.createElement("div");
-        headerD.className = "bs-area-title";
+        headerD.className = "bs-area-title title-def";
         headerD.textContent = "【物理無効化 DEF " + fmt(lastReverseResult.neededDef) + " 達成のための探索】";
         if (wrapN) wrapN.appendChild(headerD);
         const effMulD = estimateBasePointMultiplier(simState, "def");
@@ -1459,8 +1460,8 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       if (lastReverseResult.showMdef && lastReverseResult.neededMdef > 0) {
         const wrapM = $("bs-equip-result");
         if (wrapM && lastReverseResult.showDef) {
-          const divider = document.createElement("hr"); divider.style.margin = "16px 0"; wrapM.appendChild(divider);
-          const headerM = document.createElement("div"); headerM.className = "bs-area-title";
+          const divider = document.createElement("hr"); divider.className = "bs-section-divider"; wrapM.appendChild(divider);
+          const headerM = document.createElement("div"); headerM.className = "bs-area-title title-mdef";
           headerM.textContent = "【魔法無効化 MDEF " + fmt(lastReverseResult.neededMdef) + " 達成のための探索】";
           wrapM.appendChild(headerM);
         }
@@ -1512,9 +1513,9 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       if (lastReverseResult?.spdShortfall > 0 && lastReverseResult?.neededSpd > 0) {
         const wrapSpd = $("bs-equip-result");
         if (wrapSpd) {
-          const divSpd = document.createElement("hr"); divSpd.style.margin = "16px 0"; wrapSpd.appendChild(divSpd);
+          const divSpd = document.createElement("hr"); divSpd.className = "bs-section-divider"; wrapSpd.appendChild(divSpd);
           const hSpd = document.createElement("div"); hSpd.className = "bs-area-title";
-          hSpd.textContent = "【多段×" + ($("bs-reverse-hits")?.value || "?") + " SPD " + fmt(lastReverseResult.neededSpd) + " 達成のための探索】";
+          hSpd.className = "bs-area-title title-spd"; hSpd.textContent = "【多段×" + ($("bs-reverse-hits")?.value || "?") + " SPD " + fmt(lastReverseResult.neededSpd) + " 達成のための探索】";
           wrapSpd.appendChild(hSpd);
         }
         const effMulSpd = estimateBasePointMultiplier(simState, "spd");
@@ -1526,9 +1527,9 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
       if (lastReverseResult?.neededLukForCrit > 0) {
         const wrapCrit = $("bs-equip-result");
         if (wrapCrit) {
-          const divCrit = document.createElement("hr"); divCrit.style.margin = "16px 0"; wrapCrit.appendChild(divCrit);
+          const divCrit = document.createElement("hr"); divCrit.className = "bs-section-divider"; wrapCrit.appendChild(divCrit);
           const hCrit = document.createElement("div"); hCrit.className = "bs-area-title";
-          hCrit.textContent = "【会心率" + lastReverseResult.targetCritRate + "% LUK " + fmt(lastReverseResult.neededLukForCrit) + " 達成のための探索】";
+          hCrit.className = "bs-area-title title-crit"; hCrit.textContent = "【会心率" + lastReverseResult.targetCritRate + "% LUK " + fmt(lastReverseResult.neededLukForCrit) + " 達成のための探索】";
           wrapCrit.appendChild(hCrit);
         }
         const effMulCrit = estimateBasePointMultiplier(simState, "luk");
