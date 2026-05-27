@@ -455,10 +455,17 @@ function appendJudge(wrap, ok, ngText) {
   wrap.appendChild(p);
 }
 
-function renderGlvAnalysis(analysis, stat, needed) {
+function renderGlvAnalysis(analysis, stat, needed, appendMode) {
   const wrap = $("bs-equip-result");
   if (!wrap) return;
-  wrap.innerHTML = "";
+  if (!appendMode) wrap.innerHTML = "";
+
+  // 追記モードの場合はセパレータを追加
+  if (appendMode && wrap.children.length > 0) {
+    const sep = document.createElement("hr");
+    sep.style.margin = "16px 0";
+    wrap.appendChild(sep);
+  }
 
   const STAT_LABEL = { atk:"ATK", int:"INT", spd:"SPD", def:"DEF", mdef:"MDEF", vit:"VIT", luk:"LUK" };
 
@@ -1489,7 +1496,7 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
         }
         const effMulSpd = estimateBasePointMultiplier(simState, "spd");
         const analysisSpd = analyzeGlvNeeded(equipState, equipItemsMap, "spd", lastReverseResult.neededSpd, currentFinalTotal, simState, effMulSpd, overridePointLimit);
-        renderGlvAnalysis(analysisSpd, "spd", lastReverseResult.neededSpd);
+        renderGlvAnalysis(analysisSpd, "spd", lastReverseResult.neededSpd, true);
       }
 
     } // end else (非無効化モード)
