@@ -39,7 +39,20 @@ function hitsFromSpd(spd) {
   if (s < 2187000)    return 7;
   if (s < 6561000)    return 8;
   if (s < 19683000)   return 9;
-  return 10;
+  if (s < 59049000)   return 10;
+  return 11;
+}
+
+
+// 多段数から必要SPDを返す
+function requiredSpdForHits(hits) {
+  const table = [
+    [1, 0], [2, 3000], [3, 9000], [4, 27000], [5, 81000],
+    [6, 243000], [7, 729000], [8, 2187000], [9, 6561000],
+    [10, 19683000], [11, 59049000]
+  ];
+  const entry = table.find(([h]) => h === hits);
+  return entry ? entry[1] : 0;
 }
 
 function scaleStat(base, lv) {
