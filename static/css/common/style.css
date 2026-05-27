@@ -198,40 +198,70 @@ h1{
 
 /* メニュー（保留でもOK：開いた時に崩れないよう定義だけ残す） */
 .ow-menu{
-  position: absolute;
-  right: 12px;
-  top: calc(100% + 8px);
-  min-width: 220px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
   background: var(--bg);
-  border: 1px solid var(--border);
-  box-shadow: 0 6px 18px rgba(0,0,0,.12);
-  padding: 8px;
-  display: grid;
-  gap: 6px;
+  box-shadow: 4px 0 24px rgba(0,0,0,.18);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+}
 
-  opacity: 0;
-  transform: translateY(-6px);
-  pointer-events: none;
-  transition: opacity .2s ease, transform .2s ease;
+.ow-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.ow-menu-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #333;
+}
+
+.ow-menu-section {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ow-menu-section-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #999;
+  letter-spacing: 0.08em;
+  padding: 8px 16px 4px;
+  text-transform: uppercase;
 }
 
 .ow-menu a{
   display: block;
-  padding: 10px 10px;
-  border: 1px solid var(--border);
+  padding: 11px 16px;
   text-decoration: none;
   color: var(--link);
-  background: #fff;
+  font-size: 14px;
 }
 
 .ow-menu a:hover{
   background: #f6f6f6;
 }
 
-.ow-header.ow-menu-open .ow-menu{
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+.ow-menu-open .ow-menu{
+  transform: translateX(0);
 }
 
 /* オーバーレイ */
