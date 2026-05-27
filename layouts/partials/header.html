@@ -30,17 +30,10 @@
     </div>
 
     <div class="ow-menu-section">
-      <div class="ow-menu-section-label">ツール</div>
-      <a href="{{ "/tools/status/" | relURL }}">ステータスシミュレーター</a>
-      <a href="{{ "/tools/build-sim/" | relURL }}">ビルドシミュレーター</a>
-      <a href="{{ "/tools/tenku/" | relURL }}">天空回廊計算表</a>
-      <a href="{{ "/tools/monster-base-stats/" | relURL }}">モンスター基礎ステ表</a>
-    </div>
-
-    <div class="ow-menu-section">
-      <div class="ow-menu-section-label">データベース</div>
-      <a href="{{ "/equipment/" | relURL }}">装備データベース</a>
-      <a href="{{ "/monsters/" | relURL }}">モンスター図鑑</a>
+      {{ $pages := where .Site.Pages "Params.home" true }}
+      {{ range $pages.ByWeight }}
+        <a href="{{ .Permalink }}">{{ .Title }}</a>
+      {{ end }}
     </div>
   </nav>
 
