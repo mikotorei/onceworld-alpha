@@ -275,6 +275,19 @@ function selectEquipById(key, id) {
   setEquipInputFromSelected(key, id);
   closeEquipSuggest(key);
   updateAccessoryMaxLvBtn(key);
+  // no_enhance装備の場合、素材強化・G強化入力を無効化
+  const item = id ? equipmentMap.get(String(id)) : null;
+  const lvInput  = $("level_"  + key);
+  const glvInput = $("glevel_" + key);
+  if (lvInput && glvInput) {
+    const noEnhance = !!(item?.no_enhance);
+    lvInput.disabled  = noEnhance;
+    glvInput.disabled = noEnhance;
+    if (noEnhance) {
+      lvInput.value  = "0";
+      glvInput.value = "0";
+    }
+  }
   recalc();
 }
 
