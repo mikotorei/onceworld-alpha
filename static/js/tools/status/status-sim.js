@@ -275,6 +275,11 @@ function selectEquipById(key, id) {
   setEquipInputFromSelected(key, id);
   closeEquipSuggest(key);
   updateAccessoryMaxLvBtn(key);
+  // アクセサリー変更時はレベルを1に初期化
+  if (key.startsWith("accessory")) {
+    const lvInput = $("level_" + key);
+    if (lvInput) lvInput.value = "1";
+  }
   // no_enhance装備の場合、素材強化・G強化入力を無効化
   const item = id ? equipmentMap.get(String(id)) : null;
   const lvInput  = $("level_"  + key);
