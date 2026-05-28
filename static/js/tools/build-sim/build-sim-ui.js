@@ -1463,14 +1463,13 @@ $("bs-search-equip-btn")?.addEventListener("click", async () => {
 
       if (lastReverseResult.showMdef && lastReverseResult.neededMdef > 0) {
         const wrapM = $("bs-equip-result");
+        const mdefTitle = "【MDEF " + fmt(lastReverseResult.neededMdef) + " を達成するための探索】";
         if (wrapM && lastReverseResult.showDef) {
           const divider = document.createElement("hr"); divider.className = "bs-section-divider"; wrapM.appendChild(divider);
-          const headerM = document.createElement("div"); headerM.className = "bs-area-title title-mdef";
-          headerM.textContent = "【MDEF " + fmt(lastReverseResult.neededMdef) + " を達成するための探索】";
         }
         const effMulM = estimateBasePointMultiplier(simState, "mdef");
         const analysisM = analyzeGlvNeeded(equipState, equipItemsMap, "mdef", lastReverseResult.neededMdef, currentFinalTotal, simState, effMulM, overridePointLimit);
-        renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef, true, headerM.textContent);
+        renderGlvAnalysis(analysisM, "mdef", lastReverseResult.neededMdef, lastReverseResult.showDef, mdefTitle);
       }
     } else {
        // ① ATK探索（独立）
