@@ -288,3 +288,11 @@ main{
   main{ padding: 10px; padding-top: 14px; }
   .ref-grid{ grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
 }
+
+/* 素材強化・G強化不可の装備 */
+input:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
