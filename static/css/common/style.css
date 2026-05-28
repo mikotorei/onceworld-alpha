@@ -296,3 +296,99 @@ input:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* ---- ❓ヘルプボタン・ドロワー ---- */
+.ow-help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  font-size: 22px;
+  border: none;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ow-help-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+  z-index: 300;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .25s ease;
+  padding: 0 0 32px;
+}
+
+.ow-help-drawer.open {
+  transform: translateY(0);
+}
+
+.ow-help-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.ow-help-drawer-title {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.ow-help-drawer-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #555;
+}
+
+.ow-help-drawer-body {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #333;
+}
+
+.ow-help-drawer-body h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 16px 0 6px;
+  padding-left: 8px;
+  border-left: 3px solid #333;
+}
+
+.ow-help-drawer-body h3:first-child {
+  margin-top: 0;
+}
+
+.ow-help-drawer-body p {
+  margin: 0 0 6px;
+  color: #444;
+}
+
+.ow-help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 299;
+}
