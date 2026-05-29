@@ -1327,7 +1327,8 @@ $("enhance1100AllBtn")?.addEventListener("click", () => {
   const armorKeys = ["weapon","head","body","hands","feet","shield"];
   armorKeys.forEach(k => {
     const el = document.getElementById("level_" + k);
-    if (el) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+    // no_enhance装備（disabled）はスキップ
+    if (el && !el.disabled) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
   });
   window.statusSimRecalc?.();
 });
