@@ -5,13 +5,11 @@
 
   <section>
     <h2>モンスター選択</h2>
-    <div class="search-row">
-      <input type="search" id="searchInput" placeholder="名前または番号で検索..." autocomplete="off" />
-    </div>
-    <div class="dropdown" id="dropdown"></div>
-    <div id="selectedBadge" class="selected-badge" style="display:none;">
-      <span id="selectedName"></span>
-      <button id="clearBtn" class="clear-btn" aria-label="選択解除">✕</button>
+    <div class="enemy-row">
+      <div class="enemy-input-wrap">
+        <input id="petMonsterSearch" type="search" placeholder="モンスター名を入力" class="bs-monster-search" autocomplete="off">
+        <div id="petMonsterSuggest" class="suggest" hidden></div>
+      </div>
     </div>
   </section>
 
