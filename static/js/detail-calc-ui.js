@@ -561,8 +561,19 @@ document.addEventListener("DOMContentLoaded", function () {
     else openSuggest(items);
   });
 
+  search.addEventListener("search", () => {
+    if (search.value.trim() === "") {
+      clearPicked();
+      suggest.hidden = true;
+      suggest.innerHTML = "";
+    }
+  });
+
   search.addEventListener("focus", () => {
-    const items = filterMonsters(search.value);
+    const q = search.value || "";
+    const items = q.trim() === ""
+      ? (window.MONSTERS || []).slice(0, 200)
+      : filterMonsters(q);
     if (items.length > 0) openSuggest(items);
   });
 
