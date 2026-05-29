@@ -24,7 +24,8 @@
   var selected = null;
 
   // --- DOM refs ---
-  var searchInput  = document.getElementById('searchInput');
+  var searchInput  = document.getElementById('petMonsterSearch');
+  var suggestEl    = document.getElementById('petMonsterSuggest');
   var lvInput      = document.getElementById('lvInput');
   var sengiInput   = document.getElementById('sengiInput');
   var powderGrid   = document.getElementById('powderGrid');
