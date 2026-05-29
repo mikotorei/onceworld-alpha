@@ -742,6 +742,7 @@ try {
 dataReady = true;
 window.statusSimRecalc = recalc;
 window.statusSimCollectState = collectState;
+window.equipmentMapGlobal = equipmentMap;
 
 // ステポイント1pt追加時のfinalTotal増加量（実効倍率）を計算して公開
 // stat: "atk" / "int" / "luk" など
