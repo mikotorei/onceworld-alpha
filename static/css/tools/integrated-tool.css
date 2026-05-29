@@ -111,6 +111,7 @@
 
 .hero-row input,
 #monster-search,
+#detail-monster-search,
 .lv-input{
   width:100%;
   min-width:0;
@@ -141,8 +142,7 @@
   min-width:0;
 }
 
-#monster-search,
-#detail-monster-search{
+#monster-search{
   padding:10px;
   border:1px solid #000;
   border-radius:10px;
