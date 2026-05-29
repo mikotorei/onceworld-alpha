@@ -474,10 +474,15 @@ function applyState(saved) {
   if ($("shakerCount")) $("shakerCount").value = String(clamp0(saved.shaker||0));
   Object.entries(saved.equip||{}).forEach(([k,v]) => {
     if ($("select_"+k)) $("select_"+k).value = String(v?.id||"");
-    if ($("level_" +k)) $("level_" +k).value = String(k.startsWith("accessory") ? clamp1(v?.lv||1) : clampLv(v?.lv||0));
-    if ($("glevel_"+k)) $("glevel_"+k).value = String(clampG(v?.glv||0));
     setEquipInputFromSelected(k, v?.id||"");
     updateAccessoryMaxLvBtn(k);
+    // no_enhance装備の場合は強化値を無効化
+    const item = v?.id ? equipmentMap.get(String(v.id)) : null;
+    const lvInput  = $("level_"  + k);
+    const glvInput = $("glevel_" + k);
+    const noEnhance = !!(item?.no_enhance);
+    if (lvInput)  { lvInput.disabled  = noEnhance; lvInput.value  = noEnhance ? "0" : String(k.startsWith("accessory") ? clamp1(v?.lv||1) : clampLv(v?.lv||0)); }
+    if (glvInput) { glvInput.disabled = noEnhance; glvInput.value = noEnhance ? "0" : String(clampG(v?.glv||0)); }
   });
   Object.entries(saved.pets||{}).forEach(([k,v]) => {
     if ($("select_"+k)) $("select_"+k).value = String(v?.id||"");
