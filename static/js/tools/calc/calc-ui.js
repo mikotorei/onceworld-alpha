@@ -439,9 +439,19 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   search.addEventListener("focus", () => {
-    const items = filterMonsters(search.value);
-    if (items.length === 0) closeSuggest();
-    else openSuggest(items);
+    const q = search.value || "";
+    const items = q.trim() === ""
+      ? (window.MONSTERS || []).slice(0, 200)
+      : filterMonsters(q);
+    if (items.length > 0) openSuggest(items);
+  });
+
+  // type="search"の×ボタン対応
+  search.addEventListener("search", () => {
+    if (search.value.trim() === "") {
+      clearPicked();
+      closeSuggest();
+    }
   });
 
   document.addEventListener("click", (e) => {
