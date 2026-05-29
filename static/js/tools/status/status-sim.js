@@ -741,6 +741,110 @@ try {
 // fetch完了フラグを立ててから自動復元・初期化完了イベント発火
 dataReady = true;
 window.statusSimRecalc = recalc;
+// ============================================================
+// 振り分けポイント・上限計算（ステシミュ用）
+// ============================================================
+
+function ssTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount) {
+  const maxLv  = Math.min(200, Math.max(1, Math.floor(Number(lv) || 1)));
+  const t      = Math.min(30, Math.max(0, Math.floor(Number(tenme) || 0)));
+  const pen    = Math.max(0, Math.floor(Number(penCount || 0)));
+  const altar  = Math.max(0, Math.floor(Number(altarCount || 0)));
+  const tensho = Math.max(0, Math.floor(Number(tenshoCount || 0)));
+  let lvPoints = 0;
+  for (let l = 2; l <= maxLv; l++) {
+    if (l % 10 !== 0) lvPoints += Math.floor(l * 0.1 + 5);
+    else              lvPoints += Math.floor(l * 1.1 + 3);
+  }
+  let tenmeBonus = 0;
+  if (t >= 1 && t <= 9)  tenmeBonus = 300 * t * t;
+  else if (t >= 10)      tenmeBonus = Math.floor(30000 + 5000 * Math.pow(t - 9, 1.25));
+  let base = lvPoints * (1 + t) + tenmeBonus;
+  if (hasCosmoCube && t > 0) base += t * 10000;
+  return Math.floor(base * (1 + pen * 0.01) * (1 + altar * 0.002)) + tensho * 10000;
+}
+
+function ssBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
+  const BASE      = 10000;
+  const sage      = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop || 0)))) * 10;
+  const forbidden = Math.min(80000, Math.max(0, Math.floor(Number(forbiddenBook || 0)))) * 80;
+  const contract  = hasContract ? 900000 : 0;
+  const tenme     = Math.max(0, Math.floor(Number(tenmeCount || 0)));
+  const tenmeBonus = tenme >= 11 ? (tenme - 10) * 1000000 : 0;
+  return BASE + sage + forbidden + contract + tenmeBonus;
+}
+
+let ssHasCosmoCube = false;
+let ssHasContract  = false;
+
+function ssUpdateStatPointDisplay() {
+  const lv          = Math.max(1, Math.min(200, parseInt($("ss-chara-lv")?.value || "200", 10) || 200));
+  const tenme       = Math.max(0, Math.min(30, parseInt($("ss-sp-tenme-count")?.value || "0", 10) || 0));
+  const penCount    = Math.max(0, parseInt($("ss-pen-count")?.value || "0", 10) || 0);
+  const altarCount  = Math.max(0, parseInt($("ss-altar-count")?.value || "0", 10) || 0);
+  const tenshoCount = Math.max(0, parseInt($("ss-tensho-count")?.value || "0", 10) || 0);
+  const pts = ssTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount);
+  const el = $("bs-stat-point-display");
+  if (el) el.textContent = pts.toLocaleString("ja-JP");
+}
+
+function ssUpdatePointLimitDisplay() {
+  const sageDrop      = Math.max(0, parseInt($("ss-sage-drop")?.value || "0", 10) || 0);
+  const forbiddenBook = Math.max(0, parseInt($("ss-forbidden-book")?.value || "0", 10) || 0);
+  const tenmeCount    = Math.max(0, parseInt($("ss-tenme-count")?.value || "0", 10) || 0);
+  const limit = ssBasePointLimit(sageDrop, forbiddenBook, ssHasContract, tenmeCount);
+  const el = $("bs-point-limit-display");
+  if (el) el.textContent = limit.toLocaleString("ja-JP");
+  // basePointTotalに反映
+  if ($("basePointTotal")) {
+    $("basePointTotal").value = String(limit);
+    $("basePointTotal").dispatchEvent(new Event("input"));
+  }
+}
+
+// 振り分けポイント計算のイベント登録
+["ss-chara-lv", "ss-sp-tenme-count", "ss-pen-count", "ss-altar-count", "ss-tensho-count"].forEach(id => {
+  $(id)?.addEventListener("input", ssUpdateStatPointDisplay);
+});
+
+document.querySelectorAll(".ss-cosmocube-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    ssHasCosmoCube = btn.getAttribute("data-val") === "1";
+    document.querySelectorAll(".ss-cosmocube-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasCosmoCube ? "1" : "0") ? "true" : "false");
+    });
+    ssUpdateStatPointDisplay();
+  });
+});
+
+$("ss-apply-stat-point-btn")?.addEventListener("click", () => {
+  const el = $("bs-stat-point-display");
+  const pts = el ? parseInt(el.textContent.replace(/,/g, ""), 10) || 0 : 0;
+  if ($("basePointTotal")) {
+    $("basePointTotal").value = String(pts);
+    $("basePointTotal").dispatchEvent(new Event("input"));
+  }
+});
+
+// 振り分け上限計算のイベント登録
+["ss-sage-drop", "ss-forbidden-book", "ss-tenme-count"].forEach(id => {
+  $(id)?.addEventListener("input", ssUpdatePointLimitDisplay);
+});
+
+document.querySelectorAll(".ss-contract-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    ssHasContract = btn.getAttribute("data-val") === "1";
+    document.querySelectorAll(".ss-contract-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasContract ? "1" : "0") ? "true" : "false");
+    });
+    ssUpdatePointLimitDisplay();
+  });
+});
+
+// 初期表示
+ssUpdateStatPointDisplay();
+ssUpdatePointLimitDisplay();
+
 window.statusSimCollectState = collectState;
 window.equipmentMapGlobal = equipmentMap;
 
