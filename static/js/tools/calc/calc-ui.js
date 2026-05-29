@@ -430,6 +430,14 @@ document.addEventListener("DOMContentLoaded", function () {
     else openSuggest(items);
   });
 
+  // type="search"の×ボタン対応
+  search.addEventListener("search", () => {
+    if (search.value.trim() === "") {
+      clearPicked();
+      closeSuggest();
+    }
+  });
+
   search.addEventListener("focus", () => {
     const items = filterMonsters(search.value);
     if (items.length === 0) closeSuggest();
