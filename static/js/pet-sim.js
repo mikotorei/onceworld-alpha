@@ -205,20 +205,27 @@
   function selectMonster(id) {
     selected = monsters.find(function (m) { return m.id === id; });
     if (!selected) return;
-    searchInput.value = '';
+    // 入力欄にモンスター名を表示（バッジは非表示）
+    searchInput.value = '[' + selected.id + '] ' + selected.title;
+    badge.style.display = 'none';
     closeDropdown();
-    badgeName.textContent = '[' + selected.id + '] ' + selected.title;
-    badge.style.display = '';
     render();
   }
 
-  searchInput.addEventListener('input',  function () { openDropdown(searchInput.value); });
+  searchInput.addEventListener('input',  function () {
+    if (selected && searchInput.value !== '[' + selected.id + '] ' + selected.title) {
+      selected = null;
+      render();
+    }
+    openDropdown(searchInput.value);
+  });
   searchInput.addEventListener('focus',  function () { openDropdown(searchInput.value); });
   searchInput.addEventListener('search', function () {
     if (searchInput.value.trim() === '') {
       selected = null;
       badge.style.display = 'none';
       closeDropdown();
+      render();
     }
   });
 
