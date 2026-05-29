@@ -354,6 +354,13 @@
   gap: 12px;
 }
 
+.detail-enemy-stat-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
 .detail-base-input {
   width: 100%;
   min-width: 0;
@@ -365,4 +372,19 @@
   background: transparent;
   border-bottom: 1px solid #000;
   border-radius: 0;
+}
+
+.scaled-value {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.stat-grid-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #888;
 }
