@@ -563,9 +563,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   search.addEventListener("search", () => {
     if (search.value.trim() === "") {
-      clearPicked();
+      pickedMonster = null;
       suggest.hidden = true;
       suggest.innerHTML = "";
+      search.value = "";
+      saveState();
     }
   });
 
