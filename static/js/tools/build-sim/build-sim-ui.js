@@ -1157,7 +1157,7 @@ function tenkuFloorToLv(floor) {
 // --- 初期化 ---
 loadSimState();
 applyModeUI();
-switchTab("scan");
+switchTab("reverse");
 loadEquipItems();
 setupHitMonsterSearch();
 
