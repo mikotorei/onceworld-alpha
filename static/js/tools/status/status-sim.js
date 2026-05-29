@@ -841,9 +841,11 @@ document.querySelectorAll(".ss-contract-btn").forEach(btn => {
   });
 });
 
-// 初期表示
-ssUpdateStatPointDisplay();
-ssUpdatePointLimitDisplay();
+// 初期表示（ステシミュページのみ実行）
+if ($("ss-chara-lv")) {
+  ssUpdateStatPointDisplay();
+  ssUpdatePointLimitDisplay();
+}
 
 window.statusSimCollectState = collectState;
 window.equipmentMapGlobal = equipmentMap;
