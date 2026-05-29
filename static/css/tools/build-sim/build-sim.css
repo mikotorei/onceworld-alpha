@@ -429,3 +429,8 @@
   border-top: 2px solid #ddd;
   margin: 20px 0;
 }
+
+/* 振り分けポイント合計入力欄を全桁表示 */
+#basePointTotal {
+  width: 140px;
+}
