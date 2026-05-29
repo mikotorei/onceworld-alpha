@@ -892,7 +892,13 @@ $("enhance1100AllBtn")?.addEventListener("click", () => {
   const armorKeys = ["weapon","head","body","hands","feet","shield"];
   armorKeys.forEach(k => {
     const el = $("level_" + k);
-    if (el) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+    if (!el) return;
+    const selectEl = $("select_" + k);
+    const selectedId = selectEl ? selectEl.value : "";
+    const item = selectedId ? equipmentMap.get(String(selectedId)) : null;
+    if (item?.no_enhance) return;
+    el.value = "1100";
+    el.dispatchEvent(new Event("input"));
   });
   recalc();
 });
