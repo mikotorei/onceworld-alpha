@@ -350,20 +350,19 @@
 /* 詳細計算機の入力欄を統合計算機に合わせる */
 .detail-stat-grid {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 8px;
-  align-items: center;
-}
-
-.detail-stat-grid .hero-row {
-  display: contents;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .detail-base-input {
   width: 100%;
-  padding: 6px 8px;
-  border: 1px solid rgba(0,0,0,.2);
-  border-radius: 8px;
-  font-size: 14px;
+  min-width: 0;
   box-sizing: border-box;
+  font-size: 16px;
+  padding: 10px 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  border-bottom: 1px solid #000;
+  border-radius: 0;
 }
