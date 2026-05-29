@@ -214,6 +214,13 @@
 
   searchInput.addEventListener('input',  function () { openDropdown(searchInput.value); });
   searchInput.addEventListener('focus',  function () { openDropdown(searchInput.value); });
+  searchInput.addEventListener('search', function () {
+    if (searchInput.value.trim() === '') {
+      selected = null;
+      badge.style.display = 'none';
+      closeDropdown();
+    }
+  });
 
   dropdown.addEventListener('click', function (e) {
     var item = e.target.closest('.drop-item[data-id]');
