@@ -50,6 +50,7 @@
     input.value = '0';
     input.placeholder = '0〜100';
     input.addEventListener('input', render);
+    input.addEventListener('change', function() { clampInput(input, 0, 100); render(); });
 
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -236,9 +237,20 @@
      closeSuggest();
    });
 
-  lvInput.addEventListener('input',    render);
-  sengiInput.addEventListener('input', render);
-  kinokoInput.addEventListener('input', render);
+  // 入力上限clamp
+  function clampInput(el, min, max) {
+    var v = parseInt(el.value, 10);
+    if (isNaN(v)) return;
+    if (v < min) el.value = min;
+    if (v > max) el.value = max;
+  }
+
+  lvInput.addEventListener('change',    function() { clampInput(lvInput, 1, 1200); render(); });
+  lvInput.addEventListener('input',     render);
+  sengiInput.addEventListener('change', function() { clampInput(sengiInput, 0, 30); render(); });
+  sengiInput.addEventListener('input',  render);
+  kinokoInput.addEventListener('change', function() { clampInput(kinokoInput, 0, 1000); render(); });
+  kinokoInput.addEventListener('input',  render);
 
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#dropdown') && !e.target.closest('#searchInput')) {
