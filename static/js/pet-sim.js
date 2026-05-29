@@ -205,7 +205,6 @@
   function selectMonster(id) {
     selected = monsters.find(function (m) { return m.id === id; });
     if (!selected) return;
-    // 入力欄にモンスター名を表示（バッジは非表示）
     searchInput.value = '[' + selected.id + '] ' + selected.title;
     badge.style.display = 'none';
     closeDropdown();
@@ -225,7 +224,6 @@
       selected = null;
       badge.style.display = 'none';
       closeDropdown();
-      render();
     }
   });
 
