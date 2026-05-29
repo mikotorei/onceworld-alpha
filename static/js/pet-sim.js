@@ -245,6 +245,18 @@
     if (v > max) el.value = max;
   }
 
+  // 粉全部MAXボタン
+  var powderAllMaxBtn = document.getElementById('powderAllMaxBtn');
+  if (powderAllMaxBtn) {
+    powderAllMaxBtn.addEventListener('click', function() {
+      STAT_KEYS.forEach(function(s) {
+        var el = document.getElementById('powder-' + s);
+        if (el) el.value = 100;
+      });
+      render();
+    });
+  }
+
   lvInput.addEventListener('change',    function() { clampInput(lvInput, 1, 1200); render(); });
   lvInput.addEventListener('input',     render);
   sengiInput.addEventListener('change', function() { clampInput(sengiInput, 0, 30); render(); });
