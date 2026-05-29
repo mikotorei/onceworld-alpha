@@ -25,10 +25,6 @@
 
   // --- DOM refs ---
   var searchInput  = document.getElementById('searchInput');
-  var dropdown     = document.getElementById('dropdown');
-  var badge        = document.getElementById('selectedBadge');
-  var badgeName    = document.getElementById('selectedName');
-  var clearBtn     = document.getElementById('clearBtn');
   var lvInput      = document.getElementById('lvInput');
   var sengiInput   = document.getElementById('sengiInput');
   var powderGrid   = document.getElementById('powderGrid');
@@ -176,67 +172,68 @@
       + '</div>';
   }
 
-  // --- 検索 ---
-  function openDropdown(query) {
-    var q    = (query || '').trim().toLowerCase();
-    var hits = q
-      ? monsters.filter(function (m) {
-          return m.title.toLowerCase().indexOf(q) !== -1 || m.id.indexOf(q) !== -1;
-        })
-      : monsters.slice();
+   // --- 検索（ビルドシミュと同じ方式）---
+   function normalizeJP(s) {
+     return (s || '').replace(/[\u30A1-\u30F6]/g, function(c) {
+       return String.fromCharCode(c.charCodeAt(0) - 0x60);
+     }).toLowerCase();
+   }
 
-    if (!hits.length) {
-      dropdown.innerHTML = '<div class="drop-item drop-empty">見つかりません</div>';
-    } else {
-      dropdown.innerHTML = hits.map(function (m) {
-        return '<div class="drop-item" data-id="' + m.id + '">'
-          + '[' + m.id + ']&nbsp;' + m.title
-          + '&nbsp;<span class="drop-element">' + m.element + '</span>'
-          + '</div>';
-      }).join('');
-    }
-    dropdown.classList.add('open');
-  }
+   function closeSuggest() {
+     if (suggestEl) { suggestEl.hidden = true; suggestEl.innerHTML = ''; }
+   }
 
-  function closeDropdown() {
-    dropdown.classList.remove('open');
-  }
+   function openSuggest(items) {
+     if (!suggestEl) return;
+     suggestEl.hidden = false;
+     suggestEl.innerHTML = '';
+     items.forEach(function(m) {
+       var btn = document.createElement('button');
+       btn.type = 'button';
+       btn.textContent = m.title;
+       btn.addEventListener('click', function() {
+         selected = m;
+         searchInput.value = m.title;
+         closeSuggest();
+         render();
+       });
+       suggestEl.appendChild(btn);
+     });
+   }
 
-  function selectMonster(id) {
-    selected = monsters.find(function (m) { return m.id === id; });
-    if (!selected) return;
-    searchInput.value = '[' + selected.id + '] ' + selected.title;
-    badge.style.display = 'none';
-    closeDropdown();
-    render();
-  }
+   searchInput.addEventListener('input', function() {
+     var q = searchInput.value;
+     if (q.trim() === '') { selected = null; closeSuggest(); render(); return; }
+     if (selected && q !== selected.title) { selected = null; render(); }
+     var items = monsters.filter(function(m) {
+       return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+     }).slice(0, 50);
+     if (items.length === 0) closeSuggest();
+     else openSuggest(items);
+   });
 
-  searchInput.addEventListener('input',  function () {
-    if (selected && searchInput.value !== '[' + selected.id + '] ' + selected.title) {
-      selected = null;
-      render();
-    }
-    openDropdown(searchInput.value);
-  });
-  searchInput.addEventListener('focus',  function () { openDropdown(searchInput.value); });
-  searchInput.addEventListener('search', function () {
-    if (searchInput.value.trim() === '') {
-      selected = null;
-      badge.style.display = 'none';
-      closeDropdown();
-    }
-  });
+   searchInput.addEventListener('focus', function() {
+     var q = searchInput.value || '';
+     var items = q.trim() === ''
+       ? monsters.slice(0, 200)
+       : monsters.filter(function(m) {
+           return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+         }).slice(0, 200);
+     if (items.length > 0) openSuggest(items);
+   });
 
-  dropdown.addEventListener('click', function (e) {
-    var item = e.target.closest('.drop-item[data-id]');
-    if (item) selectMonster(item.dataset.id);
-  });
+   searchInput.addEventListener('search', function() {
+     if (searchInput.value.trim() === '') {
+       selected = null;
+       closeSuggest();
+       render();
+     }
+   });
 
-  clearBtn.addEventListener('click', function () {
-    selected = null;
-    badge.style.display = 'none';
-    render();
-  });
+   document.addEventListener('click', function(e) {
+     if (e.target === searchInput || (suggestEl && suggestEl.contains(e.target))) return;
+     closeSuggest();
+   });
 
   lvInput.addEventListener('input',    render);
   sengiInput.addEventListener('input', render);
