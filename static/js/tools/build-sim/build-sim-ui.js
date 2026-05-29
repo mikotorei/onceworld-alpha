@@ -1327,7 +1327,13 @@ $("enhance1100AllBtn")?.addEventListener("click", () => {
   const armorKeys = ["weapon","head","body","hands","feet","shield"];
   armorKeys.forEach(k => {
     const el = document.getElementById("level_" + k);
-    if (el && !el.disabled) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+    if (!el) return;
+    // no_enhance装備はスキップ（disabled属性またはselect値から判定）
+    const selectEl = document.getElementById("select_" + k);
+    const selectedId = selectEl ? selectEl.value : "";
+    const item = selectedId ? window.equipmentMapGlobal?.get(String(selectedId)) : null;
+    const noEnhance = !!(item?.no_enhance) || el.disabled;
+    if (!noEnhance) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
   });
   window.statusSimRecalc?.();
 });
