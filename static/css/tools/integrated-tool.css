@@ -142,7 +142,8 @@
   min-width:0;
 }
 
-#monster-search{
+#monster-search,
+#detail-monster-search{
   padding:10px;
   border:1px solid #000;
   border-radius:10px;
