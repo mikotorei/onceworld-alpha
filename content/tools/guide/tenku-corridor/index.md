@@ -1,6 +1,6 @@
 +++
 title       = "天空回廊のノウハウ"
-description = "天空初心者にもわかりやすく解説！‹br›天空を登るための補助ツールがあるよ！"
+description = "天空初心者にもわかりやすく解説！<br>天空を登るための補助ツールがあるよ！"
 layout      = "guide"
 category    = "ダンジョン攻略"
 home        = true
