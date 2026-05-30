@@ -15,7 +15,7 @@
       <!-- 説明はリンク外 -->
       {{ with .Params.description }}
         <div class="home-desc">
-          {{ . }}
+          {{ . | safeHTML }}
         </div>
       {{ end }}
 
