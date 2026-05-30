@@ -280,6 +280,21 @@
     });
   }
 
+  // SPD倍率ボタン
+  const spdMinusBtn = document.getElementById("mbsSpdMinus");
+  const spdPlusBtn  = document.getElementById("mbsSpdPlus");
+  const spdDisplay  = document.getElementById("mbsSpdMultDisplay");
+
+  function updateSpdMult(val) {
+    currentSpdMult = Math.min(10, Math.max(1, val));
+    if (spdDisplay) spdDisplay.textContent = currentSpdMult;
+    applyLevelScale();
+    applySort();
+  }
+
+  spdMinusBtn?.addEventListener("click", () => updateSpdMult(currentSpdMult - 1));
+  spdPlusBtn?.addEventListener("click",  () => updateSpdMult(currentSpdMult + 1));
+
   // ---- コンパクト ----
 
   if (compactToggle && wrap) {
