@@ -476,6 +476,31 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 </div>
 
+<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
+
+<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
+
+<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
+<div class="ow-help-drawer-header">
+<span class="ow-help-drawer-title">ステータスシミュレーター 使い方</span>
+<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
+</div>
+<div class="ow-help-drawer-body">
+<h3>基本操作</h3>
+<p>装備・アクセサリー・ペットを選択してステータスを確認できます。</p>
+<p>振り分けポイントを入力して最終ステータスを計算できます。</p>
+<h3>装備選択</h3>
+<p>検索欄をタップすると装備一覧が表示されます。素材強化（+強化値）とG強化値を入力できます。素材強化不可の装備は入力が自動でグレーアウトされます。</p>
+<h3>振り分けポイント</h3>
+<p>キャラLvや天命などから振り分けポイント・上限を自動計算できます。各ステータスの max ボタンで上限まで一括入力できます。</p>
+<h3>ビルド保存</h3>
+<p>名前を付けてビルドを保存・呼び出しできます。</p>
+<h3>ビルドシミュ</h3>
+<p>設定した内容がビルドシミュの逆算・探索に自動反映されます。</p>
+</div>
+</div>
+
 <link rel="stylesheet" href="../../css/status-sim.css">
 
 <script src="../../js/tools/status/status-sim.js" defer></script>
+<script src="../../js/common/help-drawer.js" defer></script>
