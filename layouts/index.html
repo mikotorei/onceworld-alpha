@@ -23,4 +23,31 @@
   {{ end }}
 </section>
 
+<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
+
+<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
+
+<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
+<div class="ow-help-drawer-header">
+<span class="ow-help-drawer-title">サイトの使い方</span>
+<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
+</div>
+<div class="ow-help-drawer-body">
+<h3>このサイトについて</h3>
+<p>onceworld攻略に役立つツール・データをまとめたサイトです。</p>
+<h3>各ツールの紹介</h3>
+<p><strong>ステータスシミュ</strong>：装備・ペット・ステータスを設定して最終ステータスを確認できます。</p>
+<p><strong>ビルドシミュ</strong>：目標モンスターを倒すために必要なステータスを逆算できます。</p>
+<p><strong>統合計算機</strong>：与ダメ・命中・無効化をまとめて計算できます。</p>
+<p><strong>天空回廊計算表</strong>：各フロアで必要なステータスを確認できます。</p>
+<p><strong>装備DB</strong>：武器・防具・アクセサリーのデータを検索・比較できます。</p>
+<p><strong>モンスター基礎ステ表</strong>：モンスターのステータスをレベルスケール込みで確認できます。</p>
+<p><strong>ペットステシミュ</strong>：ペットのステータスを粉・キノコ込みで計算できます。</p>
+<h3>使い方</h3>
+<p>各ページの右下にある❓ボタンで詳しい使い方を確認できます。</p>
+</div>
+</div>
+
+<script src="{{ "js/common/help-drawer.js" | relURL }}" defer></script>
+
 {{ end }}
