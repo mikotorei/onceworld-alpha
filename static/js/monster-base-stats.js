@@ -294,10 +294,7 @@
     applySort();
   }
 
-  spdMinusBtn?.addEventListener("click", () => updateSpdMult(currentSpdMult - 1));
-  spdPlusBtn?.addEventListener("click",  () => updateSpdMult(currentSpdMult + 1));
-
-  // グローバルに公開（onclick属性からも呼び出せるように）
+  // グローバルに公開（onclick属性から呼び出す）
   window.mbsUpdateSpdMult = (delta) => updateSpdMult(currentSpdMult + delta);
 
   // ---- コンパクト ----
