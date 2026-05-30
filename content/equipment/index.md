@@ -80,5 +80,27 @@ description = "武器・防具・アクセサリーの装備データ一覧"
   </div>
 </div>
 </div>
+<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
+
+<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
+
+<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
+<div class="ow-help-drawer-header">
+<span class="ow-help-drawer-title">装備データベース 使い方</span>
+<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
+</div>
+<div class="ow-help-drawer-body">
+<h3>基本操作</h3>
+<p>上部のタブで「武器」「防具」「アクセサリー」を切り替えます。</p>
+<h3>ソート機能</h3>
+<p>表のヘッダー（名前・各ステータスなど）をタップすると昇順/降順でソートできます。もう一度タップすると逆順、3回目でソート解除されます。</p>
+<h3>G強化タブ</h3>
+<p>G強化値を設定するとステータス増加後の値と必要Gが表示されます。スライダーで直感的に操作できます。</p>
+<h3>アクセサリー</h3>
+<p>レベルごとの効果量を確認できます。</p>
+</div>
+</div>
+
 <link rel="stylesheet" href="../css/equipment.css">
 <script src="../js/equipment-db.js"></script>
+<script src="../js/common/help-drawer.js"></script>
