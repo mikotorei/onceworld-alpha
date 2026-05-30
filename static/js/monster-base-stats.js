@@ -43,6 +43,7 @@
 
   let sortState = { key: "id", dir: 1 };
   let currentLevel = 0;
+  let currentSpdMult = 1;
 
   const selected = {
     element: new Set(),
@@ -64,7 +65,8 @@
         const cell = r.querySelector(`td[data-col="${key}"]`);
         if (!cell) return;
         const base = Number(r.dataset[key]) || 0;
-        const scaled = level === 0 ? base : scaleValue(base, level);
+        let scaled = level === 0 ? base : scaleValue(base, level);
+        if (key === "spd" && currentSpdMult > 1) scaled = Math.floor(scaled * currentSpdMult);
         cell.textContent = scaled;
         // ソート用にdata属性も一時更新（data-*はbaseのまま保持、scaled値は別属性で持つ）
         r.dataset[`scaled_${key}`] = scaled;
