@@ -178,12 +178,14 @@
   background: rgba(0,0,0,.04);
 }
 .equip-table th[data-sort]::after {
-  content: "";
+  content: "⇅";
   display: inline-block;
-  width: 0.7em;
   margin-left: 4px;
-  opacity: 0.3;
+  opacity: 0.25;
   font-size: 0.75em;
+}
+.equip-table th[data-sort]:hover::after {
+  opacity: 0.5;
 }
 .equip-table th.sort-asc::after {
   content: "▲";
