@@ -76,4 +76,25 @@ document.addEventListener("DOMContentLoaded", function () {
 <script src="{{ "js/common/calc-utils.js" | relURL }}"></script>
 <script src="{{ "js/common/calc-logic.js" | relURL }}"></script>
 
+<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
+
+<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
+
+<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
+<div class="ow-help-drawer-header">
+<span class="ow-help-drawer-title">統合計算機 使い方</span>
+<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
+</div>
+<div class="ow-help-drawer-body">
+<h3>タブ切り替え</h3>
+<p>上部のタブで「統合計算機」と「詳細計算機」を切り替えられます。</p>
+<h3>統合計算機</h3>
+<p>ATK・INT・SPDを入力し、モンスターを選択して「計算」ボタンを押します。与ダメ・命中・無効化に必要なステータスをまとめて確認できます。ビルド引用でステータスシミュの保存ビルドを反映できます。</p>
+<h3>詳細計算機</h3>
+<p>全ステータス（VIT〜LUCK）と敵ステータスを直接入力して「計算」ボタンを押します。より細かい条件で計算できます。</p>
+</div>
+</div>
+
+<script src="{{ "js/common/help-drawer.js" | relURL }}" defer></script>
+
 {{ end }}
