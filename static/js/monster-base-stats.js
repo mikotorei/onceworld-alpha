@@ -200,7 +200,7 @@
     return Array.from(s).sort((a, b) => a.localeCompare(b, "ja"));
   }
 
-  const ELEMENT_ORDER = ["fire", "water", "wood", "light", "dark"];
+  const ELEMENT_ORDER = ["火", "水", "木", "光", "闇"];
 
   function sortedValues(key) {
     const vals = uniqValues(key);
