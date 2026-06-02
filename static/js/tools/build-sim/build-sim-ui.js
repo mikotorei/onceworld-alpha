@@ -378,12 +378,18 @@ function renderReverseResult() {
 
   let neededVal = 0, statKey = "";
 
+  // 暗殺者のカギ爪装備チェック
+  const weaponSelect = document.getElementById("select_weapon");
+  const weaponId = weaponSelect ? weaponSelect.value : "";
+  const useAssassinClaw = weaponId === "assassin_claw";
+
   if (state.attackType === "physical") {
-    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom);
+    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom, useAssassinClaw);
     const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark);
     statKey = "atk";
+    const clawLabel = useAssassinClaw ? " 【暗殺者のカギ爪：DEF無視・ダメージ1/10】" : "";
     const randomLabel = state.useMinRandom ? "（最低乱数）" : "（平均）";
-    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内" + randomLabel);
+    appendResult(wrap, "目標: " + picked.title + "（" + lvLabel + "）を" + targetNpan + "パン以内" + randomLabel + clawLabel);
     appendResult(wrap, "必要atk: " + fmt(neededVal) + " 以上");
     const currentNpan = state.useMinRandom ? current.npanMin : current.npan;
     appendResult(wrap, "現在のatk(" + fmt(hero.atk) + ")での討伐: " + (currentNpan != null ? currentNpan + "パン" : "計算不可"));
