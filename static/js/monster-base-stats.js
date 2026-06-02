@@ -200,11 +200,24 @@
     return Array.from(s).sort((a, b) => a.localeCompare(b, "ja"));
   }
 
+  const ELEMENT_ORDER = ["fire", "water", "wood", "light", "dark"];
+
+  function sortedValues(key) {
+    const vals = uniqValues(key);
+    if (key === "element") {
+      return [
+        ...ELEMENT_ORDER.filter(e => vals.includes(e)),
+        ...vals.filter(v => !ELEMENT_ORDER.includes(v))
+      ];
+    }
+    return vals;
+  }
+
   function renderChecks(container, key, setRef) {
     if (!container) return;
     container.innerHTML = "";
 
-    uniqValues(key).forEach(v => {
+    sortedValues(key).forEach(v => {
       const id = `mbs-${key}-${v}`.replace(/[^a-z0-9\-_]/gi, "_");
 
       const label = document.createElement("label");
