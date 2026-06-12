@@ -175,54 +175,79 @@ function render() {
     + '</div>';
 }
 
-// モンスター検索
-function showSuggest(query) {
-  var q    = (query || '').trim().toLowerCase();
-  var hits = q
-    ? monsters.filter(function (m) {
-        return m.title.toLowerCase().indexOf(q) !== -1 || m.id.indexOf(q) !== -1;
-      })
-    : monsters.slice();
+// モンスター検索（ビルドシミュと同じ方式）
+function normalizeJP(s) {
+  return (s || '').replace(/[\u30A1-\u30F6]/g, function(c) {
+    return String.fromCharCode(c.charCodeAt(0) - 0x60);
+  }).toLowerCase();
+}
 
+function openSuggest(items) {
   suggestBox.innerHTML = '';
-
-  if (!hits.length) {
-    var empty = document.createElement('button');
-    empty.type      = 'button';
-    empty.textContent = '見つかりません';
-    empty.disabled  = true;
-    suggestBox.appendChild(empty);
-  } else {
-    hits.forEach(function (m) {
-      var btn = document.createElement('button');
-      btn.type        = 'button';
-      btn.textContent = '[' + m.id + '] ' + m.title + ' ' + m.element;
-      btn.addEventListener('click', function () {
-        selectMonster(m.id);
-      });
-      suggestBox.appendChild(btn);
-    });
-  }
   suggestBox.hidden = false;
+  items.forEach(function (m) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = m.title;
+    btn.addEventListener('click', function () {
+      selected = m;
+      searchInput.value = m.title;
+      suggestBox.hidden = true;
+      suggestBox.innerHTML = '';
+      render();
+    });
+    suggestBox.appendChild(btn);
+  });
 }
 
-function hideSuggest() {
+function closeSuggest() {
   suggestBox.hidden = true;
-}
-
-function selectMonster(id) {
-  selected = monsters.find(function (m) { return m.id === id; });
-  if (!selected) return;
-  searchInput.value = '[' + selected.id + '] ' + selected.title;
-  hideSuggest();
-  render();
+  suggestBox.innerHTML = '';
 }
 
 searchInput.addEventListener('input', function () {
-  showSuggest(searchInput.value);
+  var q = searchInput.value;
+  if (q.trim() === '') { selected = null; closeSuggest(); render(); return; }
+  if (selected && q !== selected.title) { selected = null; render(); }
+  var hits = monsters.filter(function (m) {
+    return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+  }).slice(0, 50);
+  if (hits.length === 0) closeSuggest();
+  else openSuggest(hits);
 });
+
 searchInput.addEventListener('focus', function () {
-  showSuggest(searchInput.value);
+  var q = searchInput.value || '';
+  var items = q.trim() === ''
+    ? monsters.slice(0, 200)
+    : monsters.filter(function (m) {
+        return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+      }).slice(0, 200);
+  if (items.length > 0) openSuggest(items);
+});
+
+searchInput.addEventListener('search', function () {
+  if (searchInput.value.trim() === '') {
+    selected = null;
+    closeSuggest();
+    render();
+  }
+});
+
+document.addEventListener('click', function (e) {
+  if (e.target === searchInput || suggestBox.contains(e.target)) return;
+  closeSuggest();
+});
+
+// 粉の入力上限clamp（inputイベントでも即時補正）
+STAT_KEYS.forEach(function (s) {
+  var el = document.getElementById('powder-' + s);
+  if (!el) return;
+  el.addEventListener('input', function () {
+    var v = parseInt(el.value, 10);
+    if (!isNaN(v) && v > 1100) el.value = 1100;
+    if (!isNaN(v) && v < 0) el.value = 0;
+  });
 });
 
 lvInput.addEventListener('input', render);
@@ -231,7 +256,7 @@ kinokoInput.addEventListener('input', render);
 
 document.addEventListener('click', function (e) {
   if (!e.target.closest('#petMonsterSuggest') && !e.target.closest('#petMonsterSearch')) {
-    hideSuggest();
+    closeSuggest();
   }
 });
 
