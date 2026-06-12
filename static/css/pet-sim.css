@@ -36,7 +36,7 @@
   border-radius:10px;
   background:#fff;
   overflow:hidden;
-  max-height:260px;
+  max-height:40vh;
   overflow-y:auto;
   margin-bottom:10px;
 }
@@ -141,9 +141,9 @@
 
 .powder-item input{
   flex:1;
-  min-width:0;
+  min-width:80px;
   padding:10px;
-  border:1px solid #000;
+  border:1px solid #000 !important;
   border-radius:10px;
   font-size:16px;
   box-sizing:border-box;
@@ -288,55 +288,4 @@
   .stats-grid{
     grid-template-columns:repeat(7, minmax(0,1fr));
   }
-}
-
-/* モンスター検索（ビルドシミュ共通スタイル）*/
-.enemy-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.enemy-input-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-}
-
-.bs-monster-search {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #000;
-  border-radius: 10px;
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-.suggest {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + 6px);
-  border: 1px solid #000;
-  border-radius: 10px;
-  background: #fff;
-  overflow: hidden;
-  max-height: 260px;
-  overflow-y: auto;
-  z-index: 20;
-}
-
-.suggest button {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 12px;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.suggest button:active {
-  background: rgba(0,0,0,0.06);
 }
