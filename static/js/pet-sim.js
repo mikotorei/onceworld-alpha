@@ -1,239 +1,291 @@
-(function () {
+[hidden]{
+  display:none !important;
+}
 
-  var STAT_KEYS   = ['vit', 'spd', 'atk', 'int', 'def', 'mdef', 'luk'];
-  var STAT_LABELS = { vit:'VIT', spd:'SPD', atk:'ATK', int:'INT', def:'DEF', mdef:'MDEF', luk:'LUK' };
+.tool-container{
+  width:100%;
+  max-width:720px;
+}
 
-  var monsters = (typeof window.MONSTERS !== 'undefined')
-    ? window.MONSTERS.map(function (m) {
-        return {
-          id:      m.id,
-          title:   m.title,
-          element: m.element,
-          vit:     m.vit,
-          spd:     m.spd,
-          atk:     m.atk,
-          int:     m.int,
-          def:     m.def,
-          mdef:    m.mdef,
-          luk:     m.luk,
-          mov:     m.mov || 0
-        };
-      })
-    : [];
+.tool-container section{
+  margin-top:22px;
+}
 
-  var selected = null;
+.tool-container section:first-child{
+  margin-top:0;
+}
 
-  // --- DOM refs ---
-  var searchInput  = document.getElementById('searchInput');
-  var dropdown     = document.getElementById('dropdown');
-  var badge        = document.getElementById('selectedBadge');
-  var badgeName    = document.getElementById('selectedName');
-  var clearBtn     = document.getElementById('clearBtn');
-  var lvInput      = document.getElementById('lvInput');
-  var sengiInput   = document.getElementById('sengiInput');
-  var powderGrid   = document.getElementById('powderGrid');
-  var kinokoInput  = document.getElementById('kinokoInput');
-  var houseBtn     = document.getElementById('houseBtn');
-  var result       = document.getElementById('result');
+/* 検索 */
+.search-row{
+  margin-bottom:8px;
+}
 
-  // --- 粉入力欄を生成 ---
-  STAT_KEYS.forEach(function (s) {
-    var wrap = document.createElement('div');
-    wrap.className = 'powder-item';
+#searchInput{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+  border:1px solid #000;
+  border-radius:10px;
+  font-size:16px;
+}
 
-    var label = document.createElement('span');
-    label.className = 'powder-label';
-    label.textContent = STAT_LABELS[s];
+/* ドロップダウン */
+.dropdown{
+  display:none;
+  border:1px solid #000;
+  border-radius:10px;
+  background:#fff;
+  overflow:hidden;
+  max-height:40vh;
+  overflow-y:auto;
+  margin-bottom:10px;
+}
 
-    var input = document.createElement('input');
-    input.type = 'number';
-    input.id   = 'powder-' + s;
-    input.min  = '0';
-    input.max  = '1100';
-    input.value = '0';
-    input.placeholder = '0〜1100';
-    input.addEventListener('input', render);
+.dropdown.open{
+  display:block;
+}
 
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'chip-btn powder-max-btn';
-    btn.textContent = '100';
-    btn.addEventListener('click', function () {
-      input.value = 100;
-      render();
-    });
+.drop-item{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:10px 12px;
+  border:none;
+  border-bottom:1px solid rgba(0,0,0,0.08);
+  background:transparent;
+  font-size:16px;
+  cursor:pointer;
+  box-sizing:border-box;
+}
 
-    wrap.appendChild(label);
-    wrap.appendChild(input);
-    wrap.appendChild(btn);
-    powderGrid.appendChild(wrap);
-  });
+.drop-item:last-child{
+  border-bottom:none;
+}
 
-  // --- キノコハウス ON/OFF ---
-  houseBtn.addEventListener('click', function () {
-    var on = houseBtn.getAttribute('aria-pressed') === 'true';
-    houseBtn.setAttribute('aria-pressed', on ? 'false' : 'true');
-    houseBtn.textContent = on ? 'キノコハウス OFF' : 'キノコハウス ON';
-    render();
-  });
+.drop-item:active{
+  background:rgba(0,0,0,0.06);
+}
 
-  // --- 計算関数 ---
-  function getLv() {
-    var v = parseInt(lvInput.value, 10);
-    if (isNaN(v) || v < 1)  return 1;
-    if (v > 1200)            return 1200;
-    return v;
+.drop-element{
+  opacity:.6;
+  font-size:13px;
+  margin-left:6px;
+}
+
+.drop-empty{
+  opacity:.5;
+  cursor:default;
+}
+
+/* 選択バッジ */
+.selected-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid #000;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:15px;
+  margin-top:4px;
+}
+
+.clear-btn{
+  border:none;
+  background:transparent;
+  font-size:13px;
+  opacity:.5;
+  cursor:pointer;
+  padding:0;
+  line-height:1;
+}
+
+.clear-btn:hover{
+  opacity:1;
+}
+
+/* 汎用入力行 */
+.input-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.input-row input{
+  width:160px;
+  padding:10px;
+  border:1px solid #000;
+  border-radius:10px;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+/* 粉グリッド */
+.powder-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+
+.powder-item{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.powder-label{
+  font-weight:700;
+  font-size:14px;
+  width:48px;
+  flex-shrink:0;
+}
+
+.powder-item input{
+  flex:1;
+  min-width:80px;
+  padding:10px;
+  border:1px solid #000;
+  border-radius:10px;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+.powder-max-btn{
+  flex-shrink:0;
+}
+
+/* キノコ行 */
+.kinoko-row{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.kinoko-label{
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.kinoko-row input{
+  width:160px;
+  padding:10px;
+  border:1px solid #000;
+  border-radius:10px;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+/* チップボタン共通 */
+.chip-btn{
+  padding:10px 12px;
+  border:1px solid #000;
+  background:#fff;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.2;
+  cursor:pointer;
+}
+
+.chip-btn[aria-pressed="true"]{
+  background:rgba(0,0,0,0.08);
+  box-shadow:0 0 0 2px #000 inset;
+}
+
+/* ステータスグリッド */
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.stat-card{
+  border:1px solid #000;
+  border-radius:14px;
+  padding:12px;
+  text-align:center;
+}
+
+.stat-card--top{
+  box-shadow:0 0 0 2px #000 inset;
+}
+
+.stat-label{
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:4px;
+}
+
+.stat-base{
+  font-size:12px;
+  opacity:.55;
+  margin-bottom:4px;
+}
+
+.stat-val{
+  font-size:22px;
+  font-weight:700;
+}
+
+.stat-kinoko{
+  font-size:12px;
+  opacity:.65;
+  margin-top:4px;
+}
+
+/* 固定ステータス */
+.fixed-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.fixed-card{
+  border:1px solid #000;
+  border-radius:12px;
+  padding:10px 16px;
+  font-size:15px;
+  font-weight:700;
+}
+
+.fixed-card span{
+  font-weight:400;
+  margin-left:6px;
+}
+
+.section-label{
+  font-weight:700;
+  margin-bottom:8px;
+  margin-top:0;
+}
+
+.empty-msg{
+  opacity:.45;
+  font-size:15px;
+  margin:16px 0;
+}
+
+@media (min-width:700px){
+  .powder-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
   }
 
-  function getSengi() {
-    var v = parseInt(sengiInput.value, 10);
-    if (isNaN(v) || v < 0)  return 0;
-    if (v > 30)              return 30;
-    return v;
+  .kinoko-row{
+    flex-direction:row;
+    align-items:center;
   }
 
-  function getPowder(s) {
-    var el = document.getElementById('powder-' + s);
-    var v  = parseInt(el.value, 10);
-    if (isNaN(v) || v < 0)  return 0;
-    if (v > 1100)             return 1100;
-    return v;
+  .stats-grid{
+    grid-template-columns:repeat(4, minmax(0,1fr));
+  }
+}
+
+@media (min-width:980px){
+  .powder-grid{
+    grid-template-columns:repeat(4, minmax(0,1fr));
   }
 
-  function getKinoko() {
-    var v = parseInt(kinokoInput.value, 10);
-    if (isNaN(v) || v < 0)  return 0;
-    if (v > 1000)            return 1000;
-    return v;
+  .stats-grid{
+    grid-template-columns:repeat(7, minmax(0,1fr));
   }
-
-  function lvBonus(lv) {
-    if (lv <= 200) return (lv - 1) * 0.1;
-    return 19.9 + (lv - 200) * 1.1;
-  }
-
-  function calcStat(base, powder, sengi, lv) {
-    var kijun = base + powder;
-    var sA    = sengi + 1;
-    var sB    = sengi * 3;
-    var lB    = lvBonus(lv);
-    return Math.floor(kijun * (1 + sA * (sB + lB)));
-  }
-
-  // --- 最高ステータスのインデックスを返す（vit優先順） ---
-  function topStatKey(values) {
-    var best = STAT_KEYS[0];
-    STAT_KEYS.forEach(function (s) {
-      if (values[s] > values[best]) best = s;
-    });
-    return best;
-  }
-
-  // --- 描画 ---
-  function render() {
-    if (!selected) {
-      result.innerHTML = '<p class="empty-msg">モンスターを選択してください</p>';
-      return;
-    }
-
-    var lv      = getLv();
-    var sengi   = getSengi();
-    var kinoko  = getKinoko();
-    var houseOn = houseBtn.getAttribute('aria-pressed') === 'true';
-    var kinokoMult = houseOn ? 100 : 1;
-
-    // 各ステータスを計算（キノコ前）
-    var values = {};
-    STAT_KEYS.forEach(function (s) {
-      values[s] = calcStat(selected[s], getPowder(s), sengi, lv);
-    });
-
-    // キノコ補正：同属性のみ、最高ステータス1つに加算
-    var topKey     = topStatKey(values);
-    var kinokoVal  = kinoko * kinokoMult;
-
-    var cards = STAT_KEYS.map(function (s) {
-      var val     = values[s];
-      var isTop   = (s === topKey);
-      var display = isTop ? val + kinokoVal : val;
-      var kinokoTag = (isTop && kinokoVal > 0)
-        ? '<div class="stat-kinoko">+' + kinokoVal.toLocaleString() + ' (キノコ)</div>'
-        : '';
-      return '<div class="stat-card' + (isTop ? ' stat-card--top' : '') + '">'
-        + '<div class="stat-label">' + STAT_LABELS[s] + '</div>'
-        + '<div class="stat-base">基礎値&nbsp;' + selected[s] + '</div>'
-        + '<div class="stat-val">' + display.toLocaleString() + '</div>'
-        + kinokoTag
-        + '</div>';
-    }).join('');
-
-    result.innerHTML =
-      '<p class="section-label">Lv.' + lv + ' / 殲儀' + sengi + '回</p>'
-      + '<div class="stats-grid">' + cards + '</div>'
-      + '<p class="section-label">固定ステータス</p>'
-      + '<div class="fixed-row">'
-      + '<div class="fixed-card">MOV<span>' + selected.mov + '</span></div>'
-      + '</div>';
-  }
-
-  // --- 検索 ---
-  function openDropdown(query) {
-    var q    = (query || '').trim().toLowerCase();
-    var hits = q
-      ? monsters.filter(function (m) {
-          return m.title.toLowerCase().indexOf(q) !== -1 || m.id.indexOf(q) !== -1;
-        })
-      : monsters.slice();
-
-    if (!hits.length) {
-      dropdown.innerHTML = '<div class="drop-item drop-empty">見つかりません</div>';
-    } else {
-      dropdown.innerHTML = hits.map(function (m) {
-        return '<div class="drop-item" data-id="' + m.id + '">'
-          + '[' + m.id + ']&nbsp;' + m.title
-          + '&nbsp;<span class="drop-element">' + m.element + '</span>'
-          + '</div>';
-      }).join('');
-    }
-    dropdown.classList.add('open');
-  }
-
-  function closeDropdown() {
-    dropdown.classList.remove('open');
-  }
-
-  function selectMonster(id) {
-    selected = monsters.find(function (m) { return m.id === id; });
-    if (!selected) return;
-    searchInput.value = '';
-    closeDropdown();
-    badgeName.textContent = '[' + selected.id + '] ' + selected.title;
-    badge.style.display = '';
-    render();
-  }
-
-  searchInput.addEventListener('input',  function () { openDropdown(searchInput.value); });
-  searchInput.addEventListener('focus',  function () { openDropdown(searchInput.value); });
-
-  dropdown.addEventListener('click', function (e) {
-    var item = e.target.closest('.drop-item[data-id]');
-    if (item) selectMonster(item.dataset.id);
-  });
-
-  clearBtn.addEventListener('click', function () {
-    selected = null;
-    badge.style.display = 'none';
-    render();
-  });
-
-  lvInput.addEventListener('input',    render);
-  sengiInput.addEventListener('input', render);
-  kinokoInput.addEventListener('input', render);
-
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('#dropdown') && !e.target.closest('#searchInput')) {
-      closeDropdown();
-    }
-  });
-
-})();
+}
