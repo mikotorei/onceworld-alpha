@@ -48,7 +48,12 @@ STAT_KEYS.forEach(function (s) {
   input.max         = '1100';
   input.value       = '0';
   input.placeholder = '0〜1100';
-  input.addEventListener('input', render);
+  input.addEventListener('input', function () {
+    var v = parseInt(input.value, 10);
+    if (!isNaN(v) && v > 1100) input.value = 1100;
+    if (!isNaN(v) && v < 0)    input.value = 0;
+    render();
+  });
 
   var btn = document.createElement('button');
   btn.type        = 'button';
