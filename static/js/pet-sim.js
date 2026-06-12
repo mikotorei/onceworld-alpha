@@ -24,8 +24,11 @@
   var selected = null;
 
   // --- DOM refs ---
-  var searchInput  = document.getElementById('petMonsterSearch');
-  var suggestEl    = document.getElementById('petMonsterSuggest');
+  var searchInput  = document.getElementById('searchInput');
+  var dropdown     = document.getElementById('dropdown');
+  var badge        = document.getElementById('selectedBadge');
+  var badgeName    = document.getElementById('selectedName');
+  var clearBtn     = document.getElementById('clearBtn');
   var lvInput      = document.getElementById('lvInput');
   var sengiInput   = document.getElementById('sengiInput');
   var powderGrid   = document.getElementById('powderGrid');
@@ -46,11 +49,10 @@
     input.type = 'number';
     input.id   = 'powder-' + s;
     input.min  = '0';
-    input.max  = '100';
+    input.max  = '1100';
     input.value = '0';
-    input.placeholder = '0〜100';
+    input.placeholder = '0〜1100';
     input.addEventListener('input', render);
-    input.addEventListener('change', function() { clampInput(input, 0, 100); render(); });
 
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -94,7 +96,7 @@
     var el = document.getElementById('powder-' + s);
     var v  = parseInt(el.value, 10);
     if (isNaN(v) || v < 0)  return 0;
-    if (v > 100)             return 100;
+    if (v > 1100)             return 1100;
     return v;
   }
 
@@ -174,95 +176,59 @@
       + '</div>';
   }
 
-   // --- 検索（ビルドシミュと同じ方式）---
-   function normalizeJP(s) {
-     return (s || '').replace(/[\u30A1-\u30F6]/g, function(c) {
-       return String.fromCharCode(c.charCodeAt(0) - 0x60);
-     }).toLowerCase();
-   }
+  // --- 検索 ---
+  function openDropdown(query) {
+    var q    = (query || '').trim().toLowerCase();
+    var hits = q
+      ? monsters.filter(function (m) {
+          return m.title.toLowerCase().indexOf(q) !== -1 || m.id.indexOf(q) !== -1;
+        })
+      : monsters.slice();
 
-   function closeSuggest() {
-     if (suggestEl) { suggestEl.hidden = true; suggestEl.innerHTML = ''; }
-   }
-
-   function openSuggest(items) {
-     if (!suggestEl) return;
-     suggestEl.hidden = false;
-     suggestEl.innerHTML = '';
-     items.forEach(function(m) {
-       var btn = document.createElement('button');
-       btn.type = 'button';
-       btn.textContent = m.title;
-       btn.addEventListener('click', function() {
-         selected = m;
-         searchInput.value = m.title;
-         closeSuggest();
-         render();
-       });
-       suggestEl.appendChild(btn);
-     });
-   }
-
-   searchInput.addEventListener('input', function() {
-     var q = searchInput.value;
-     if (q.trim() === '') { selected = null; closeSuggest(); render(); return; }
-     if (selected && q !== selected.title) { selected = null; render(); }
-     var items = monsters.filter(function(m) {
-       return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
-     }).slice(0, 50);
-     if (items.length === 0) closeSuggest();
-     else openSuggest(items);
-   });
-
-   searchInput.addEventListener('focus', function() {
-     var q = searchInput.value || '';
-     var items = q.trim() === ''
-       ? monsters.slice(0, 200)
-       : monsters.filter(function(m) {
-           return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
-         }).slice(0, 200);
-     if (items.length > 0) openSuggest(items);
-   });
-
-   searchInput.addEventListener('search', function() {
-     if (searchInput.value.trim() === '') {
-       selected = null;
-       closeSuggest();
-       render();
-     }
-   });
-
-   document.addEventListener('click', function(e) {
-     if (e.target === searchInput || (suggestEl && suggestEl.contains(e.target))) return;
-     closeSuggest();
-   });
-
-  // 入力上限clamp
-  function clampInput(el, min, max) {
-    var v = parseInt(el.value, 10);
-    if (isNaN(v)) return;
-    if (v < min) el.value = min;
-    if (v > max) el.value = max;
+    if (!hits.length) {
+      dropdown.innerHTML = '<div class="drop-item drop-empty">見つかりません</div>';
+    } else {
+      dropdown.innerHTML = hits.map(function (m) {
+        return '<div class="drop-item" data-id="' + m.id + '">'
+          + '[' + m.id + ']&nbsp;' + m.title
+          + '&nbsp;<span class="drop-element">' + m.element + '</span>'
+          + '</div>';
+      }).join('');
+    }
+    dropdown.classList.add('open');
   }
 
-  // 粉全部MAXボタン
-  var powderAllMaxBtn = document.getElementById('powderAllMaxBtn');
-  if (powderAllMaxBtn) {
-    powderAllMaxBtn.addEventListener('click', function() {
-      STAT_KEYS.forEach(function(s) {
-        var el = document.getElementById('powder-' + s);
-        if (el) el.value = 100;
-      });
-      render();
-    });
+  function closeDropdown() {
+    dropdown.classList.remove('open');
   }
 
-  lvInput.addEventListener('change',    function() { clampInput(lvInput, 1, 1200); render(); });
-  lvInput.addEventListener('input',     render);
-  sengiInput.addEventListener('change', function() { clampInput(sengiInput, 0, 30); render(); });
-  sengiInput.addEventListener('input',  render);
-  kinokoInput.addEventListener('change', function() { clampInput(kinokoInput, 0, 1000); render(); });
-  kinokoInput.addEventListener('input',  render);
+  function selectMonster(id) {
+    selected = monsters.find(function (m) { return m.id === id; });
+    if (!selected) return;
+    searchInput.value = '';
+    closeDropdown();
+    badgeName.textContent = '[' + selected.id + '] ' + selected.title;
+    badge.style.display = '';
+    render();
+  }
+
+  searchInput.addEventListener('input',  function () { openDropdown(searchInput.value); });
+  searchInput.addEventListener('focus',  function () { openDropdown(searchInput.value); });
+
+  dropdown.addEventListener('click', function (e) {
+    var item = e.target.closest('.drop-item[data-id]');
+    if (item) selectMonster(item.dataset.id);
+  });
+
+  clearBtn.addEventListener('click', function () {
+    selected = null;
+    badge.style.display = 'none';
+    render();
+  });
+
+  lvInput.addEventListener('input',    render);
+  sengiInput.addEventListener('input', render);
+  kinokoInput.addEventListener('input', render);
 
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#dropdown') && !e.target.closest('#searchInput')) {
