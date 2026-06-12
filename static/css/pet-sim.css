@@ -15,68 +15,6 @@
   margin-top:0;
 }
 
-/* 検索 */
-.search-row{
-  margin-bottom:8px;
-}
-
-#searchInput{
-  width:100%;
-  box-sizing:border-box;
-  padding:10px;
-  border:1px solid #000;
-  border-radius:10px;
-  font-size:16px;
-}
-
-/* ドロップダウン */
-.dropdown{
-  display:none;
-  border:1px solid #000;
-  border-radius:10px;
-  background:#fff;
-  overflow:hidden;
-  max-height:40vh;
-  overflow-y:auto;
-  margin-bottom:10px;
-}
-
-.dropdown.open{
-  display:block;
-}
-
-.drop-item{
-  display:block;
-  width:100%;
-  text-align:left;
-  padding:10px 12px;
-  border:none;
-  border-bottom:1px solid rgba(0,0,0,0.08);
-  background:transparent;
-  font-size:16px;
-  cursor:pointer;
-  box-sizing:border-box;
-}
-
-.drop-item:last-child{
-  border-bottom:none;
-}
-
-.drop-item:active{
-  background:rgba(0,0,0,0.06);
-}
-
-.drop-element{
-  opacity:.6;
-  font-size:13px;
-  margin-left:6px;
-}
-
-.drop-empty{
-  opacity:.5;
-  cursor:default;
-}
-
 /* 選択バッジ */
 .selected-badge{
   display:inline-flex;
@@ -86,7 +24,7 @@
   border-radius:12px;
   padding:8px 12px;
   font-size:15px;
-  margin-top:4px;
+  margin-top:8px;
 }
 
 .clear-btn{
@@ -141,9 +79,9 @@
 
 .powder-item input{
   flex:1;
-  min-width:80px;
+  min-width:0;
   padding:10px;
-  border:1px solid #000 !important;
+  border:1px solid #000;
   border-radius:10px;
   font-size:16px;
   box-sizing:border-box;
