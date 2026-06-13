@@ -759,6 +759,8 @@ window.statusSimRecalc = recalc;
 const SS_CALC_KEY = "status_sim_ss_calc_v1";
 
 function saveSsCalc() {
+  // ss-chara-lvが存在するページ（ステシミュ）のみ保存
+  if (!$("ss-chara-lv")) return;
   try {
     localStorage.setItem(SS_CALC_KEY, JSON.stringify({
       charaLv:       $("ss-chara-lv")?.value       || "200",
@@ -850,6 +852,11 @@ function ssUpdatePointLimitDisplay() {
   const limit = ssBasePointLimit(sageDrop, forbiddenBook, ssHasContract, tenmeCount);
   const el = $("bs-point-limit-display");
   if (el) el.textContent = limit.toLocaleString("ja-JP");
+  // basePointTotalに反映
+  if ($("basePointTotal")) {
+    $("basePointTotal").value = String(limit);
+    $("basePointTotal").dispatchEvent(new Event("input"));
+  }
   saveSsCalc();
 }
 
