@@ -450,3 +450,11 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* 振り分けポイント合計入力欄 */
+#basePointTotal {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  flex: 1;
+}
