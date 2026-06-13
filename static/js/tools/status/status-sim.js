@@ -460,19 +460,7 @@ function collectState() {
       pet1: { id: $("select_pet1")?.value||"", stage: clampStage($("stage_pet1")?.value) },
       pet2: { id: $("select_pet2")?.value||"", stage: clampStage($("stage_pet2")?.value) },
       pet3: { id: $("select_pet3")?.value||"", stage: clampStage($("stage_pet3")?.value) },
-    },
-    ssCalc: $("ss-chara-lv") ? {
-      charaLv:       $("ss-chara-lv")?.value       || "200",
-      spTenme:       $("ss-sp-tenme-count")?.value  || "0",
-      penCount:      $("ss-pen-count")?.value        || "0",
-      altarCount:    $("ss-altar-count")?.value      || "0",
-      tenshoCount:   $("ss-tensho-count")?.value     || "0",
-      hasCosmoCube:  ssHasCosmoCube,
-      sageDrop:      $("ss-sage-drop")?.value        || "0",
-      forbiddenBook: $("ss-forbidden-book")?.value   || "0",
-      tenmeCount:    $("ss-tenme-count")?.value      || "0",
-      hasContract:   ssHasContract,
-    } : undefined
+    }
   };
 }
 
@@ -501,26 +489,7 @@ function applyState(saved) {
     if ($("stage_" +k)) $("stage_" +k).value = String(clampStage(v?.stage||0));
     setPetInputFromSelected(k, v?.id||"");
   });
-  // ssCalcの復元（ステシミュページのみ）
-  if (saved.ssCalc && $("ss-chara-lv")) {
-    const sc = saved.ssCalc;
-    if ($("ss-chara-lv"))       $("ss-chara-lv").value        = sc.charaLv       || "200";
-    if ($("ss-sp-tenme-count")) $("ss-sp-tenme-count").value  = sc.spTenme       || "0";
-    if ($("ss-pen-count"))      $("ss-pen-count").value       = sc.penCount      || "0";
-    if ($("ss-altar-count"))    $("ss-altar-count").value     = sc.altarCount    || "0";
-    if ($("ss-tensho-count"))   $("ss-tensho-count").value    = sc.tenshoCount   || "0";
-    if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
-    if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
-    if ($("ss-tenme-count"))    $("ss-tenme-count").value     = sc.tenmeCount    || "0";
-    ssHasCosmoCube = !!sc.hasCosmoCube;
-    ssHasContract  = !!sc.hasContract;
-    document.querySelectorAll(".ss-cosmocube-btn").forEach(b => {
-      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasCosmoCube ? "1" : "0") ? "true" : "false");
-    });
-    document.querySelectorAll(".ss-contract-btn").forEach(b => {
-      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasContract ? "1" : "0") ? "true" : "false");
-    });
-  }
+
 }
 
 function saveAutoState(state) { localStorage.setItem(AUTO_STORAGE_KEY,  JSON.stringify(state)); }
@@ -776,9 +745,6 @@ window.statusSimRecalc = recalc;
 // ============================================================
 // 振り分けポイント・上限計算（ステシミュ用）
 // ============================================================
-let ssHasCosmoCube = false;
-let ssHasContract  = false;
-
 const SS_CALC_KEY = "status_sim_ss_calc_v1";
 
 function saveSsCalc() {
@@ -853,6 +819,8 @@ function ssBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
   return BASE + sage + forbidden + contract + tenmeBonus;
 }
 
+let ssHasCosmoCube = false;
+let ssHasContract  = false;
 
 function ssUpdateStatPointDisplay() {
   const lv          = Math.max(1, Math.min(200, parseInt($("ss-chara-lv")?.value || "200", 10) || 200));
