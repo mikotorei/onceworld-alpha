@@ -452,6 +452,11 @@
 }
 
 /* 振り分けポイント合計入力欄 */
+label.pill:has(#basePointTotal) {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 #basePointTotal {
   width: 100%;
   min-width: 0;
