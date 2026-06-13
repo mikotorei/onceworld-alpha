@@ -13,6 +13,7 @@
     capture: "基礎捕獲",
     drop: "基礎ドロップ",
     heal: "HP回復",
+    sp: "SP回復",
   };
   const fmtNumber = (v) => {
     if (typeof v !== "number") return String(v ?? "");
@@ -54,12 +55,7 @@
     const arr = Array.isArray(skillsArr) ? skillsArr : [];
     const rows = LEVELS.map((label, i) => {
       const text = entryToText(arr[i]);
-      return `
-        <div class="d-row">
-          <dt>${label}</dt>
-          <dd>${escapeHtml(text)}</dd>
-        </div>
-      `.trim();
+      return `<div class="d-row"><dt>${label}</dt><dd>${escapeHtml(text)}</dd></div>`;
     });
     return rows.join("");
   };
