@@ -501,6 +501,26 @@ function applyState(saved) {
     if ($("stage_" +k)) $("stage_" +k).value = String(clampStage(v?.stage||0));
     setPetInputFromSelected(k, v?.id||"");
   });
+  // ssCalcの復元（ステシミュページのみ）
+  if (saved.ssCalc && $("ss-chara-lv")) {
+    const sc = saved.ssCalc;
+    if ($("ss-chara-lv"))       $("ss-chara-lv").value        = sc.charaLv       || "200";
+    if ($("ss-sp-tenme-count")) $("ss-sp-tenme-count").value  = sc.spTenme       || "0";
+    if ($("ss-pen-count"))      $("ss-pen-count").value       = sc.penCount      || "0";
+    if ($("ss-altar-count"))    $("ss-altar-count").value     = sc.altarCount    || "0";
+    if ($("ss-tensho-count"))   $("ss-tensho-count").value    = sc.tenshoCount   || "0";
+    if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
+    if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
+    if ($("ss-tenme-count"))    $("ss-tenme-count").value     = sc.tenmeCount    || "0";
+    ssHasCosmoCube = !!sc.hasCosmoCube;
+    ssHasContract  = !!sc.hasContract;
+    document.querySelectorAll(".ss-cosmocube-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasCosmoCube ? "1" : "0") ? "true" : "false");
+    });
+    document.querySelectorAll(".ss-contract-btn").forEach(b => {
+      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasContract ? "1" : "0") ? "true" : "false");
+    });
+  }
 }
 
 function saveAutoState(state) { localStorage.setItem(AUTO_STORAGE_KEY,  JSON.stringify(state)); }
