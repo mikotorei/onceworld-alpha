@@ -460,18 +460,6 @@ function collectState() {
       pet1: { id: $("select_pet1")?.value||"", stage: clampStage($("stage_pet1")?.value) },
       pet2: { id: $("select_pet2")?.value||"", stage: clampStage($("stage_pet2")?.value) },
       pet3: { id: $("select_pet3")?.value||"", stage: clampStage($("stage_pet3")?.value) },
-    },
-    ssCalc: {
-      charaLv:       $("ss-chara-lv")?.value       || "200",
-      spTenme:       $("ss-sp-tenme-count")?.value  || "0",
-      penCount:      $("ss-pen-count")?.value        || "0",
-      altarCount:    $("ss-altar-count")?.value      || "0",
-      tenshoCount:   $("ss-tensho-count")?.value     || "0",
-      hasCosmoCube:  ssHasCosmoCube,
-      sageDrop:      $("ss-sage-drop")?.value        || "0",
-      forbiddenBook: $("ss-forbidden-book")?.value   || "0",
-      tenmeCount:    $("ss-tenme-count")?.value      || "0",
-      hasContract:   ssHasContract,
     }
   };
 }
@@ -798,6 +786,8 @@ function ssUpdateStatPointDisplay() {
   const pts = ssTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount);
   const el = $("bs-stat-point-display");
   if (el) el.textContent = pts.toLocaleString("ja-JP");
+  // ssCalcの値を保存
+  saveAutoState(collectState());
 }
 
 function ssUpdatePointLimitDisplay() {
@@ -812,6 +802,8 @@ function ssUpdatePointLimitDisplay() {
     $("basePointTotal").value = String(limit);
     $("basePointTotal").dispatchEvent(new Event("input"));
   }
+  // ssCalcの値を保存
+  saveAutoState(collectState());
 }
 
 // 振り分けポイント計算のイベント登録
@@ -900,29 +892,9 @@ window.statusSimGetEffectiveMul = function(stat) {
   return Math.max(1, mul);
 };
 refreshBuildSelect();
-const _autoState = loadAutoState();
-applyState(_autoState);
-// 振り分けポイント計算セクションの復元
+applyState(loadAutoState());
+// 振り分けポイント計算セクションはapplyState後に初期表示
 if ($("ss-chara-lv")) {
-  const sc = _autoState?.ssCalc;
-  if (sc) {
-    if ($("ss-chara-lv"))       $("ss-chara-lv").value        = sc.charaLv       || "200";
-    if ($("ss-sp-tenme-count")) $("ss-sp-tenme-count").value  = sc.spTenme       || "0";
-    if ($("ss-pen-count"))      $("ss-pen-count").value       = sc.penCount      || "0";
-    if ($("ss-altar-count"))    $("ss-altar-count").value     = sc.altarCount    || "0";
-    if ($("ss-tensho-count"))   $("ss-tensho-count").value    = sc.tenshoCount   || "0";
-    if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
-    if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
-    if ($("ss-tenme-count"))    $("ss-tenme-count").value     = sc.tenmeCount    || "0";
-    ssHasCosmoCube = !!sc.hasCosmoCube;
-    ssHasContract  = !!sc.hasContract;
-    document.querySelectorAll(".ss-cosmocube-btn").forEach(b => {
-      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasCosmoCube ? "1" : "0") ? "true" : "false");
-    });
-    document.querySelectorAll(".ss-contract-btn").forEach(b => {
-      b.setAttribute("aria-pressed", b.getAttribute("data-val") === (ssHasContract ? "1" : "0") ? "true" : "false");
-    });
-  }
   ssUpdateStatPointDisplay();
   ssUpdatePointLimitDisplay();
 }
