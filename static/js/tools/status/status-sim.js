@@ -889,6 +889,11 @@ window.statusSimGetEffectiveMul = function(stat) {
 };
 refreshBuildSelect();
 applyState(loadAutoState());
+// 振り分けポイント計算セクションはapplyState後に初期表示
+if ($("ss-chara-lv")) {
+  ssUpdateStatPointDisplay();
+  ssUpdatePointLimitDisplay();
+}
 recalc();
 // 初期状態でmaxLvボタンを更新
 ["accessory1","accessory2","accessory3","accessory4"].forEach(k => updateAccessoryMaxLvBtn(k));
