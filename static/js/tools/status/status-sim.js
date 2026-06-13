@@ -831,7 +831,6 @@ function ssUpdateStatPointDisplay() {
   const pts = ssTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount);
   const el = $("bs-stat-point-display");
   if (el) el.textContent = pts.toLocaleString("ja-JP");
-  saveSsCalc();
 }
 
 function ssUpdatePointLimitDisplay() {
@@ -841,12 +840,6 @@ function ssUpdatePointLimitDisplay() {
   const limit = ssBasePointLimit(sageDrop, forbiddenBook, ssHasContract, tenmeCount);
   const el = $("bs-point-limit-display");
   if (el) el.textContent = limit.toLocaleString("ja-JP");
-  // basePointTotalに反映
-  if ($("basePointTotal")) {
-    $("basePointTotal").value = String(limit);
-    $("basePointTotal").dispatchEvent(new Event("input"));
-  }
-  saveSsCalc();
 }
 
 // 振り分けポイント計算のイベント登録
