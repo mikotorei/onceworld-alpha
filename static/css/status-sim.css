@@ -269,11 +269,31 @@
 .pet-search-wrap {
   position: relative;
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .equip-search-wrap input,
 .pet-search-wrap input {
+  flex: 1;
+  min-width: 0;
   width: 100%;
+}
+
+.equip-clear-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+}
+
+.equip-clear-btn:hover {
+  color: #333;
 }
 
 .equip-suggest,
