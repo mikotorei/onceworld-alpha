@@ -461,7 +461,7 @@ function collectState() {
       pet2: { id: $("select_pet2")?.value||"", stage: clampStage($("stage_pet2")?.value) },
       pet3: { id: $("select_pet3")?.value||"", stage: clampStage($("stage_pet3")?.value) },
     },
-    ssCalc: {
+    ssCalc: $("ss-chara-lv") ? {
       charaLv:       $("ss-chara-lv")?.value       || "200",
       spTenme:       $("ss-sp-tenme-count")?.value  || "0",
       penCount:      $("ss-pen-count")?.value        || "0",
@@ -472,7 +472,7 @@ function collectState() {
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
       tenmeCount:    $("ss-tenme-count")?.value      || "0",
       hasContract:   ssHasContract,
-    }
+    } : undefined
   };
 }
 
@@ -776,6 +776,9 @@ window.statusSimRecalc = recalc;
 // ============================================================
 // 振り分けポイント・上限計算（ステシミュ用）
 // ============================================================
+let ssHasCosmoCube = false;
+let ssHasContract  = false;
+
 const SS_CALC_KEY = "status_sim_ss_calc_v1";
 
 function saveSsCalc() {
@@ -850,8 +853,6 @@ function ssBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
   return BASE + sage + forbidden + contract + tenmeBonus;
 }
 
-let ssHasCosmoCube = false;
-let ssHasContract  = false;
 
 function ssUpdateStatPointDisplay() {
   const lv          = Math.max(1, Math.min(200, parseInt($("ss-chara-lv")?.value || "200", 10) || 200));
