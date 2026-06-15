@@ -87,13 +87,14 @@ function getStatPointInputs() {
     hasCosmoCube: state.hasCosmoCube,
     penCount:    Math.max(0, parseInt($("bs-pen-count")?.value    || "0", 10) || 0),
     altarCount:  Math.max(0, parseInt($("bs-altar-count")?.value  || "0", 10) || 0),
-    tenshoCount: Math.max(0, parseInt($("bs-tensho-count")?.value || "0", 10) || 0),
+    tenshoCount: Math.max(0, parseInt($("bs-tensho-count")?.value  || "0", 10) || 0),
+    scrollCount: Math.max(0, parseInt($("bs-scroll-count")?.value  || "0", 10) || 0),
   };
 }
 
 function updateStatPointDisplay() {
-  const { lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount } = getStatPointInputs();
-  const pts = calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount);
+  const { lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount } = getStatPointInputs();
+  const pts = calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount);
   const el = $("bs-stat-point-display");
   if (el) el.textContent = pts.toLocaleString("ja-JP");
   return pts;
@@ -164,6 +165,7 @@ function loadSimState() {
       if ($("bs-pen-count"))      $("bs-pen-count").value      = String(d.statPoint.penCount    || 0);
       if ($("bs-altar-count"))    $("bs-altar-count").value    = String(d.statPoint.altarCount  || 0);
       if ($("bs-tensho-count"))   $("bs-tensho-count").value   = String(d.statPoint.tenshoCount || 0);
+  if ($("bs-scroll-count"))   $("bs-scroll-count").value   = String(d.statPoint.scrollCount || 0);
       state.hasCosmoCube = !!d.statPoint.hasCosmoCube;
     }
   } catch (e) {}
@@ -1170,7 +1172,7 @@ setupHitMonsterSearch();
 ["bs-reverse-lv", "bs-reverse-npan", "bs-tenku-floor"].forEach(id => attachCommaInputBehavior(id, 0));
 
 // 振り分けポイント計算入力
-["bs-chara-lv", "bs-sp-tenme-count", "bs-pen-count", "bs-altar-count", "bs-tensho-count"].forEach(id => {
+["bs-chara-lv", "bs-sp-tenme-count", "bs-pen-count", "bs-altar-count", "bs-tensho-count", "bs-scroll-count"].forEach(id => {
   $(id)?.addEventListener("input", () => { updateStatPointDisplay(); saveSimState(); });
   $(id)?.addEventListener("blur",  () => { updateStatPointDisplay(); saveSimState(); });
 });
