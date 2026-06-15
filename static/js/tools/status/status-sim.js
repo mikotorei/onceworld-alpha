@@ -757,6 +757,7 @@ function saveSsCalc() {
       penCount:      $("ss-pen-count")?.value        || "0",
       altarCount:    $("ss-altar-count")?.value      || "0",
       tenshoCount:   $("ss-tensho-count")?.value     || "0",
+      scrollCount:   $("ss-scroll-count")?.value     || "0",
       hasCosmoCube:  ssHasCosmoCube,
       sageDrop:      $("ss-sage-drop")?.value        || "0",
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
@@ -776,6 +777,7 @@ function loadSsCalc() {
     if ($("ss-pen-count"))      $("ss-pen-count").value       = sc.penCount      || "0";
     if ($("ss-altar-count"))    $("ss-altar-count").value     = sc.altarCount    || "0";
     if ($("ss-tensho-count"))   $("ss-tensho-count").value    = sc.tenshoCount   || "0";
+    if ($("ss-scroll-count"))   $("ss-scroll-count").value    = sc.scrollCount   || "0";
     if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
     if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
     if ($("ss-tenme-count"))    $("ss-tenme-count").value     = sc.tenmeCount    || "0";
@@ -790,12 +792,13 @@ function loadSsCalc() {
   } catch(e) {}
 }
 
-function ssTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount) {
+function ssTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount) {
   const maxLv  = Math.min(200, Math.max(1, Math.floor(Number(lv) || 1)));
   const t      = Math.min(30, Math.max(0, Math.floor(Number(tenme) || 0)));
   const pen    = Math.max(0, Math.floor(Number(penCount || 0)));
   const altar  = Math.max(0, Math.floor(Number(altarCount || 0)));
   const tensho = Math.max(0, Math.floor(Number(tenshoCount || 0)));
+  const scroll = Math.max(0, Math.floor(Number(scrollCount || 0)));
   let lvPoints = 0;
   for (let l = 2; l <= maxLv; l++) {
     if (l % 10 !== 0) lvPoints += Math.floor(l * 0.1 + 5);
@@ -806,7 +809,7 @@ function ssTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tensho
   else if (t >= 10)      tenmeBonus = Math.floor(30000 + 5000 * Math.pow(t - 9, 1.25));
   let base = lvPoints * (1 + t) + tenmeBonus;
   if (hasCosmoCube && t > 0) base += t * 10000;
-  return Math.floor(base * (1 + pen * 0.01) * (1 + altar * 0.002)) + tensho * 10000;
+  return Math.floor((base * (1 + pen * 0.01) * (1 + altar * 0.002) + tensho * 10000) * (1 + scroll * 0.002));
 }
 
 function ssBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
@@ -827,8 +830,9 @@ function ssUpdateStatPointDisplay() {
   const tenme       = Math.max(0, Math.min(30, parseInt($("ss-sp-tenme-count")?.value || "0", 10) || 0));
   const penCount    = Math.max(0, parseInt($("ss-pen-count")?.value || "0", 10) || 0);
   const altarCount  = Math.max(0, parseInt($("ss-altar-count")?.value || "0", 10) || 0);
-  const tenshoCount = Math.max(0, parseInt($("ss-tensho-count")?.value || "0", 10) || 0);
-  const pts = ssTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount);
+  const tenshoCount = Math.max(0, parseInt($("ss-tensho-count")?.value  || "0", 10) || 0);
+  const scrollCount = Math.max(0, parseInt($("ss-scroll-count")?.value  || "0", 10) || 0);
+  const pts = ssTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount, scrollCount);
   const el = $("bs-stat-point-display");
   if (el) el.textContent = pts.toLocaleString("ja-JP");
 }
@@ -843,7 +847,7 @@ function ssUpdatePointLimitDisplay() {
 }
 
 // 振り分けポイント計算のイベント登録
-["ss-chara-lv", "ss-sp-tenme-count", "ss-pen-count", "ss-altar-count", "ss-tensho-count"].forEach(id => {
+["ss-chara-lv", "ss-sp-tenme-count", "ss-pen-count", "ss-altar-count", "ss-tensho-count", "ss-scroll-count"].forEach(id => {
   $(id)?.addEventListener("input", () => { ssUpdateStatPointDisplay(); saveSsCalc(); });
   $(id)?.addEventListener("blur",  () => { ssUpdateStatPointDisplay(); saveSsCalc(); });
 });
