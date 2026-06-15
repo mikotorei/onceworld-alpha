@@ -55,6 +55,12 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <button type="button" class="chip-btn" onclick="document.getElementById('ss-tensho-count').value='1000';document.getElementById('ss-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
 <span class="bs-label-text">個（最大1000個）</span>
 </div>
+<div class="bs-point-limit-row">
+<span class="bs-point-limit-label">スーパースクロール</span>
+<input id="ss-scroll-count" type="number" min="0" max="1000" value="0" class="lv-input">
+<button type="button" class="chip-btn" onclick="document.getElementById('ss-scroll-count').value='1000';document.getElementById('ss-scroll-count').dispatchEvent(new Event('input'))">MAX</button>
+<span class="bs-label-text">個（最大1000個）</span>
+</div>
 <div class="bs-point-limit-result">
 <span class="bs-point-limit-label">獲得振り分けポイント</span>
 <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
