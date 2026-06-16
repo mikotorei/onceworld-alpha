@@ -761,7 +761,7 @@ function saveSsCalc() {
       hasCosmoCube:  ssHasCosmoCube,
       sageDrop:      $("ss-sage-drop")?.value        || "0",
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
-      tenmeCount:    $("ss-tenme-count")?.value      || "0",
+      tenmeCount:    $("ss-sp-tenme-count")?.value   || "0",
       hasContract:   ssHasContract,
     }));
   } catch(e) {}
@@ -780,7 +780,7 @@ function loadSsCalc() {
     if ($("ss-scroll-count"))   $("ss-scroll-count").value    = sc.scrollCount   || "0";
     if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
     if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
-    if ($("ss-tenme-count"))    $("ss-tenme-count").value     = sc.tenmeCount    || "0";
+
     ssHasCosmoCube = !!sc.hasCosmoCube;
     ssHasContract  = !!sc.hasContract;
     document.querySelectorAll(".ss-cosmocube-btn").forEach(b => {
@@ -840,7 +840,7 @@ function ssUpdateStatPointDisplay() {
 function ssUpdatePointLimitDisplay() {
   const sageDrop      = Math.max(0, parseInt($("ss-sage-drop")?.value || "0", 10) || 0);
   const forbiddenBook = Math.max(0, parseInt($("ss-forbidden-book")?.value || "0", 10) || 0);
-  const tenmeCount    = Math.max(0, parseInt($("ss-tenme-count")?.value || "0", 10) || 0);
+  const tenmeCount    = Math.max(0, parseInt($("ss-sp-tenme-count")?.value || "0", 10) || 0);
   const limit = ssBasePointLimit(sageDrop, forbiddenBook, ssHasContract, tenmeCount);
   const el = $("bs-point-limit-display");
   if (el) el.textContent = limit.toLocaleString("ja-JP");
@@ -872,7 +872,7 @@ $("ss-apply-stat-point-btn")?.addEventListener("click", () => {
 });
 
 // 振り分け上限計算のイベント登録
-["ss-sage-drop", "ss-forbidden-book", "ss-tenme-count"].forEach(id => {
+["ss-sage-drop", "ss-forbidden-book"].forEach(id => {
   $(id)?.addEventListener("input", () => { ssUpdatePointLimitDisplay(); saveSsCalc(); });
   $(id)?.addEventListener("blur",  () => { ssUpdatePointLimitDisplay(); saveSsCalc(); });
 });
