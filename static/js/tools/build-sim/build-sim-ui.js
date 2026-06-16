@@ -76,7 +76,7 @@ function getHeroStats() {
 function getPointLimitInputs() {
   const sageDrop     = Math.max(0, parseInt(($("bs-sage-drop")?.value     || "0").replace(/,/g, ""), 10) || 0);
   const forbiddenBook = Math.max(0, parseInt(($("bs-forbidden-book")?.value || "0").replace(/,/g, ""), 10) || 0);
-  const tenmeCount   = Math.max(0, parseInt(($("bs-tenme-count")?.value   || "0").replace(/,/g, ""), 10) || 0);
+  const tenmeCount   = Math.max(0, parseInt(($("bs-sp-tenme-count")?.value || "0").replace(/,/g, ""), 10) || 0);
   return { sageDrop, forbiddenBook, hasContract: state.hasContract, tenmeCount };
 }
 
@@ -157,8 +157,7 @@ function loadSimState() {
     if (d.pointLimit) {
       if ($("bs-sage-drop"))      $("bs-sage-drop").value      = String(d.pointLimit.sageDrop      || 0);
       if ($("bs-forbidden-book")) $("bs-forbidden-book").value = String(d.pointLimit.forbiddenBook || 0);
-      if ($("bs-tenme-count"))    $("bs-tenme-count").value    = String(d.pointLimit.tenmeCount    || 0);
-    }
+      }
     if (d.statPoint) {
       if ($("bs-chara-lv"))       $("bs-chara-lv").value       = String(d.statPoint.lv         || 200);
       if ($("bs-sp-tenme-count")) $("bs-sp-tenme-count").value = String(d.statPoint.tenme       || 0);
@@ -1200,7 +1199,7 @@ $("bs-apply-stat-point-btn")?.addEventListener("click", () => {
 });
 
 // 振り分け上限入力→リアルタイム計算
-["bs-sage-drop", "bs-forbidden-book", "bs-tenme-count"].forEach(id => {
+["bs-sage-drop", "bs-forbidden-book"].forEach(id => {
   $(id)?.addEventListener("input", () => { updatePointLimitDisplay(); saveSimState(); });
   $(id)?.addEventListener("blur",  () => { updatePointLimitDisplay(); saveSimState(); });
 });
