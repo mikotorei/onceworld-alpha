@@ -94,12 +94,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <button class="chip-btn ss-contract-btn" type="button" data-val="1" aria-pressed="false">所持</button>
 </div>
 </div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">天命輪廻</span>
-<input id="ss-tenme-count" type="number" min="0" max="30" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-tenme-count').value='30';document.getElementById('ss-tenme-count').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">回（上限30）</span>
-</div>
 <div class="bs-point-limit-result">
 <span class="bs-point-limit-label">計算された上限</span>
 <span id="bs-point-limit-display" class="bs-point-limit-total">10,000</span>
