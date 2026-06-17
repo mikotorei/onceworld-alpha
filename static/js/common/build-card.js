@@ -55,11 +55,18 @@ function buildCardHTML() {
   ];
 
   function equipRow(label, key, isPet) {
-    const id = isPet
-      ? ($("select_"+key) ? $("select_"+key).value : "")
-      : ($("select_"+key) ? $("select_"+key).value : "");
+    const id = $("select_"+key) ? $("select_"+key).value : "";
     const name = isPet ? getPetName(id) : getEquipName(id);
-    return '<div class="bc-row"><span class="bc-label">' + label + '</span><span class="bc-val">' + name + '</span></div>';
+    var enhance = "";
+    if (!isPet && id) {
+      const lv  = parseInt($("level_" +key)?.value  || "0", 10) || 0;
+      const glv = parseInt($("glevel_"+key)?.value || "0", 10) || 0;
+      var parts = [];
+      if (lv  > 0) parts.push("+" + lv);
+      if (glv > 0) parts.push("G" + glv);
+      if (parts.length > 0) enhance = ' <span class="bc-enhance">' + parts.join(" ") + '</span>';
+    }
+    return '<div class="bc-row"><span class="bc-label">' + label + '</span><span class="bc-val">' + name + enhance + '</span></div>';
   }
 
   const ft = window.lastFinalTotal || {};
