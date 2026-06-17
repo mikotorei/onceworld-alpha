@@ -593,6 +593,11 @@ label.pill:has(#basePointTotal) {
   overflow: hidden;
 }
 
+.bc-modal[hidden],
+.bc-overlay[hidden] {
+  display: none !important;
+}
+
 .bc-modal-header {
   display: flex;
   justify-content: space-between;
