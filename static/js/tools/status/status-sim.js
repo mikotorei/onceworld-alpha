@@ -894,6 +894,7 @@ if ($("ss-chara-lv")) {
 }
 
 window.statusSimCollectState = collectState;
+window.petNameMapGlobal = petNameMap;
 window.equipmentMapGlobal = equipmentMap;
 
 // ステポイント1pt追加時のfinalTotal増加量（実効倍率）を計算して公開
