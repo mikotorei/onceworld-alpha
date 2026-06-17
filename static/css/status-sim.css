@@ -775,3 +775,48 @@ label.pill:has(#basePointTotal) {
 .bc-data-row span:last-child {
   font-weight: bold;
 }
+
+/* ステータス統合テーブル */
+.bc-stat-table {
+  width: 100%;
+  font-size: 11px;
+}
+
+.bc-stat-header,
+.bc-stat-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr;
+  padding: 3px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bc-stat-header {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2px;
+}
+
+.bc-stat-header span {
+  font-size: 10px;
+  color: #888;
+  font-weight: bold;
+  text-align: right;
+}
+
+.bc-stat-header span:first-child {
+  text-align: left;
+}
+
+.bc-stat-key {
+  color: #888;
+  font-weight: bold;
+}
+
+.bc-stat-num {
+  text-align: right;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.bc-stat-num:last-child {
+  color: #1a5fa8;
+}
