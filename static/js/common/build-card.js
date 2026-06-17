@@ -125,8 +125,8 @@ function showBuildCard() {
   if (!overlay || !modal || !preview) return;
 
   preview.innerHTML = buildCardHTML();
-  overlay.hidden = false;
-  modal.hidden = false;
+  overlay.style.display = '';
+  modal.style.display = '';
 }
 
 function saveBuildCard() {
@@ -161,14 +161,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
   var closeBtn = document.getElementById("bcCloseBtn");
   if (closeBtn) closeBtn.addEventListener("click", function() {
-    document.getElementById("bcOverlay").hidden = true;
-    document.getElementById("bcModal").hidden = true;
+    document.getElementById("bcOverlay").style.display = "none";
+    document.getElementById("bcModal").style.display = "none";
   });
 
   var overlay = document.getElementById("bcOverlay");
   if (overlay) overlay.addEventListener("click", function() {
-    overlay.hidden = true;
-    document.getElementById("bcModal").hidden = true;
+    overlay.style.display = "none";
+    document.getElementById("bcModal").style.display = "none";
   });
 
   var saveBtn = document.getElementById("bcSaveBtn");
