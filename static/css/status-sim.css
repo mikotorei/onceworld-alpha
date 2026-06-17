@@ -692,6 +692,17 @@ label.pill:has(#basePointTotal) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bc-enhance {
+  font-size: 10px;
+  color: #1a5fa8;
+  font-weight: normal;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .bc-section {
@@ -765,52 +776,4 @@ label.pill:has(#basePointTotal) {
 
 .bc-data-row span:last-child {
   font-weight: bold;
-}
-
-/* ステータス統合テーブル */
-.bc-stat-table {
-  width: 100%;
-  display: table;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-
-.bc-stat-header,
-.bc-stat-row {
-  display: table-row;
-}
-
-.bc-stat-header span,
-.bc-stat-row span {
-  display: table-cell;
-  padding: 3px 4px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.bc-stat-header span {
-  font-size: 10px;
-  color: #888;
-  font-weight: bold;
-  text-align: right;
-  border-bottom: 1px solid #ddd;
-}
-
-.bc-stat-header span:first-child {
-  text-align: left;
-}
-
-.bc-stat-key {
-  color: #888;
-  font-weight: bold;
-  width: 36px;
-}
-
-.bc-stat-num {
-  text-align: right;
-  font-weight: bold;
-  font-variant-numeric: tabular-nums;
-}
-
-.bc-stat-num:last-child {
-  color: #1a5fa8;
 }
