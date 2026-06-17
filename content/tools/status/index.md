@@ -476,6 +476,23 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 </div>
 
+<button id="bcOpenBtn" type="button" class="bc-open-btn">📷 画像を生成</button>
+
+<div id="bcOverlay" class="bc-overlay" hidden></div>
+
+<div id="bcModal" class="bc-modal" hidden>
+<div class="bc-modal-header">
+<span>ビルドプレビュー</span>
+<button id="bcCloseBtn" type="button" class="bc-modal-close">✕</button>
+</div>
+<div class="bc-modal-body">
+<div id="bcPreview"></div>
+</div>
+<div class="bc-modal-footer">
+<button id="bcSaveBtn" type="button" class="chip-btn">保存</button>
+</div>
+</div>
+
 <button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
 
 <div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
@@ -504,3 +521,5 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <script src="../../js/tools/status/status-sim.js" defer></script>
 <script src="../../js/common/help-drawer.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="../../js/common/build-card.js" defer></script>
