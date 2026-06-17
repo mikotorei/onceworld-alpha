@@ -122,13 +122,13 @@ function buildCardHTML() {
   html += '<div class="bc-data-row"><span>Lv:</span><span>' + (getVal("ss-chara-lv")||"–") + '</span></div>';
   html += '<div class="bc-data-row"><span>天命輪廻:</span><span>' + (getVal("ss-sp-tenme-count")||"0") + '</span></div>';
   html += '<div class="bc-data-row"><span>コスモキューブ:</span><span>' + (hasCosmoCube?"所持":"未所持") + '</span></div>';
-  html += '<div class="bc-data-row"><span>羽ペン:</span><span>' + (getVal("ss-pen-count")||"0") + '</span></div>';
-  html += '<div class="bc-data-row"><span>祭壇:</span><span>' + (getVal("ss-altar-count")||"0") + '</span></div>';
-  html += '<div class="bc-data-row"><span>天晶:</span><span>' + (getVal("ss-tensho-count")||"0") + '</span></div>';
+  html += '<div class="bc-data-row"><span>ヨハネの羽ペン:</span><span>' + (getVal("ss-pen-count")||"0") + '</span></div>';
+  html += '<div class="bc-data-row"><span>ヨハネの祭壇:</span><span>' + (getVal("ss-altar-count")||"0") + '</span></div>';
+  html += '<div class="bc-data-row"><span>ステータス天晶:</span><span>' + (getVal("ss-tensho-count")||"0") + '</span></div>';
   html += '<div class="bc-data-row"><span>スーパースクロール:</span><span>' + (getVal("ss-scroll-count")||"0") + '</span></div>';
-  html += '<div class="bc-data-row"><span>賢者:</span><span>' + (getVal("ss-sage-drop")||"0") + '</span></div>';
-  html += '<div class="bc-data-row"><span>書物:</span><span>' + (getVal("ss-forbidden-book")||"0") + '</span></div>';
-  html += '<div class="bc-data-row"><span>契約書:</span><span>' + (hasContract?"所持":"未所持") + '</span></div>';
+  html += '<div class="bc-data-row"><span>賢者の落とし物:</span><span>' + (getVal("ss-sage-drop")||"0") + '</span></div>';
+  html += '<div class="bc-data-row"><span>禁域の書物:</span><span>' + (getVal("ss-forbidden-book")||"0") + '</span></div>';
+  html += '<div class="bc-data-row"><span>超越の契約書:</span><span>' + (hasContract?"所持":"未所持") + '</span></div>';
   html += '</div></div>';
 
   html += '</div>';
