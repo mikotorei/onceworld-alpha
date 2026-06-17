@@ -13,9 +13,16 @@ function getEquipName(id) {
 }
 
 function getPetName(id) {
-  if (!id || !window.MONSTERS) return "（なし）";
-  const m = window.MONSTERS.find(function(m) { return String(m.id) === String(id); });
-  return m ? m.title : "（なし）";
+  if (!id) return "（なし）";
+  if (window.petNameMapGlobal) {
+    const name = window.petNameMapGlobal.get(String(id));
+    if (name) return name;
+  }
+  if (window.MONSTERS) {
+    const m = window.MONSTERS.find(function(m) { return String(m.id) === String(id); });
+    if (m) return m.title;
+  }
+  return "（なし）";
 }
 
 function fmt(v) {
@@ -96,6 +103,16 @@ function buildCardHTML() {
   });
   html += '</div>';
   html += '<div class="bc-stat-luk"><span class="bc-stat-label">LUK</span><span class="bc-stat-val">' + fmt(baseStats["luk"]) + '</span></div>';
+  html += '</div>';
+
+  // 最終ステータス
+  html += '<div class="bc-section"><div class="bc-section-title">最終ステータス</div>';
+  html += '<div class="bc-stats-grid">';
+  ["vit","spd","atk","int","def","mdef"].forEach(function(s) {
+    html += '<div class="bc-stat"><span class="bc-stat-label">' + statLabels[s] + '</span><span class="bc-stat-val">' + fmt(ft[s]||0) + '</span></div>';
+  });
+  html += '</div>';
+  html += '<div class="bc-stat-luk"><span class="bc-stat-label">LUK</span><span class="bc-stat-val">' + fmt(ft["luk"]||0) + '</span></div>';
   html += '</div>';
 
   // その他データ
