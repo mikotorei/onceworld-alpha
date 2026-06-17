@@ -95,24 +95,18 @@ function buildCardHTML() {
   html += '</div>';
   html += '</div>';
 
-  // 振り分け
-  html += '<div class="bc-section"><div class="bc-section-title">振り分け</div>';
-  html += '<div class="bc-stats-grid">';
-  ["vit","spd","atk","int","def","mdef"].forEach(function(s) {
-    html += '<div class="bc-stat"><span class="bc-stat-label">' + statLabels[s] + '</span><span class="bc-stat-val">' + fmt(baseStats[s]) + '</span></div>';
+  // 振り分け＋最終ステータス統合表示
+  html += '<div class="bc-section">';
+  html += '<div class="bc-stat-table">';
+  html += '<div class="bc-stat-header"><span></span><span>振り分け</span><span>最終</span></div>';
+  ["vit","spd","atk","int","def","mdef","luk"].forEach(function(s) {
+    html += '<div class="bc-stat-row">';
+    html += '<span class="bc-stat-key">' + statLabels[s] + '</span>';
+    html += '<span class="bc-stat-num">' + fmt(baseStats[s]) + '</span>';
+    html += '<span class="bc-stat-num">' + fmt(ft[s]||0) + '</span>';
+    html += '</div>';
   });
   html += '</div>';
-  html += '<div class="bc-stat-luk"><span class="bc-stat-label">LUK</span><span class="bc-stat-val">' + fmt(baseStats["luk"]) + '</span></div>';
-  html += '</div>';
-
-  // 最終ステータス
-  html += '<div class="bc-section"><div class="bc-section-title">最終ステータス</div>';
-  html += '<div class="bc-stats-grid">';
-  ["vit","spd","atk","int","def","mdef"].forEach(function(s) {
-    html += '<div class="bc-stat"><span class="bc-stat-label">' + statLabels[s] + '</span><span class="bc-stat-val">' + fmt(ft[s]||0) + '</span></div>';
-  });
-  html += '</div>';
-  html += '<div class="bc-stat-luk"><span class="bc-stat-label">LUK</span><span class="bc-stat-val">' + fmt(ft["luk"]||0) + '</span></div>';
   html += '</div>';
 
   // その他データ
