@@ -478,9 +478,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <button id="bcOpenBtn" type="button" class="bc-open-btn">📷 画像を生成</button>
 
-<div id="bcOverlay" class="bc-overlay" hidden></div>
+<div id="bcOverlay" class="bc-overlay" style="display:none"></div>
 
-<div id="bcModal" class="bc-modal" hidden>
+<div id="bcModal" class="bc-modal" style="display:none">
 <div class="bc-modal-header">
 <span>ビルドプレビュー</span>
 <button id="bcCloseBtn" type="button" class="bc-modal-close">✕</button>
