@@ -582,8 +582,8 @@ label.pill:has(#basePointTotal) {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 92vw;
-  max-width: 480px;
+  width: 96vw;
+  max-width: 640px;
   max-height: 85vh;
   background: #fff;
   border-radius: 16px;
