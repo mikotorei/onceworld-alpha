@@ -66,7 +66,7 @@ function buildCardHTML() {
       if (glv > 0) parts.push("G" + glv);
       if (parts.length > 0) enhance = ' <span class="bc-enhance">' + parts.join(" ") + '</span>';
     }
-    return '<div class="bc-row"><span class="bc-label">' + label + '</span><span class="bc-val">' + name + enhance + '</span></div>';
+    return '<div class="bc-row" style="white-space:nowrap"><span class="bc-label">' + label + '</span><span class="bc-val">' + name + enhance + '</span></div>';
   }
 
   const ft = window.lastFinalTotal || {};
@@ -104,16 +104,16 @@ function buildCardHTML() {
 
   // 振り分け＋最終ステータス統合表示
   html += '<div class="bc-section">';
-  html += '<div class="bc-stat-table">';
-  html += '<div class="bc-stat-header"><span></span><span>振り分け</span><span>最終</span></div>';
+  html += '<table class="bc-stat-table" cellspacing="0" cellpadding="0">';
+  html += '<tr><th></th><th>振り分け</th><th>最終</th></tr>';
   ["vit","spd","atk","int","def","mdef","luk"].forEach(function(s) {
-    html += '<div class="bc-stat-row">';
-    html += '<span class="bc-stat-key">' + statLabels[s] + '</span>';
-    html += '<span class="bc-stat-num">' + fmt(baseStats[s]) + '</span>';
-    html += '<span class="bc-stat-num">' + fmt(ft[s]||0) + '</span>';
-    html += '</div>';
+    html += '<tr>';
+    html += '<td class="bc-stat-key">' + statLabels[s] + '</td>';
+    html += '<td class="bc-stat-num">' + fmt(baseStats[s]) + '</td>';
+    html += '<td class="bc-stat-final">' + fmt(ft[s]||0) + '</td>';
+    html += '</tr>';
   });
-  html += '</div>';
+  html += '</table>';
   html += '</div>';
 
   // その他データ
