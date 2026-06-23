@@ -54,10 +54,9 @@
 /* 入力行 */
 .exp-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
 .exp-row:last-child {
@@ -65,39 +64,39 @@
 }
 
 .exp-label {
-  min-width: 160px;
-  font-size: 14px;
+  font-size: 13px;
   color: #555;
-  flex-shrink: 0;
+  font-weight: bold;
 }
 
 .exp-input {
-  width: 120px;
-  padding: 8px 10px;
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid rgba(0,0,0,.2);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   box-sizing: border-box;
 }
 
 .exp-unit {
   font-size: 13px;
   color: #888;
+  margin-left: 4px;
+  display: none;
 }
 
 /* モンスター検索 */
 .exp-search-wrap {
   position: relative;
-  flex: 1;
-  min-width: 0;
+  width: 100%;
 }
 
 .exp-search-wrap input[type="search"] {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid rgba(0,0,0,.2);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   box-sizing: border-box;
 }
 
