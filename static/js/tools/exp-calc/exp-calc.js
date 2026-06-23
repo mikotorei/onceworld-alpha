@@ -384,6 +384,10 @@ function openHuntSuggest(items) {
       huntSuggest.hidden = true;
       huntSuggest.innerHTML = "";
       if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
+      if ($("huntMonsterLv") && m.level_shortcuts && m.level_shortcuts.length > 0) {
+        var maxLv = m.level_shortcuts.reduce(function(a, s) { return Math.max(a, s.lv||0); }, 0);
+        if (maxLv > 0) $("huntMonsterLv").value = maxLv;
+      }
     });
     huntSuggest.appendChild(btn);
   });
@@ -438,6 +442,7 @@ $("huntCalcBtn")?.addEventListener("click", function() {
   var huntErr = $("huntError");
   if (huntErr) { huntErr.textContent = ""; huntErr.style.display = "none"; }
   var baseExp = Math.max(1, parseInt($("monsterBaseExp")?.value||"1", 10)||1);
+  var monsterLv  = Math.max(1, parseInt($("huntMonsterLv")?.value||"1", 10)||1);
   var kigen      = $("hasKigenOn")?.getAttribute("aria-pressed") === "true" ? 2 : 1;
   var medal      = Math.min(1000, Math.max(0, parseInt($("medalCount")?.value||"0", 10)||0));
   var zipang     = Math.min(1000, Math.max(0, parseInt($("zipangCount")?.value||"0", 10)||0));
