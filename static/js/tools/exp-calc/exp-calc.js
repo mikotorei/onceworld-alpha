@@ -86,20 +86,21 @@ function calcPetExp(fromLv, toLv, tenme, tilapia, monster) {
   var mult = calcMultiplier(tenme, tilapia);
   var baseExp = calcPetBaseExp(monster);
 
-  // Lv200→201以降は固定（Lv199→200の必要経験値）
-  var maxCalcLv = 200;
-
-  // Lv199→200の必要経験値を計算
+  // Lv199→200の必要経験値を計算（Lv201以降はこの値で固定）
   var prevExp = baseExp;
   for (var lv = 2; lv <= 199; lv++) {
     prevExp = Math.floor(prevExp * mult + lv * 5);
   }
   var lv200Exp = Math.floor(prevExp * mult + 199 * 5);
 
-  // fromLvまでの経験値を再計算
-  prevExp = baseExp;
-  for (var lv = 2; lv < fromLv && lv <= maxCalcLv; lv++) {
-    prevExp = Math.floor(prevExp * mult + lv * 5);
+  // fromLvまでのprevExpを計算（Lv200以降は固定値）
+  if (fromLv <= 200) {
+    prevExp = baseExp;
+    for (var lv = 2; lv < fromLv; lv++) {
+      prevExp = Math.floor(prevExp * mult + lv * 5);
+    }
+  } else {
+    prevExp = lv200Exp;
   }
 
   var details = [];
@@ -107,16 +108,16 @@ function calcPetExp(fromLv, toLv, tenme, tilapia, monster) {
 
   for (var lv = fromLv; lv < toLv; lv++) {
     var exp;
-    if (lv >= 200) {
-      exp = lv200Exp; // Lv200以降は固定
-    } else if (lv === 1) {
+    if (lv === 1) {
       exp = baseExp;
+    } else if (lv >= 200) {
+      exp = lv200Exp; // Lv200以降は固定
     } else {
       exp = Math.floor(prevExp * mult + lv * 5);
     }
     details.push({ lv: lv, exp: exp });
     total += exp;
-    prevExp = exp;
+    prevExp = lv < 200 ? exp : lv200Exp;
   }
 
   return { total: total, details: details, mult: mult, baseExp: baseExp };
@@ -244,10 +245,10 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("heroTenme")?.value||"0", 10);
     var til    = parseInt($("heroTilapia")?.value||"0", 10);
 
-    fromLv = Math.min(1200, Math.max(1, fromLv));
-    toLv   = Math.min(1200, Math.max(2, toLv));
-    tenme  = Math.min(30,   Math.max(0, tenme));
-    til    = Math.min(1000, Math.max(0, til));
+    fromLv = Math.min(200, Math.max(1, fromLv));
+    toLv   = Math.min(200, Math.max(2, toLv));
+    tenme  = Math.min(30,  Math.max(0, tenme));
+    til    = Math.min(1000,Math.max(0, til));
     if ($("heroFromLv")) $("heroFromLv").value = fromLv;
     if ($("heroToLv"))   $("heroToLv").value   = toLv;
     if ($("heroTenme"))  $("heroTenme").value  = tenme;
