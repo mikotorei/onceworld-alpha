@@ -1,0 +1,102 @@
+{{ define "main" }}
+<div class="exp-calc">
+
+<h1>{{ .Title }}</h1>
+
+<div class="exp-tabs">
+<button class="exp-tab-btn" data-tab="hero" aria-pressed="true">主人公</button>
+<button class="exp-tab-btn" data-tab="pet" aria-pressed="false">ペット</button>
+</div>
+
+<!-- 主人公パネル -->
+<div class="exp-panel" data-panel="hero">
+<div class="exp-section">
+<div class="exp-section-title">レベル設定</div>
+<div class="exp-row">
+<span class="exp-label">現在Lv</span>
+<input id="heroFromLv" type="number" class="exp-input" min="1" value="1">
+</div>
+<div class="exp-row">
+<span class="exp-label">目標Lv</span>
+<input id="heroToLv" type="number" class="exp-input" min="2" value="200">
+</div>
+</div>
+
+<div class="exp-section">
+<div class="exp-section-title">倍率設定</div>
+<div class="exp-row">
+<span class="exp-label">天命輪廻回数</span>
+<input id="heroTenme" type="number" class="exp-input" min="0" value="0">
+<span class="exp-unit">回</span>
+</div>
+<div class="exp-row">
+<span class="exp-label">古のティラピス像</span>
+<input id="heroTilapia" type="number" class="exp-input" min="0" value="0">
+<span class="exp-unit">個</span>
+</div>
+</div>
+</div>
+
+<!-- ペットパネル -->
+<div class="exp-panel" data-panel="pet" style="display:none">
+<div class="exp-section">
+<div class="exp-section-title">ペット選択</div>
+<div class="exp-row">
+<span class="exp-label">モンスター</span>
+<div class="exp-search-wrap">
+<input id="petMonsterSearch" type="search" placeholder="名前で検索して選択" autocomplete="off">
+<div id="petMonsterSuggest" class="exp-suggest" hidden></div>
+</div>
+</div>
+</div>
+
+<div class="exp-section">
+<div class="exp-section-title">レベル設定</div>
+<div class="exp-row">
+<span class="exp-label">現在Lv</span>
+<input id="petFromLv" type="number" class="exp-input" min="1" value="1">
+</div>
+<div class="exp-row">
+<span class="exp-label">目標Lv</span>
+<input id="petToLv" type="number" class="exp-input" min="2" value="200">
+</div>
+</div>
+
+<div class="exp-section">
+<div class="exp-section-title">倍率設定</div>
+<div class="exp-row">
+<span class="exp-label">殲儀回数</span>
+<input id="petTenme" type="number" class="exp-input" min="0" value="0">
+<span class="exp-unit">回</span>
+</div>
+<div class="exp-row">
+<span class="exp-label">古のティラピス像</span>
+<input id="petTilapia" type="number" class="exp-input" min="0" value="0">
+<span class="exp-unit">個</span>
+</div>
+</div>
+</div>
+
+<div id="expError" class="exp-error"></div>
+<button id="expCalcBtn" type="button" class="exp-calc-btn">計算する</button>
+
+<!-- 結果 -->
+<div id="expResult" class="exp-result" style="display:none">
+<div class="exp-result-title">必要経験値合計</div>
+<div id="expResultValue" class="exp-result-value"></div>
+<div id="expResultMult" class="exp-result-detail" style="margin-top:8px;font-size:13px;color:#555;"></div>
+<div id="expResultBaseExp" class="exp-result-detail" style="font-size:13px;color:#555;"></div>
+<div class="exp-result-detail">
+<table>
+<thead><tr><th>レベル</th><th>必要EXP</th></tr></thead>
+<tbody id="expResultTableBody"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<link rel="stylesheet" href="{{ "css/tools/exp-calc/exp-calc.css" | relURL }}">
+<script src="{{ "monsters-data.js" | relURL }}"></script>
+<script src="{{ "js/tools/exp-calc/exp-calc.js" | relURL }}" defer></script>
+{{ end }}
