@@ -366,35 +366,40 @@ function loadHuntSettings() {
 });
 
 // 討伐モンスター検索
-var huntSearch  = $("huntMonsterSearch");
-var huntSuggest = $("huntMonsterSuggest");
+var huntSearch   = $("huntMonsterSearch");
+var huntSuggest  = $("huntMonsterSuggest");
+var selectedHuntMonster = null;
+
+function openHuntSuggest(items) {
+  if (!huntSuggest) return;
+  huntSuggest.innerHTML = "";
+  huntSuggest.hidden = false;
+  items.forEach(function(m) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = m.title;
+    btn.addEventListener("click", function() {
+      selectedHuntMonster = m;
+      huntSearch.value = m.title;
+      huntSuggest.hidden = true;
+      huntSuggest.innerHTML = "";
+      if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
+    });
+    huntSuggest.appendChild(btn);
+  });
+}
 
 if (huntSearch) {
   huntSearch.addEventListener("input", function() {
     var q = huntSearch.value;
-    if (q.trim() === "") {
-      huntSuggest.hidden = true;
-      return;
-    }
+    selectedHuntMonster = null;
+    if ($("monsterBaseExp")) $("monsterBaseExp").value = 0;
+    if (q.trim() === "") { huntSuggest.hidden = true; return; }
     var hits = (window.MONSTERS||[]).filter(function(m) {
       return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
     }).slice(0, 50);
     if (hits.length === 0) { huntSuggest.hidden = true; return; }
-    huntSuggest.innerHTML = "";
-    huntSuggest.hidden = false;
-    hits.forEach(function(m) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = m.title;
-      btn.addEventListener("click", function() {
-        huntSearch.value = m.title;
-        huntSuggest.hidden = true;
-        huntSuggest.innerHTML = "";
-        // 基礎経験値を自動入力
-        if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
-      });
-      huntSuggest.appendChild(btn);
-    });
+    openHuntSuggest(hits);
   });
 
   huntSearch.addEventListener("focus", function() {
@@ -404,25 +409,13 @@ if (huntSearch) {
       : (window.MONSTERS||[]).filter(function(m) {
           return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
         }).slice(0, 200);
-    if (items.length === 0) return;
-    huntSuggest.innerHTML = "";
-    huntSuggest.hidden = false;
-    items.forEach(function(m) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = m.title;
-      btn.addEventListener("click", function() {
-        huntSearch.value = m.title;
-        huntSuggest.hidden = true;
-        huntSuggest.innerHTML = "";
-        if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
-      });
-      huntSuggest.appendChild(btn);
-    });
+    if (items.length > 0) openHuntSuggest(items);
   });
 
   huntSearch.addEventListener("search", function() {
     if (huntSearch.value.trim() === "") {
+      selectedHuntMonster = null;
+      if ($("monsterBaseExp")) $("monsterBaseExp").value = 0;
       huntSuggest.hidden = true;
     }
   });
@@ -430,14 +423,21 @@ if (huntSearch) {
 
 document.addEventListener("click", function(e) {
   if (huntSearch && huntSuggest) {
-    if (e.target === huntSearch || huntSuggest.contains(e.target)) return;
+    if (e.target === huntSearch || (huntSuggest && huntSuggest.contains(e.target))) return;
     huntSuggest.hidden = true;
   }
 });
 
 // 討伐数計算ボタン
 $("huntCalcBtn")?.addEventListener("click", function() {
-  var baseExp    = Math.max(1, parseInt($("monsterBaseExp")?.value||"1", 10)||1);
+  if (!selectedHuntMonster) {
+    var huntErr = $("huntError");
+    if (huntErr) { huntErr.textContent = "討伐モンスターを選択してください"; huntErr.style.display = ""; }
+    return;
+  }
+  var huntErr = $("huntError");
+  if (huntErr) { huntErr.textContent = ""; huntErr.style.display = "none"; }
+  var baseExp = Math.max(1, parseInt($("monsterBaseExp")?.value||"1", 10)||1);
   var kigen      = $("hasKigenOn")?.getAttribute("aria-pressed") === "true" ? 2 : 1;
   var medal      = Math.min(1000, Math.max(0, parseInt($("medalCount")?.value||"0", 10)||0));
   var zipang     = Math.min(1000, Math.max(0, parseInt($("zipangCount")?.value||"0", 10)||0));
