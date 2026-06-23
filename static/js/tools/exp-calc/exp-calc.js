@@ -244,8 +244,14 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("heroTenme")?.value||"0", 10);
     var til    = parseInt($("heroTilapia")?.value||"0", 10);
 
-    fromLv = Math.min(199, Math.max(1, fromLv));
-    toLv   = Math.min(200, Math.max(2, toLv));
+    fromLv = Math.min(1200, Math.max(1, fromLv));
+    toLv   = Math.min(1200, Math.max(2, toLv));
+    tenme  = Math.min(30,   Math.max(0, tenme));
+    til    = Math.min(1000, Math.max(0, til));
+    if ($("heroFromLv")) $("heroFromLv").value = fromLv;
+    if ($("heroToLv"))   $("heroToLv").value   = toLv;
+    if ($("heroTenme"))  $("heroTenme").value  = tenme;
+    if ($("heroTilapia"))$("heroTilapia").value = til;
     if (isNaN(fromLv) || isNaN(toLv) || fromLv < 1 || toLv <= fromLv) {
       if (err) err.textContent = "Lvの入力値を確認してください";
       return;
@@ -263,8 +269,14 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("petTenme")?.value||"0", 10);
     var til    = parseInt($("petTilapia")?.value||"0", 10);
 
-    fromLv = Math.min(199, Math.max(1, fromLv));
-    toLv   = Math.min(200, Math.max(2, toLv));
+    fromLv = Math.min(1200, Math.max(1, fromLv));
+    toLv   = Math.min(1200, Math.max(2, toLv));
+    tenme  = Math.min(30,   Math.max(0, tenme));
+    til    = Math.min(1000, Math.max(0, til));
+    if ($("petFromLv"))  $("petFromLv").value  = fromLv;
+    if ($("petToLv"))    $("petToLv").value    = toLv;
+    if ($("petTenme"))   $("petTenme").value   = tenme;
+    if ($("petTilapia")) $("petTilapia").value  = til;
     if (isNaN(fromLv) || isNaN(toLv) || fromLv < 1 || toLv <= fromLv) {
       if (err) err.textContent = "Lvの入力値を確認してください";
       return;
