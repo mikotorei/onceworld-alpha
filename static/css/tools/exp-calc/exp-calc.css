@@ -1,0 +1,203 @@
+.exp-calc {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.exp-calc h1 {
+  font-size: 1.2rem;
+  margin: 0 0 16px;
+}
+
+/* タブ */
+.exp-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.exp-tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.exp-tab-btn[aria-pressed="true"] {
+  background: rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 2px #000 inset;
+  font-weight: bold;
+}
+
+/* セクション */
+.exp-section {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.exp-section-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* 入力行 */
+.exp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.exp-row:last-child {
+  margin-bottom: 0;
+}
+
+.exp-label {
+  min-width: 160px;
+  font-size: 14px;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.exp-input {
+  width: 120px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.exp-unit {
+  font-size: 13px;
+  color: #888;
+}
+
+/* モンスター検索 */
+.exp-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.exp-search-wrap input[type="search"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.exp-suggest {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.exp-suggest button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.exp-suggest button:active {
+  background: rgba(0,0,0,.06);
+}
+
+/* 計算ボタン */
+.exp-calc-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #1a5fa8;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+/* 結果 */
+.exp-result {
+  background: #f8f9ff;
+  border: 1px solid #d0d8f0;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.exp-result-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.exp-result-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1a5fa8;
+  font-variant-numeric: tabular-nums;
+}
+
+.exp-result-detail {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.exp-result-detail table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.exp-result-detail th,
+.exp-result-detail td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #eee;
+  text-align: right;
+}
+
+.exp-result-detail th:first-child,
+.exp-result-detail td:first-child {
+  text-align: left;
+}
+
+.exp-result-detail th {
+  font-size: 11px;
+  color: #888;
+}
+
+.exp-error {
+  color: #c00;
+  font-size: 13px;
+  margin-top: 8px;
+}
