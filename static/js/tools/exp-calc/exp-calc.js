@@ -244,6 +244,8 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("heroTenme")?.value||"0", 10);
     var til    = parseInt($("heroTilapia")?.value||"0", 10);
 
+    fromLv = Math.min(199, Math.max(1, fromLv));
+    toLv   = Math.min(200, Math.max(2, toLv));
     if (isNaN(fromLv) || isNaN(toLv) || fromLv < 1 || toLv <= fromLv) {
       if (err) err.textContent = "Lvの入力値を確認してください";
       return;
@@ -261,6 +263,8 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("petTenme")?.value||"0", 10);
     var til    = parseInt($("petTilapia")?.value||"0", 10);
 
+    fromLv = Math.min(199, Math.max(1, fromLv));
+    toLv   = Math.min(200, Math.max(2, toLv));
     if (isNaN(fromLv) || isNaN(toLv) || fromLv < 1 || toLv <= fromLv) {
       if (err) err.textContent = "Lvの入力値を確認してください";
       return;
