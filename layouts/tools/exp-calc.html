@@ -126,20 +126,21 @@
 </div>
 </div>
 <div class="exp-row">
-<span class="exp-label">討伐モンスター（任意）</span>
+<span class="exp-label">討伐モンスター</span>
 <div class="exp-search-wrap">
 <input id="huntMonsterSearch" type="search" placeholder="名前で検索して選択" autocomplete="off">
 <div id="huntMonsterSuggest" class="exp-suggest" hidden></div>
 </div>
 </div>
 <div class="exp-row">
-<span class="exp-label">討伐モンスターの基礎経験値</span>
-<input id="monsterBaseExp" type="number" class="exp-input" min="1" value="100">
+<span class="exp-label">基礎経験値</span>
+<input id="monsterBaseExp" type="number" class="exp-input" min="1" value="0" readonly style="background:#f5f5f5;color:#555">
 </div>
 <div id="huntResult" class="exp-hunt-result" style="display:none">
 <div class="exp-hunt-row"><span>1体あたりの獲得経験値</span><span id="huntExpPerKill" class="exp-hunt-val"></span></div>
 <div class="exp-hunt-row"><span>必要討伐数</span><span id="huntKillCount" class="exp-hunt-val blue"></span></div>
 </div>
+<div id="huntError" class="exp-error" style="display:none"></div>
 <button type="button" id="huntCalcBtn" class="exp-calc-btn" style="margin-top:12px">討伐数を計算</button>
 </div>
 
