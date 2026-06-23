@@ -365,6 +365,76 @@ function loadHuntSettings() {
   $(id)?.addEventListener("input", saveHuntSettings);
 });
 
+// 討伐モンスター検索
+var huntSearch  = $("huntMonsterSearch");
+var huntSuggest = $("huntMonsterSuggest");
+
+if (huntSearch) {
+  huntSearch.addEventListener("input", function() {
+    var q = huntSearch.value;
+    if (q.trim() === "") {
+      huntSuggest.hidden = true;
+      return;
+    }
+    var hits = (window.MONSTERS||[]).filter(function(m) {
+      return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+    }).slice(0, 50);
+    if (hits.length === 0) { huntSuggest.hidden = true; return; }
+    huntSuggest.innerHTML = "";
+    huntSuggest.hidden = false;
+    hits.forEach(function(m) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = m.title;
+      btn.addEventListener("click", function() {
+        huntSearch.value = m.title;
+        huntSuggest.hidden = true;
+        huntSuggest.innerHTML = "";
+        // 基礎経験値を自動入力
+        if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
+      });
+      huntSuggest.appendChild(btn);
+    });
+  });
+
+  huntSearch.addEventListener("focus", function() {
+    var q = huntSearch.value || "";
+    var items = q.trim() === ""
+      ? (window.MONSTERS||[]).slice(0, 200)
+      : (window.MONSTERS||[]).filter(function(m) {
+          return normalizeJP(m.title).indexOf(normalizeJP(q)) !== -1;
+        }).slice(0, 200);
+    if (items.length === 0) return;
+    huntSuggest.innerHTML = "";
+    huntSuggest.hidden = false;
+    items.forEach(function(m) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = m.title;
+      btn.addEventListener("click", function() {
+        huntSearch.value = m.title;
+        huntSuggest.hidden = true;
+        huntSuggest.innerHTML = "";
+        if ($("monsterBaseExp")) $("monsterBaseExp").value = Math.floor(Number(m.exp)||0);
+      });
+      huntSuggest.appendChild(btn);
+    });
+  });
+
+  huntSearch.addEventListener("search", function() {
+    if (huntSearch.value.trim() === "") {
+      huntSuggest.hidden = true;
+    }
+  });
+}
+
+document.addEventListener("click", function(e) {
+  if (huntSearch && huntSuggest) {
+    if (e.target === huntSearch || huntSuggest.contains(e.target)) return;
+    huntSuggest.hidden = true;
+  }
+});
+
 // 討伐数計算ボタン
 $("huntCalcBtn")?.addEventListener("click", function() {
   var baseExp    = Math.max(1, parseInt($("monsterBaseExp")?.value||"1", 10)||1);
