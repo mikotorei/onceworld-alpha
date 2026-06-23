@@ -11,6 +11,7 @@ function fmt(v) { return Math.floor(Number(v)||0).toLocaleString("ja-JP"); }
 // タブ切り替え
 // ============================================================
 var currentTab = "hero";
+var lastCalcTotal = 0;
 var tabBtns = document.querySelectorAll(".exp-tab-btn");
 tabBtns.forEach(function(btn) {
   btn.addEventListener("click", function() {
@@ -198,12 +199,26 @@ document.addEventListener("click", function(e) {
 function clearResult() {
   var r = $("expResult");
   if (r) r.style.display = "none";
+  var huntCalc = $("huntCalc");
+  if (huntCalc) huntCalc.style.display = "none";
+  lastCalcTotal = 0;
 }
 
 function showResult(result, isHero) {
   var r = $("expResult");
   if (!r) return;
   r.style.display = "";
+  lastCalcTotal = result.total;
+
+  // 討伐数計算セクションを表示
+  var huntCalc = $("huntCalc");
+  if (huntCalc) huntCalc.style.display = "";
+  // ペットタブのみジパング・キノコ行を表示
+  var petHuntRows = $("petHuntRows");
+  if (petHuntRows) petHuntRows.style.display = isHero ? "none" : "";
+  // 討伐結果をリセット
+  var huntResult = $("huntResult");
+  if (huntResult) huntResult.style.display = "none";
 
   $("expResultValue").textContent = fmt(result.total) + " EXP";
   $("expResultMult").textContent = "天命・殲儀倍率: " + result.mult.toFixed(5);
@@ -289,5 +304,102 @@ $("expCalcBtn")?.addEventListener("click", function() {
 
 // 初期表示
 clearResult();
+
+
+// ============================================================
+// 討伐数計算
+// ============================================================
+var HUNT_STORAGE_KEY = "exp_calc_hunt_v1";
+
+function saveHuntSettings() {
+  try {
+    localStorage.setItem(HUNT_STORAGE_KEY, JSON.stringify({
+      kigen:    $("hasKigenOn")?.getAttribute("aria-pressed") === "true",
+      medal:    parseInt($("medalCount")?.value||"0", 10)||0,
+      zipang:   parseInt($("zipangCount")?.value||"0", 10)||0,
+      luminous: parseInt($("luminousCount")?.value||"0", 10)||0,
+      house:    $("hasHouse")?.getAttribute("aria-pressed") === "true",
+    }));
+  } catch(e) {}
+}
+
+function loadHuntSettings() {
+  try {
+    var raw = localStorage.getItem(HUNT_STORAGE_KEY);
+    if (!raw) return;
+    var d = JSON.parse(raw);
+    if ($("hasKigenOn")) $("hasKigenOn").setAttribute("aria-pressed", d.kigen ? "true" : "false");
+    if ($("hasKigen"))   $("hasKigen").setAttribute("aria-pressed",   d.kigen ? "false" : "true");
+    if ($("medalCount"))   $("medalCount").value   = d.medal   || 0;
+    if ($("zipangCount"))  $("zipangCount").value  = d.zipang  || 0;
+    if ($("luminousCount"))$("luminousCount").value = d.luminous|| 0;
+    if ($("hasHouse")) $("hasHouse").setAttribute("aria-pressed",  d.house ? "true" : "false");
+    if ($("noHouse"))  $("noHouse").setAttribute("aria-pressed",   d.house ? "false" : "true");
+  } catch(e) {}
+}
+
+// 経験の起源トグル
+[$("hasKigen"), $("hasKigenOn")].forEach(function(btn) {
+  if (!btn) return;
+  btn.addEventListener("click", function() {
+    var isOn = btn.getAttribute("data-val") === "1";
+    $("hasKigenOn")?.setAttribute("aria-pressed", isOn ? "true" : "false");
+    $("hasKigen")?.setAttribute("aria-pressed",   isOn ? "false" : "true");
+    saveHuntSettings();
+  });
+});
+
+// キノコハウストグル
+[$("noHouse"), $("hasHouse")].forEach(function(btn) {
+  if (!btn) return;
+  btn.addEventListener("click", function() {
+    var isHouse = btn.id === "hasHouse";
+    $("hasHouse")?.setAttribute("aria-pressed", isHouse ? "true" : "false");
+    $("noHouse")?.setAttribute("aria-pressed",  isHouse ? "false" : "true");
+    saveHuntSettings();
+  });
+});
+
+// 数値入力の保存
+["medalCount","zipangCount","luminousCount"].forEach(function(id) {
+  $(id)?.addEventListener("input", saveHuntSettings);
+});
+
+// 討伐数計算ボタン
+$("huntCalcBtn")?.addEventListener("click", function() {
+  var baseExp    = Math.max(1, parseInt($("monsterBaseExp")?.value||"1", 10)||1);
+  var kigen      = $("hasKigenOn")?.getAttribute("aria-pressed") === "true" ? 2 : 1;
+  var medal      = Math.min(1000, Math.max(0, parseInt($("medalCount")?.value||"0", 10)||0));
+  var zipang     = Math.min(1000, Math.max(0, parseInt($("zipangCount")?.value||"0", 10)||0));
+  var luminous   = Math.min(1000, Math.max(0, parseInt($("luminousCount")?.value||"0", 10)||0));
+  var house      = $("hasHouse")?.getAttribute("aria-pressed") === "true" ? 100 : 1;
+
+  // 経験値基準値 = 基礎経験値 × 起源 × (Lv^1.1×0.2切捨て 最低1) + メダル×10
+  // ※ここでは討伐モンスターのLvが不明なため基礎経験値をそのまま使用
+  var kijun = Math.floor(baseExp * kigen) + medal * 10;
+
+  var expPerKill;
+  if (currentTab === "pet") {
+    // ペット: 基準値 × (1+ジパング補正) × (1+キノコ補正×ハウス補正)
+    var zipangMult   = 1 + zipang   * 0.1;
+    var luminousMult = 1 + luminous * 0.1 * house;
+    expPerKill = Math.floor(kijun * zipangMult * luminousMult);
+  } else {
+    // 主人公: 基準値のみ（ジパング・キノコは主人公に適用されない）
+    expPerKill = kijun;
+  }
+
+  var totalExp = lastCalcTotal || 0;
+  var killCount = totalExp > 0 ? Math.ceil(totalExp / expPerKill) : 0;
+
+  var huntResult = $("huntResult");
+  if (huntResult) huntResult.style.display = "";
+  if ($("huntExpPerKill")) $("huntExpPerKill").textContent = fmt(expPerKill) + " EXP";
+  if ($("huntKillCount"))  $("huntKillCount").textContent  = fmt(killCount)  + " 体";
+});
+
+// 討伐数計算の初期化
+loadHuntSettings();
+
 
 });
