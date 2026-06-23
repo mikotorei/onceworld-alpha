@@ -94,6 +94,48 @@
 </div>
 </div>
 
+<!-- 討伐数計算 -->
+<div id="huntCalc" class="exp-section" style="display:none">
+<div class="exp-section-title">討伐数計算（任意）</div>
+<div class="exp-row">
+<span class="exp-label">経験の起源</span>
+<div class="exp-toggle-group">
+<button type="button" class="exp-toggle-btn" id="hasKigen" data-val="0" aria-pressed="false">未所持</button>
+<button type="button" class="exp-toggle-btn active" id="hasKigenOn" data-val="1" aria-pressed="false">所持（×2）</button>
+</div>
+</div>
+<div class="exp-row">
+<span class="exp-label">ベガサスのメダル個数</span>
+<input id="medalCount" type="number" class="exp-input" min="0" max="1000" value="0">
+</div>
+<div id="petHuntRows" style="display:none">
+<div class="exp-row">
+<span class="exp-label">ジパングの酒個数（上限1000）</span>
+<input id="zipangCount" type="number" class="exp-input" min="0" max="1000" value="0">
+</div>
+<div class="exp-row">
+<span class="exp-label">ルミナスキノコ個数（上限1000）</span>
+<input id="luminousCount" type="number" class="exp-input" min="0" max="1000" value="0">
+</div>
+<div class="exp-row">
+<span class="exp-label">キノコハウス</span>
+<div class="exp-toggle-group">
+<button type="button" class="exp-toggle-btn active" id="noHouse" aria-pressed="false">なし</button>
+<button type="button" class="exp-toggle-btn" id="hasHouse" aria-pressed="false">あり（×100）</button>
+</div>
+</div>
+</div>
+<div class="exp-row">
+<span class="exp-label">討伐モンスターの基礎経験値</span>
+<input id="monsterBaseExp" type="number" class="exp-input" min="1" value="100">
+</div>
+<div id="huntResult" class="exp-hunt-result" style="display:none">
+<div class="exp-hunt-row"><span>1体あたりの獲得経験値</span><span id="huntExpPerKill" class="exp-hunt-val"></span></div>
+<div class="exp-hunt-row"><span>必要討伐数</span><span id="huntKillCount" class="exp-hunt-val blue"></span></div>
+</div>
+<button type="button" id="huntCalcBtn" class="exp-calc-btn" style="margin-top:12px">討伐数を計算</button>
+</div>
+
 </div>
 
 <link rel="stylesheet" href="{{ "css/tools/exp-calc/exp-calc.css" | relURL }}">
