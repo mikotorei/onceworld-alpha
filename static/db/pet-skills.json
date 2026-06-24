@@ -580,6 +580,12 @@
     {"final_mul": {"atk": 1}},
     {"final_mul": {"atk": 97}}
   ],
+  "153": [
+  {"final_mul": {"luk": 25}},
+  {"final_mul": {"luk": 25}},
+  {"final_mul": {"luk": 25}},
+  {"final_mul": {"luk": 50}}
+],
   "161": [
     {"add": {"mov": 3}},
     {"add": {"spd": 1000}},
