@@ -392,3 +392,20 @@ input:disabled {
   background: rgba(0,0,0,.4);
   z-index: 299;
 }
+
+/* ============================================================
+   魔法ボタンカラー
+   ============================================================ */
+.spell-fire    { background: #fff0f0; border-color: #e55; color: #c00; }
+.spell-water   { background: #f0f4ff; border-color: #55e; color: #00c; }
+.spell-wood    { background: #f0fff0; border-color: #5a5; color: #060; }
+.spell-light   { background: #fffde0; border-color: #bb0; color: #770; }
+.spell-dark    { background: #f5f0ff; border-color: #95c; color: #609; }
+.spell-shingan { background: #fff5e0; border-color: #d80; color: #850; }
+
+.spell-fire[aria-pressed="true"]    { background: #e55; border-color: #c00; color: #fff; box-shadow: 0 0 0 2px #c00 inset; }
+.spell-water[aria-pressed="true"]   { background: #55e; border-color: #00c; color: #fff; box-shadow: 0 0 0 2px #00c inset; }
+.spell-wood[aria-pressed="true"]    { background: #5a5; border-color: #060; color: #fff; box-shadow: 0 0 0 2px #060 inset; }
+.spell-light[aria-pressed="true"]   { background: #bb0; border-color: #770; color: #fff; box-shadow: 0 0 0 2px #770 inset; }
+.spell-dark[aria-pressed="true"]    { background: #95c; border-color: #609; color: #fff; box-shadow: 0 0 0 2px #609 inset; }
+.spell-shingan[aria-pressed="true"] { background: #d80; border-color: #850; color: #fff; box-shadow: 0 0 0 2px #850 inset; }
