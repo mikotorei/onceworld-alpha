@@ -134,10 +134,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function getSpellMultiplier(spell) {
     switch (normalizeElement(spell)) {
-      case "wood":  return 1.3;
-      case "dark":  return 1.4;
-      case "light": return 2.0;
-      default:      return 1.0;
+      case "wood":    return 1.3;
+      case "dark":    return 1.4;
+      case "light":   return 2.0;
+      case "shingan": return 0.1;
+      default:        return 1.0;
     }
   }
 
