@@ -105,9 +105,9 @@
 
 /* ▼ Lv入力：typeに依存せず下線＋小さめ */
 #monster-level{
-  width: 56px;
+  width: 90px;
   height: 28px;
-  padding: 0 2px;
+  padding: 0 4px;
   border: none;
   border-bottom: 2px solid var(--border);
   border-radius: 0;
@@ -192,5 +192,5 @@
   .d-line{ font-size: 15px; }
   .d-h2{ font-size: 17px; }
   .d-row{ grid-template-columns: 110px 1fr; }
-  #monster-level{ width: 70px; height: 30px; }
+  #monster-level{ width: 90px; height: 30px; }
 }
