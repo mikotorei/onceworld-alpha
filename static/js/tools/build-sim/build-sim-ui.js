@@ -385,8 +385,10 @@ function renderReverseResult() {
   const useAssassinClaw = weaponId === "assassin_claw";
 
   if (state.attackType === "physical") {
-    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom, useAssassinClaw);
-    const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark);
+    const touShouCount = Math.max(0, Math.min(1000, parseInt($("bs-toushou-count")?.value||"0", 10)||0));
+    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom, useAssassinClaw, touShouCount);
+    const bsTouShouCount = Math.max(0, Math.min(1000, parseInt($("bs-toushou-count")?.value||"0", 10)||0));
+    const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark, bsTouShouCount);
     statKey = "atk";
     const clawLabel = useAssassinClaw ? " 【暗殺者のカギ爪：DEF無視・ダメージ1/10】" : "";
     const randomLabel = state.useMinRandom ? "（最低乱数）" : "（平均）";
