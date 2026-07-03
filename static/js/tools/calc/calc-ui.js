@@ -485,7 +485,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const hits = hitsFromSpd(hero.spd);
       outHits.textContent = fmt(hits);
 
-      const phy = damageRangeTotal(hero.atk, enemyPhysDef, hits, elementModifier, criticalModifier);
+      const touShouCount = Math.max(0, Math.min(1000, parseInt(document.getElementById("toushou-count")?.value||"0", 10)||0));
+      const phy = damageRangeTotal(hero.atk, enemyPhysDef, 0, hits, elementModifier, criticalModifier, touShouCount);
       outPhyDmg.textContent = formatMinMax(phy.min, phy.max);
 
       // 物理 平均nパン
@@ -497,10 +498,10 @@ document.addEventListener("DOMContentLoaded", function () {
         outPhyNpan.textContent = "-";
       }
 
-      const reqAtk = oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp, elementModifier, criticalModifier);
+      const reqAtk = oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp, elementModifier, criticalModifier, touShouCount);
       outPhyOne.textContent = `atk${fmt(reqAtk)}以上`;
 
-      const reqAtkOverkill = oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp * 10, elementModifier, criticalModifier);
+      const reqAtkOverkill = oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp * 10, elementModifier, criticalModifier, touShouCount);
       outPhyOverkill.textContent = `atk${fmt(reqAtkOverkill)}以上`;
 
       const mag = calcMagicDamageRange({
