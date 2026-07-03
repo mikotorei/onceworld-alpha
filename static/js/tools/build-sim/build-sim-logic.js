@@ -15,18 +15,18 @@ function calcEnemyMagDef(defScaled, mdefScaled) {
   return mdefScaled + defScaled * 0.1;
 }
 
-function calcPhysicalKillInfo(heroAtk, heroSpd, monster, lv, heroElement, debuffWood, debuffDark) {
+function calcPhysicalKillInfo(heroAtk, heroSpd, monster, lv, heroElement, debuffWood, debuffDark, touShouCount = 0) {
   const state = { debuffWood, debuffDark };
   const scaled = buildEnemyScaled(monster, lv, state);
   const physDef = calcEnemyPhysDef(scaled.def, scaled.mdef);
   const hp = calcMonsterHp(monster, lv);
   const hits = hitsFromSpd(heroSpd);
   const elemMod = getElementModifier(heroElement, scaled.element);
-  const dmg = damageRangeTotal(heroAtk, physDef, hits, elemMod, 1.0);
+  const dmg = damageRangeTotal(heroAtk, physDef, 0, hits, elemMod, 1.0, touShouCount);
   const avg = Math.floor((dmg.min + dmg.max) / 2);
   const npan = avg > 0 ? Math.ceil(hp / avg) : null;
   const npanMin = dmg.min > 0 ? Math.ceil(hp / dmg.min) : null;
-  const oneShot = oneShotLineRequiredAttack(physDef, hits, hp, elemMod, 1.0);
+  const oneShot = oneShotLineRequiredAttack(physDef, 0, hits, hp, elemMod, 1.0, touShouCount);
   return { hp, hits, dmgMin: dmg.min, dmgMax: dmg.max, avg, npan, npanMin, oneShot, element: scaled.element };
 }
 
@@ -74,21 +74,24 @@ function scanAllMonsters(monsters, heroStats, options) {
   return results;
 }
 
-function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuffDark, targetNpan, useMinRandom, useAssassinClaw) {
+function reversePhysicalAtk(monster, lv, heroSpd, heroElement, debuffWood, debuffDark, targetNpan, useMinRandom, useAssassinClaw, touShouCount = 0) {
   const state = { debuffWood, debuffDark };
   const scaled = buildEnemyScaled(monster, lv, state);
   // 暗殺者のカギ爪：DEF無視（physDef=0）、ダメージ1/10
   const physDef = useAssassinClaw ? 0 : calcEnemyPhysDef(scaled.def, scaled.mdef);
+  const touShou = getTouShouMultiplier(touShouCount);
   const hp = calcMonsterHp(monster, lv);
   const hits = hitsFromSpd(heroSpd);
   const elemMod = getElementModifier(heroElement, scaled.element);
-  // 最低乱数の場合は0.9倍で割り戻す（最低ダメージでnパン達成できるatk）
+  // 最低乱数の場合は0.9倍で割り戻す
   const randomMod = useMinRandom ? 0.9 : 1.0;
   // 暗殺者のカギ爪：最終ダメージが1/10になるため必要ダメージを10倍で逆算
   const clawMod = useAssassinClaw ? 10 : 1;
   const neededDmg = (hp / targetNpan) * clawMod;
-  const neededBase = neededDmg / (hits * elemMod * randomMod);
-  return Math.max(0, Math.ceil((neededBase + physDef * 4) / 7));
+  // (ATK × 1.75 × touShou - physDef) × 4 × elemMod × randomMod × hits = neededDmg
+  // ATK = (neededDmg / (4 × elemMod × randomMod × hits) + physDef) / (1.75 × touShou)
+  const neededBase = neededDmg / (4 * elemMod * randomMod * hits);
+  return Math.max(0, Math.ceil((neededBase + physDef) / (1.75 * touShou)));
 }
 
 function reverseMagicInt(monster, lv, analysisBook, analysisBookAdvanced, crystalCount, spell, heroElement, debuffWood, targetNpan, useMinRandom) {
