@@ -112,8 +112,14 @@ function getCriticalModifier(godCount) {
   return 1 + 1.50 + count * 0.003;
 }
 
-function damageRangeTotal(attack, defense, hits, elementModifier, criticalModifier = 1.0) {
-  const base = (attack * 7) - (defense * 4);
+function getTouShouMultiplier(count) {
+  const c = Math.min(1000, Math.max(0, Math.floor(Number(count) || 0)));
+  return 1 + c * 0.01;
+}
+
+function damageRangeTotal(attack, defense, mdefense, hits, elementModifier, criticalModifier = 1.0, touShouCount = 0) {
+  const touShou = getTouShouMultiplier(touShouCount);
+  const base = (attack * 1.75 * touShou - (defense + Math.floor(mdefense / 10))) * 4;
   if (base <= 0) return { min: 0, max: 0, base };
   const modifiedBase = base * elementModifier * criticalModifier;
   const min = Math.floor(modifiedBase * 0.9 * hits);
@@ -125,9 +131,12 @@ function formatMinMax(min, max) {
   return `${fmt(min)}～${fmt(max)}`;
 }
 
-function oneShotLineRequiredAttack(defense, hits, hp, elementModifier, criticalModifier = 1.0) {
+function oneShotLineRequiredAttack(defense, mdefense, hits, hp, elementModifier, criticalModifier = 1.0, touShouCount = 0) {
+  const touShou = getTouShouMultiplier(touShouCount);
   const need = hp / (0.9 * hits * elementModifier * criticalModifier);
-  const x = (defense * 4 + need) / 7;
+  // (ATK × 1.75 × touShou - (DEF + MDEF/10)) × 4 >= need
+  // ATK >= (need/4 + DEF + MDEF/10) / (1.75 × touShou)
+  const x = (need / 4 + defense + Math.floor(mdefense / 10)) / (1.75 * touShou);
   return Math.max(0, Math.ceil(x));
 }
 
