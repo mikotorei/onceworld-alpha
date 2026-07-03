@@ -103,9 +103,9 @@
   margin-bottom: 10px;
 }
 
-/* ▼ Lv入力：typeに依存せず下線＋小さめ */
+/* ▼ Lv入力：typeに依存せず下線＋11桁対応 */
 #monster-level{
-  width: 90px;
+  width: 160px;
   height: 28px;
   padding: 0 4px;
   border: none;
@@ -113,6 +113,7 @@
   border-radius: 0;
   background: transparent;
   outline: none;
+  font-size: 15px;
 }
 
 /* チェックボックス少し小さめ */
@@ -186,11 +187,11 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* PCは“見にくくならない程度” */
+/* PCは"見にくくならない程度" */
 @media (min-width: 900px){
   .d-title{ font-size: 26px; }
   .d-line{ font-size: 15px; }
   .d-h2{ font-size: 17px; }
   .d-row{ grid-template-columns: 110px 1fr; }
-  #monster-level{ width: 90px; height: 30px; }
+  #monster-level{ width: 160px; height: 30px; }
 }
