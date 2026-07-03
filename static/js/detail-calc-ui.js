@@ -629,7 +629,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const hits = hitsFromSpd(hero.spd);
       outHits.textContent = fmt(hits);
 
-      const phy = damageRangeTotal(hero.atk, enemyPhysDef, hits, elementModifier, criticalModifier);
+      const touShouCount = Math.max(0, Math.min(1000, parseInt(document.getElementById("detail-toushou-count")?.value||"0", 10)||0));
+      const phy = damageRangeTotal(hero.atk, enemyPhysDef, 0, hits, elementModifier, criticalModifier, touShouCount);
       outPhyDmg.textContent = formatMinMax(phy.min, phy.max);
 
       // 最小atk（ダメージ1以上になる最小値）
@@ -641,8 +642,8 @@ document.addEventListener("DOMContentLoaded", function () {
         ? `${Math.ceil(enemyHp / phyAvg)}パン（平均ダメ: ${fmt(phyAvg)}）`
         : "-";
 
-      outPhyOne.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp, elementModifier, criticalModifier))}以上`;
-      outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, hits, enemyHp * 10, elementModifier, criticalModifier))}以上`;
+      outPhyOne.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp, elementModifier, criticalModifier, touShouCount))}以上`;
+      outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp * 10, elementModifier, criticalModifier, touShouCount))}以上`;
 
       // クリティカル発生率
       const critRate = calcCriticalRate(hero.luk, enemyLuk);
