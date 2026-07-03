@@ -1174,8 +1174,8 @@ setupHitMonsterSearch();
 
 // 振り分けポイント計算入力
 ["bs-chara-lv", "bs-sp-tenme-count", "bs-pen-count", "bs-altar-count", "bs-tensho-count", "bs-scroll-count"].forEach(id => {
-  $(id)?.addEventListener("input", () => { updateStatPointDisplay(); saveSimState(); });
-  $(id)?.addEventListener("blur",  () => { updateStatPointDisplay(); saveSimState(); });
+  $(id)?.addEventListener("input", () => { updateStatPointDisplay(); updatePointLimitDisplay(); saveSimState(); });
+  $(id)?.addEventListener("blur",  () => { updateStatPointDisplay(); updatePointLimitDisplay(); saveSimState(); });
 });
 
 // コスモキューブボタン
