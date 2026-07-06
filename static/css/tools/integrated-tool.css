@@ -391,9 +391,19 @@
   color: #888;
 }
 
-/* 闘晶立方体入力欄 */
+/* 闘晶立方体行：常に横並び */
+.mode-row:has(#toushou-count),
+.mode-row:has(#detail-toushou-count) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* 闘晶立方体入力欄：下線式 */
 #toushou-count,
 #detail-toushou-count {
+  flex: 1;
   padding: 10px 8px;
   border: none;
   outline: none;
@@ -401,6 +411,6 @@
   border-bottom: 1px solid #000;
   border-radius: 0;
   font-size: 16px;
-  width: 100%;
+  min-width: 0;
   box-sizing: border-box;
 }
