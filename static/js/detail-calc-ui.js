@@ -643,7 +643,7 @@ document.addEventListener("DOMContentLoaded", function () {
         : "-";
 
       outPhyOne.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp, elementModifier, criticalModifier, touShouCount))}以上`;
-      outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp * 10, elementModifier, criticalModifier, touShouCount))}以上`;
+      outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, 1, enemyHp * 10, elementModifier, criticalModifier, touShouCount))}以上`;
 
       // クリティカル発生率
       const critRate = calcCriticalRate(hero.luk, enemyLuk);
