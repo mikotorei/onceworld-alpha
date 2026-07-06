@@ -501,7 +501,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const reqAtk = oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp, elementModifier, criticalModifier, touShouCount);
       outPhyOne.textContent = `atk${fmt(reqAtk)}以上`;
 
-      const reqAtkOverkill = oneShotLineRequiredAttack(enemyPhysDef, 0, hits, enemyHp * 10, elementModifier, criticalModifier, touShouCount);
+      const reqAtkOverkill = oneShotLineRequiredAttack(enemyPhysDef, 0, 1, enemyHp * 10, elementModifier, criticalModifier, touShouCount);
       outPhyOverkill.textContent = `atk${fmt(reqAtkOverkill)}以上`;
 
       const mag = calcMagicDamageRange({
