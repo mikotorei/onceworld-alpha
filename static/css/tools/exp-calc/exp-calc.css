@@ -160,10 +160,12 @@
 }
 
 .exp-result-value {
-  font-size: 28px;
+  font-size: clamp(16px, 5vw, 28px);
   font-weight: bold;
   color: #1a5fa8;
   font-variant-numeric: tabular-nums;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .exp-result-detail {
@@ -183,6 +185,9 @@
   padding: 4px 6px;
   border-bottom: 1px solid #eee;
   text-align: right;
+  word-break: break-all;
+  max-width: 0;
+  overflow: hidden;
 }
 
 .exp-result-detail th:first-child,
