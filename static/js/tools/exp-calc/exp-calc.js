@@ -5,7 +5,20 @@
 document.addEventListener("DOMContentLoaded", function() {
 
 function $(id) { return document.getElementById(id); }
-function fmt(v) { return Math.floor(Number(v)||0).toLocaleString("ja-JP"); }
+function fmt(v) {
+  var n = Math.floor(Number(v)||0);
+  if (n === 0) return "0";
+  var kei  = Math.floor(n / 1e16);
+  var cho  = Math.floor((n % 1e16) / 1e12);
+  var oku  = Math.floor((n % 1e12) / 1e8);
+  var rest = n % 1e8;
+  var parts = [];
+  if (kei  > 0) parts.push(kei.toLocaleString("ja-JP")  + "京");
+  if (cho  > 0) parts.push(cho.toLocaleString("ja-JP")  + "兆");
+  if (oku  > 0) parts.push(oku.toLocaleString("ja-JP")  + "億");
+  if (rest > 0 || parts.length === 0) parts.push(rest.toLocaleString("ja-JP"));
+  return parts.join("");
+}
 
 // ============================================================
 // タブ切り替え
