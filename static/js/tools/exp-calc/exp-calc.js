@@ -6,17 +6,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function $(id) { return document.getElementById(id); }
 function fmt(v) {
-  var n = Math.floor(Number(v)||0);
-  if (n === 0) return "0";
-  var kei  = Math.floor(n / 1e16);
-  var cho  = Math.floor((n % 1e16) / 1e12);
-  var oku  = Math.floor((n % 1e12) / 1e8);
-  var rest = n % 1e8;
+  var n = BigInt(Math.floor(Number(v)||0));
+  if (n === 0n) return "0";
+  var units = [
+    { val: BigInt("100000000000000000000000000000000000000000000000000000000000000000000"), label: "無量大数" },
+    { val: BigInt("10000000000000000000000000000000000000000000000000000000000000000"), label: "不可思議" },
+    { val: BigInt("1000000000000000000000000000000000000000000000000000000000000"), label: "那由他" },
+    { val: BigInt("100000000000000000000000000000000000000000000000000000000"), label: "阿僧祇" },
+    { val: BigInt("10000000000000000000000000000000000000000000000000000"), label: "恒河沙" },
+    { val: BigInt("1000000000000000000000000000000000000000000000000"), label: "極" },
+    { val: BigInt("100000000000000000000000000000000000000000000"), label: "載" },
+    { val: BigInt("10000000000000000000000000000000000000000"), label: "正" },
+    { val: BigInt("1000000000000000000000000000000000000"), label: "澗" },
+    { val: BigInt("100000000000000000000000000000000"), label: "溝" },
+    { val: BigInt("10000000000000000000000000000"), label: "穰" },
+    { val: BigInt("1000000000000000000000000"), label: "秭" },
+    { val: BigInt("100000000000000000000"), label: "垓" },
+    { val: BigInt("10000000000000000"), label: "京" },
+    { val: BigInt("1000000000000"), label: "兆" },
+    { val: BigInt("100000000"), label: "億" },
+    { val: BigInt("10000"), label: "万" },
+  ];
   var parts = [];
-  if (kei  > 0) parts.push(kei.toLocaleString("ja-JP")  + "京");
-  if (cho  > 0) parts.push(cho.toLocaleString("ja-JP")  + "兆");
-  if (oku  > 0) parts.push(oku.toLocaleString("ja-JP")  + "億");
-  if (rest > 0 || parts.length === 0) parts.push(rest.toLocaleString("ja-JP"));
+  var rem = n;
+  for (var i = 0; i < units.length; i++) {
+    var u = units[i];
+    if (rem >= u.val) {
+      var q = rem / u.val;
+      rem = rem % u.val;
+      parts.push(q.toLocaleString() + u.label);
+    }
+  }
+  if (rem > 0n || parts.length === 0) parts.push(rem.toLocaleString());
   return parts.join("");
 }
 
