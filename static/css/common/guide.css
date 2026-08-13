@@ -347,3 +347,31 @@
     width: 80px;
   }
 }
+
+/* ── 階層ツール：チップボタン ── */
+.floor-tool__chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.floor-tool__chip {
+  padding: 8px 12px;
+  border: 1px solid #000;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.floor-tool__chip[aria-pressed="true"] {
+  background: rgba(0,0,0,0.08);
+  box-shadow: 0 0 0 2px #000 inset;
+  font-weight: bold;
+}
+
+.floor-tool__field + .floor-tool__field {
+  margin-top: 14px;
+}
