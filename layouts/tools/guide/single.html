@@ -24,30 +24,77 @@
         階層到達アイテム早見表
       </h2>
       <p class="guide-tool__desc">
-        <strong>最適戦略</strong>を前提に、目標階層にちょうど到達できる
-        天空像の所持数の組み合わせを表示します。<br>
-        目標階層は<strong>100の倍数</strong>で入力してください。<br>
-        ※ 初回は冒険者像を2個一時的に置いて片側撃破した後2個拾って次に進むことで最初の100の倍数Fに到達します。
+        目標階層にちょうど到達できる天空像の所持数の組み合わせを表示します。<br>
+        ※ 1Fスタートの場合、初回は冒険者像を2個一時的に置いて片側撃破した後2個拾って次に進みます。<br>
+        ※ ボスフロア（1万・10万・100万・1000万F）を中間で踏まない組み合わせのみ表示します。
       </p>
 
       <div class="floor-tool">
 
         <div class="floor-tool__controls">
+
           <div class="floor-tool__field">
-            <label class="floor-tool__label" for="targetFloor">目標階層（100の倍数）</label>
+            <label class="floor-tool__label">スタート地点</label>
+            <div class="floor-tool__chip-group">
+              <button type="button" class="floor-tool__chip" data-start-type="normal" aria-pressed="true">1Fから</button>
+              <button type="button" class="floor-tool__chip" data-start-type="warp1" aria-pressed="false">ワープ（-10万F）</button>
+              <button type="button" class="floor-tool__chip" data-start-type="warp2" aria-pressed="false">100万F直行</button>
+            </div>
+          </div>
+
+          <div class="floor-tool__field" id="warpFloorRow" style="display:none">
+            <label class="floor-tool__label" for="warpFloor">ワープ先（1万の倍数）</label>
+            <div class="floor-tool__input-row">
+              <input type="number" id="warpFloor" class="floor-tool__input" min="10000" step="10000" placeholder="例：990000" />
+              <span class="floor-tool__unit">F</span>
+            </div>
+          </div>
+
+          <div class="floor-tool__field">
+            <label class="floor-tool__label">計算モード</label>
+            <div class="floor-tool__chip-group">
+              <button type="button" class="floor-tool__chip" data-calc-mode="list" aria-pressed="true">全組み合わせ一覧</button>
+              <button type="button" class="floor-tool__chip" data-calc-mode="owned" aria-pressed="false">所持数から探索</button>
+            </div>
+          </div>
+
+          <div class="floor-tool__field" id="maxARow">
+            <label class="floor-tool__label">悪魔像の上限</label>
+            <div class="floor-tool__chip-group">
+              <button type="button" class="floor-tool__chip" data-max-a="1000" aria-pressed="false">1000個</button>
+              <button type="button" class="floor-tool__chip" data-max-a="2000" aria-pressed="true">2000個</button>
+            </div>
+          </div>
+
+          <div class="floor-tool__field" id="ownedRow" style="display:none">
+            <label class="floor-tool__label">所持数</label>
+            <div class="floor-tool__input-row">
+              <span class="floor-tool__unit">冒険者像</span>
+              <input type="number" id="ownedAdventurer" class="floor-tool__input" min="0" max="2000" value="0" />
+              <span class="floor-tool__unit">個</span>
+            </div>
+            <div class="floor-tool__input-row" style="margin-top:8px">
+              <span class="floor-tool__unit">悪魔像</span>
+              <input type="number" id="ownedDevil" class="floor-tool__input" min="0" max="2000" value="0" />
+              <span class="floor-tool__unit">個</span>
+            </div>
+          </div>
+
+          <div class="floor-tool__field">
+            <label class="floor-tool__label" for="targetFloor">目標階層</label>
             <div class="floor-tool__input-row">
               <input
                 type="number"
                 id="targetFloor"
                 class="floor-tool__input"
-                min="100"
-                step="100"
+                min="1"
                 placeholder="例：1200"
               />
               <span class="floor-tool__unit">F</span>
               <button class="floor-tool__btn" id="calcFloorBtn">計算する</button>
             </div>
           </div>
+
         </div>
 
         <div class="floor-tool__result" id="floorResult" hidden>
