@@ -1,133 +1,181 @@
 /**
  * guide-floor-calc.js
- * 天空回廊 階層到達早見表ツール（最適戦略版）
+ * 天空回廊 階層到達早見表ツール
  *
  * ═══════════════════════════════════════════════
- * 前提・仕様
+ * 仕様
  * ═══════════════════════════════════════════════
  *
  * 変数定義：
- *   A = 天空像～悪魔～  所持数（0〜1000）
- *   B = 天空像～冒険者～ 所持数（100の倍数、100〜1000）
+ *   A = 天空像～悪魔～  所持数（0〜2000、上限は1000/2000で切替可）
+ *   B = 天空像～冒険者～ 所持数（0〜2000、100の倍数制約なし）
  *
- * ── 初回（1F → 最初の100の倍数F） ──
- *   冒険者像を2個一時的に置いて (B-2) 個の状態で片側撃破
- *   進行: 1F(片側) + (B-2)F(冒険者) = B-1 F
- *   到達: 1 + (B-1) = B F（100の倍数）
+ * ── スタート地点 ──
+ *   1F        : 初回に冒険者像2個を一時的に置く → 初回到達 = B F
+ *   ワープ①   : 任意の1万の倍数F（最高到達-10万F）→ 初回から通常サイクル
+ *   ワープ②   : 100万F固定 → 初回から通常サイクル
  *
- * ── 2回目以降（毎サイクル） ──
+ * ── 1サイクルの進行 ──
  *   片側撃破 : +1F
  *   冒険者B個: +B F
- *   SG撃破   : +99F（固定、100の倍数Fで必ず発生）
+ *   SG撃破   : +99F（100の倍数Fで発生）
  *   悪魔A個  : +100×A F
  *   ─────────────────────────
  *   1サイクル: 100 + B + 100×A F
  *
- * ── 到達条件 ──
- *   target = B + n × (100 + B + 100×A)
- *   → (target - B) が (100 + B + 100×A) で割り切れる
- *   → target は100の倍数のみ有効
- *
- * ── 10000の倍数F（特殊エリア）の回避 ──
- *   SGが出現せず特殊エリアに飛ばされるため、
- *   中間通過点（k=1〜n-1）が10000の倍数にならない組み合わせのみ有効。
- *   目標F自体が10000の倍数の場合はそこが目的地なので判定除外。
+ * ── ボスフロア回避 ──
+ *   1万・10万・100万・1000万の倍数は中間通過点で踏まない
+ *   （目標F自体・スタート地点は除外判定）
  */
 
 document.addEventListener("DOMContentLoaded", function () {
 
   /* ── 定数 ── */
-  const MAX_A        = 1000;
-  const MAX_B        = 1000;
-  const B_STEP       = 100;
-  const SPECIAL_INTERVAL = 10000; // 特殊エリア発生間隔
+  const MAX_B      = 2000;
+  const BOSS_FLOORS = [10000, 100000, 1000000, 10000000];
 
   /* ── DOM 参照 ── */
-  const inputTarget = document.getElementById("targetFloor");
-  const btnCalc     = document.getElementById("calcFloorBtn");
-  const resultEl    = document.getElementById("floorResult");
-  const titleEl     = document.getElementById("floorResultTitle");
-  const bodyEl      = document.getElementById("floorResultBody");
-  const noResultEl  = document.getElementById("floorNoResult");
-  const tableWrapEl = document.querySelector(".floor-tool__table-wrap");
+  const inputTarget   = document.getElementById("targetFloor");
+  const btnCalc       = document.getElementById("calcFloorBtn");
+  const resultEl      = document.getElementById("floorResult");
+  const titleEl       = document.getElementById("floorResultTitle");
+  const bodyEl        = document.getElementById("floorResultBody");
+  const noResultEl    = document.getElementById("floorNoResult");
+  const tableWrapEl   = document.querySelector(".floor-tool__table-wrap");
+
+  const startTypeBtns = document.querySelectorAll("[data-start-type]");
+  const inputWarpF    = document.getElementById("warpFloor");
+  const warpRow       = document.getElementById("warpFloorRow");
+
+  const modeBtns      = document.querySelectorAll("[data-calc-mode]");
+  const ownedRow      = document.getElementById("ownedRow");
+  const inputOwnedB   = document.getElementById("ownedAdventurer");
+  const inputOwnedA   = document.getElementById("ownedDevil");
+
+  const maxABtns      = document.querySelectorAll("[data-max-a]");
+  const maxARow       = document.getElementById("maxARow");
 
   if (!btnCalc || !inputTarget) return;
 
+  /* ── 状態 ── */
+  let startType = "normal";  // normal | warp1 | warp2
+  let calcMode  = "list";    // list | owned
+  let maxA      = 2000;
+
+  /* ── スタート地点切替 ── */
+  startTypeBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      startType = btn.getAttribute("data-start-type");
+      startTypeBtns.forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      if (warpRow) warpRow.style.display = (startType === "warp1") ? "" : "none";
+    });
+  });
+
+  /* ── モード切替 ── */
+  modeBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      calcMode = btn.getAttribute("data-calc-mode");
+      modeBtns.forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      if (ownedRow) ownedRow.style.display = (calcMode === "owned") ? "" : "none";
+      if (maxARow)  maxARow.style.display  = (calcMode === "list")  ? "" : "none";
+    });
+  });
+
+  /* ── 悪魔像上限切替 ── */
+  maxABtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      maxA = parseInt(btn.getAttribute("data-max-a"), 10) || 2000;
+      maxABtns.forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+    });
+  });
+
   /**
-   * 中間通過点に10000の倍数が含まれないかチェック
-   * @param {number} b        - 冒険者像所持数
+   * ボスフロアかどうか判定
+   */
+  function isBossFloor(f) {
+    for (var i = 0; i < BOSS_FLOORS.length; i++) {
+      if (f % BOSS_FLOORS[i] === 0) return true;
+    }
+    return false;
+  }
+
+  /**
+   * 中間通過点にボスフロアが含まれないかチェック
+   * @param {number} start    - スタート到達点
    * @param {number} perCycle - 1サイクルの進行F
    * @param {number} cycles   - 総サイクル数
-   * @param {number} target   - 目標F（除外対象）
-   * @returns {boolean} true = 問題なし（10000倍数を中間で踏まない）
+   * @returns {boolean} true = 安全
    */
-  function isSafe(b, perCycle, cycles, target) {
-    // 初回到達点 B は常に100の倍数だが10000の倍数かチェック
-    // （初回到達点は中間点扱い：cyclesが0でない場合）
-    if (cycles > 0 && b % SPECIAL_INTERVAL === 0) return false;
-
-    // 中間通過点: B + k×perCycle (k=1〜cycles-1)
-    for (let k = 1; k < cycles; k++) {
-      const f = b + k * perCycle;
-      if (f % SPECIAL_INTERVAL === 0) return false;
+  function isSafe(start, perCycle, cycles) {
+    // スタート到達点が中間点扱いになる場合（cycles > 0）
+    if (cycles > 0 && isBossFloor(start)) return false;
+    // 中間通過点: start + k×perCycle (k=1〜cycles-1)
+    for (var k = 1; k < cycles; k++) {
+      var f = start + k * perCycle;
+      if (isBossFloor(f)) return false;
     }
     return true;
   }
 
   /**
    * 到達可能な組み合わせを列挙
-   * @param {number} target - 目標階層（100の倍数）
-   * @returns {Array<{a, b, cycles, perCycle}>}
    */
-  function findCombinations(target) {
-    const results      = [];
-    const targetIs10k  = (target % SPECIAL_INTERVAL === 0);
+  function findCombinations(target, startFloor, limitA, limitB) {
+    var results = [];
 
-    for (let b = B_STEP; b <= MAX_B; b += B_STEP) {
-      const remaining = target - b;
+    for (var b = 0; b <= limitB; b++) {
+      var firstReach;
+      if (startType === "normal") {
+        // 1Fスタート: 冒険者像2個を一時的に置く → 到達 = B
+        if (b < 2) continue;
+        firstReach = b;
+      } else {
+        // ワープ: スタート地点そのもの
+        firstReach = startFloor;
+      }
+
+      var remaining = target - firstReach;
 
       // 初回だけでちょうど到達
       if (remaining === 0) {
-        // 目標が10000の倍数なら安全（目的地）、でなければそもそも通過点なし
-        results.push({ a: 0, b, cycles: 0, perCycle: 0 });
+        results.push({ a: 0, b: b, cycles: 0, perCycle: 0, firstReach: firstReach });
         continue;
       }
-
       if (remaining < 0) continue;
 
-      for (let a = 0; a <= MAX_A; a++) {
-        const perCycle = 100 + b + 100 * a;
+      for (var a = 0; a <= limitA; a++) {
+        var perCycle = 100 + b + 100 * a;
+        if (perCycle <= 0) continue;
         if (remaining % perCycle !== 0) continue;
 
-        const cycles = remaining / perCycle;
+        var cycles = remaining / perCycle;
+        if (!isSafe(firstReach, perCycle, cycles)) continue;
 
-        // 目標が10000の倍数の場合：中間通過点のみチェック
-        // 目標が10000の倍数でない場合：全通過点チェック（10000倍数を踏まない）
-        if (!isSafe(b, perCycle, cycles, target)) continue;
-
-        results.push({ a, b, cycles, perCycle });
+        results.push({ a: a, b: b, cycles: cycles, perCycle: perCycle, firstReach: firstReach });
       }
     }
-
-    // B昇順 → A昇順
-    results.sort(function (x, y) {
-      if (x.b !== y.b) return x.b - y.b;
-      return x.a - y.a;
-    });
 
     return results;
   }
 
   /* ── 表示 ── */
-  function showResult(target, combinations) {
-    resultEl.hidden   = false;
-    const is10k       = target % SPECIAL_INTERVAL === 0;
-    const suffix      = is10k
-      ? "（天空宝物庫経由）"
-      : "";
+  function showResult(target, combinations, isOwnedMode) {
+    resultEl.hidden = false;
+
+    var startLabel = "";
+    if (startType === "normal") startLabel = "1Fスタート";
+    else if (startType === "warp1") startLabel = (parseInt(inputWarpF?.value||"0",10)||0).toLocaleString() + "Fスタート";
+    else startLabel = "1,000,000Fスタート";
+
     titleEl.innerHTML =
       "<strong>" + target.toLocaleString() + "F</strong>" +
-      " にちょうど到達できる組み合わせ" + suffix;
+      " に到達できる組み合わせ（" + startLabel + "）";
 
     bodyEl.innerHTML = "";
 
@@ -140,21 +188,46 @@ document.addEventListener("DOMContentLoaded", function () {
     noResultEl.hidden         = true;
     tableWrapEl.style.display = "";
 
-    combinations.forEach(function (combo) {
-      const tr       = document.createElement("tr");
-      const tdB      = document.createElement("td");
-      const tdA      = document.createElement("td");
-      const tdCycles = document.createElement("td");
-      const tdPer    = document.createElement("td");
+    var show = combinations;
+    if (isOwnedMode) {
+      // サイクル数が少ない順 → 上位3件
+      show = combinations.slice().sort(function (x, y) {
+        if (x.cycles !== y.cycles) return x.cycles - y.cycles;
+        return (x.a + x.b) - (y.a + y.b);
+      }).slice(0, 3);
+    } else {
+      // 悪魔像の多い順
+      show = combinations.slice().sort(function (x, y) {
+        if (y.a !== x.a) return y.a - x.a;
+        return x.b - y.b;
+      });
+    }
 
-      tdB.textContent = combo.b + " 個";
-      tdA.textContent = combo.a + " 個";
+    var rank = ["最適", "準適切", "準々適切"];
+
+    show.forEach(function (combo, i) {
+      var tr = document.createElement("tr");
+
+      if (isOwnedMode) {
+        var tdRank = document.createElement("td");
+        tdRank.textContent = rank[i] || "";
+        tdRank.style.fontWeight = "bold";
+        tr.appendChild(tdRank);
+      }
+
+      var tdB      = document.createElement("td");
+      var tdA      = document.createElement("td");
+      var tdCycles = document.createElement("td");
+      var tdPer    = document.createElement("td");
+
+      tdB.textContent = combo.b.toLocaleString() + " 個";
+      tdA.textContent = combo.a.toLocaleString() + " 個";
 
       if (combo.cycles === 0) {
         tdCycles.textContent = "初回のみ";
         tdPer.textContent    = "—";
       } else {
-        tdCycles.textContent = combo.cycles + " 回";
+        tdCycles.textContent = combo.cycles.toLocaleString() + " 回";
         tdPer.textContent    = combo.perCycle.toLocaleString() + " F/サイクル";
       }
 
@@ -164,6 +237,13 @@ document.addEventListener("DOMContentLoaded", function () {
       tr.appendChild(tdPer);
       bodyEl.appendChild(tr);
     });
+
+    // ヘッダーの調整
+    var thead = document.querySelector("#floorResultTable thead tr");
+    if (thead) {
+      thead.innerHTML = (isOwnedMode ? "<th>評価</th>" : "") +
+        "<th>冒険者像（個）</th><th>悪魔像（個）</th><th>サイクル数</th><th>1サイクルの進行</th>";
+    }
   }
 
   function showError(msg) {
@@ -176,20 +256,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ── メイン処理 ── */
   function onCalc() {
-    const raw    = inputTarget.value.trim();
-    const target = parseInt(raw, 10);
+    var raw    = inputTarget.value.trim();
+    var target = parseInt(raw, 10);
 
-    if (!raw || isNaN(target) || target < 100) {
-      showError("100以上の整数を入力してください。");
-      return;
-    }
-    if (target % 100 !== 0) {
-      showError("目標階層は<strong>100の倍数</strong>で入力してください。");
+    if (!raw || isNaN(target) || target < 1) {
+      showError("1以上の整数を入力してください。");
       return;
     }
 
-    const combinations = findCombinations(target);
-    showResult(target, combinations);
+    // スタート地点の決定
+    var startFloor = 1;
+    if (startType === "warp1") {
+      var w = parseInt(inputWarpF?.value||"0", 10) || 0;
+      if (w < 10000 || w % 10000 !== 0) {
+        showError("ワープ先は<strong>1万の倍数</strong>で入力してください。");
+        return;
+      }
+      startFloor = w;
+    } else if (startType === "warp2") {
+      startFloor = 1000000;
+    }
+
+    if (startType !== "normal" && target <= startFloor) {
+      showError("目標階層はスタート地点より大きい値を入力してください。");
+      return;
+    }
+
+    var limitA = maxA;
+    var limitB = MAX_B;
+    var isOwnedMode = (calcMode === "owned");
+
+    if (isOwnedMode) {
+      limitB = Math.min(MAX_B, Math.max(0, parseInt(inputOwnedB?.value||"0", 10) || 0));
+      limitA = Math.min(2000,  Math.max(0, parseInt(inputOwnedA?.value||"0", 10) || 0));
+    }
+
+    var combinations = findCombinations(target, startFloor, limitA, limitB);
+    showResult(target, combinations, isOwnedMode);
   }
 
   btnCalc.addEventListener("click", onCalc);
