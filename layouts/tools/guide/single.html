@@ -45,7 +45,7 @@
           <div class="floor-tool__field" id="warpFloorRow" style="display:none">
             <label class="floor-tool__label" for="warpFloor">ワープ先（1万の倍数）</label>
             <div class="floor-tool__input-row">
-              <input type="number" id="warpFloor" class="floor-tool__input" min="10000" step="10000" placeholder="例：990000" />
+              <input type="text" inputmode="numeric" id="warpFloor" class="floor-tool__input" placeholder="例：990,000" autocomplete="off" />
               <span class="floor-tool__unit">F</span>
             </div>
           </div>
@@ -70,12 +70,12 @@
             <label class="floor-tool__label">所持数</label>
             <div class="floor-tool__input-row">
               <span class="floor-tool__unit">冒険者像</span>
-              <input type="number" id="ownedAdventurer" class="floor-tool__input" min="0" max="2000" value="0" />
+              <input type="text" inputmode="numeric" id="ownedAdventurer" class="floor-tool__input" value="0" autocomplete="off" />
               <span class="floor-tool__unit">個</span>
             </div>
             <div class="floor-tool__input-row" style="margin-top:8px">
               <span class="floor-tool__unit">悪魔像</span>
-              <input type="number" id="ownedDevil" class="floor-tool__input" min="0" max="2000" value="0" />
+              <input type="text" inputmode="numeric" id="ownedDevil" class="floor-tool__input" value="0" autocomplete="off" />
               <span class="floor-tool__unit">個</span>
             </div>
           </div>
@@ -84,11 +84,12 @@
             <label class="floor-tool__label" for="targetFloor">目標階層</label>
             <div class="floor-tool__input-row">
               <input
-                type="number"
+                type="text"
+                inputmode="numeric"
                 id="targetFloor"
                 class="floor-tool__input"
-                min="1"
-                placeholder="例：1200"
+                placeholder="例：1,200"
+                autocomplete="off"
               />
               <span class="floor-tool__unit">F</span>
               <button class="floor-tool__btn" id="calcFloorBtn">計算する</button>
@@ -125,6 +126,7 @@
 </div>{{/* /.guide-wrap */}}
 
 {{ if .Params.show_floor_tool }}
-  <script src="{{ "js/guide-floor-calc.js?v=1" | relURL }}" defer></script>
+  <script src="{{ "js/common/calc-utils.js" | relURL }}" defer></script>
+  <script src="{{ "js/guide-floor-calc.js?v=2" | relURL }}" defer></script>
 {{ end }}
 {{ end }}
