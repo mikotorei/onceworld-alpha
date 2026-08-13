@@ -229,7 +229,10 @@
 }
 
 .floor-tool__input {
-  width: 100px;
+  width: 100%;
+  max-width: 200px;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
   border: 1px solid rgba(0,0,0,0.2);
@@ -344,7 +347,8 @@
   }
 
   .floor-tool__input {
-    width: 80px;
+    width: 100%;
+    max-width: 180px;
   }
 }
 
