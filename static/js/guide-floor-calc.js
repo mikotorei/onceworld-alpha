@@ -57,6 +57,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!btnCalc || !inputTarget) return;
 
+  /* ── カンマ区切り入力の適用 ── */
+  if (typeof attachCommaInputBehavior === "function") {
+    attachCommaInputBehavior("targetFloor", 0);
+    attachCommaInputBehavior("warpFloor", 0);
+    attachCommaInputBehavior("ownedAdventurer", 0);
+    attachCommaInputBehavior("ownedDevil", 0);
+  }
+
+  /* ── 所持数の上限clamp ── */
+  ["ownedAdventurer", "ownedDevil"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("blur", function () {
+      var v = parseInt(String(el.value||"").replace(/,/g, ""), 10) || 0;
+      if (v > 2000) el.value = (2000).toLocaleString("ja-JP");
+      if (v < 0)    el.value = "0";
+    });
+  });
+
+  /* ── カンマを除去して整数取得 ── */
+  function getInt(el, fallback) {
+    if (!el) return fallback || 0;
+    var v = String(el.value || "").replace(/,/g, "").trim();
+    var n = parseInt(v, 10);
+    return isNaN(n) ? (fallback || 0) : n;
+  }
+
   /* ── 状態 ── */
   let startType = "normal";  // normal | warp1 | warp2
   let calcMode  = "list";    // list | owned
@@ -170,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var startLabel = "";
     if (startType === "normal") startLabel = "1Fスタート";
-    else if (startType === "warp1") startLabel = (parseInt(inputWarpF?.value||"0",10)||0).toLocaleString() + "Fスタート";
+    else if (startType === "warp1") startLabel = getInt(inputWarpF, 0).toLocaleString() + "Fスタート";
     else startLabel = "1,000,000Fスタート";
 
     titleEl.innerHTML =
@@ -256,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ── メイン処理 ── */
   function onCalc() {
-    var raw    = inputTarget.value.trim();
+    var raw    = String(inputTarget.value || "").replace(/,/g, "").trim();
     var target = parseInt(raw, 10);
 
     if (!raw || isNaN(target) || target < 1) {
@@ -267,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // スタート地点の決定
     var startFloor = 1;
     if (startType === "warp1") {
-      var w = parseInt(inputWarpF?.value||"0", 10) || 0;
+      var w = getInt(inputWarpF, 0);
       if (w < 10000 || w % 10000 !== 0) {
         showError("ワープ先は<strong>1万の倍数</strong>で入力してください。");
         return;
@@ -287,8 +314,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var isOwnedMode = (calcMode === "owned");
 
     if (isOwnedMode) {
-      limitB = Math.min(MAX_B, Math.max(0, parseInt(inputOwnedB?.value||"0", 10) || 0));
-      limitA = Math.min(2000,  Math.max(0, parseInt(inputOwnedA?.value||"0", 10) || 0));
+      limitB = Math.min(MAX_B, Math.max(0, getInt(inputOwnedB, 0)));
+      limitA = Math.min(2000,  Math.max(0, getInt(inputOwnedA, 0)));
     }
 
     var combinations = findCombinations(target, startFloor, limitA, limitB);
