@@ -2,29 +2,10 @@
 // calc-logic.js  ゲーム計算ロジック（DOM非依存）
 // ============================================================
 
+// 正規化テーブルは game-data.js の ELEMENT_ALIASES
 function normalizeElement(value) {
   const raw = (value ?? "").toString().trim().toLowerCase();
-
-  const map = {
-    fire: "fire",
-    "火": "fire",
-    "火属性": "fire",
-    water: "water",
-    "水": "water",
-    "水属性": "water",
-    wood: "wood",
-    tree: "wood",
-    "木": "wood",
-    "木属性": "wood",
-    light: "light",
-    "光": "light",
-    "光属性": "light",
-    dark: "dark",
-    "闇": "dark",
-    "闇属性": "dark"
-  };
-
-  return map[raw] || raw;
+  return ELEMENT_ALIASES[raw] || raw;
 }
 
 function hitsFromSpd(spd) {
@@ -85,29 +66,19 @@ function buildEnemyScaled(monster, lv, state) {
   };
 }
 
+// 相性表は game-data.js の ELEMENT_CHART
 function getElementModifier(heroElement, enemyElement) {
   const h = normalizeElement(heroElement);
   const e = normalizeElement(enemyElement);
 
-  if (!h || !e) return 1.0;
+  if (!h || !e) return ELEMENT_CHART.neutral;
 
-  if (
-    (h === "fire"  && e === "wood")  ||
-    (h === "wood"  && e === "water") ||
-    (h === "water" && e === "fire")  ||
-    (h === "light" && e === "dark")  ||
-    (h === "dark"  && e === "light")
-  ) return 1.3;
+  const matches = (pairs) => pairs.some(([atk, def]) => atk === h && def === e);
 
-  if (
-    (h === "fire"  && e === "water") ||
-    (h === "water" && e === "wood")  ||
-    (h === "wood"  && e === "fire")  ||
-    (h === "light" && e === "light") ||
-    (h === "dark"  && e === "dark")
-  ) return 0.8;
+  if (matches(ELEMENT_CHART.advantagePairs))    return ELEMENT_CHART.advantage;
+  if (matches(ELEMENT_CHART.disadvantagePairs)) return ELEMENT_CHART.disadvantage;
 
-  return 1.0;
+  return ELEMENT_CHART.neutral;
 }
 
 function getCriticalModifier(godCount) {
@@ -174,16 +145,10 @@ function clampAnalysisBonus(v) {
   return Math.min(101000, Math.max(0, Math.floor(Number(v) || 0)));
 }
 
+// 倍率は game-data.js の SPELLS
 function getSpellMultiplier(spell) {
-  switch (normalizeElement(spell)) {
-    case "fire":    return 1.0;
-    case "water":   return 1.0;
-    case "wood":    return 1.3;
-    case "light":   return 2.0;
-    case "dark":    return 1.4;
-    case "shingan": return 0.1;
-    default:        return 1.0;
-  }
+  const s = getSpell(normalizeElement(spell));
+  return s ? s.mult : 1.0;
 }
 
 function calcAnalysisBonus(bookCount, advancedBookCount) {

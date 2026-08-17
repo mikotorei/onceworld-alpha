@@ -74,11 +74,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // 計算ユーティリティ
   // ============================================================
 
-  // モンスターのステータス = floor(基礎値 × (1 + (Lv - 1) × 0.1))
-  function scaleStat(base, lv) {
-    const l = Math.max(1, Math.floor(Number(lv) || 0));
-    return Math.floor(Number(base) * (1 + (l - 1) * 0.1));
-  }
+  // scaleStat / normalizeElement / getElementModifier / getSpellMultiplier /
+  // calcAnalysisBonus / getCrystalMultiplier は common/calc-logic.js のものを使用する
 
   function requiredDefForNullify(enemyAtk) {
     const a = Math.floor(Number(enemyAtk));
@@ -101,59 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // 魔法ワンパン計算
   // ============================================================
 
-  function normalizeElement(value) {
-    const raw = (value ?? "").toString().trim().toLowerCase();
-    const map = {
-      fire: "fire", "火": "fire", "火属性": "fire",
-      water: "water", "水": "water", "水属性": "water",
-      wood: "wood", tree: "wood", "木": "wood", "木属性": "wood",
-      light: "light", "光": "light", "光属性": "light",
-      dark: "dark", "闇": "dark", "闇属性": "dark"
-    };
-    return map[raw] || raw;
-  }
-
-  function getElementModifier(heroElement, enemyElement) {
-    const h = normalizeElement(heroElement);
-    const e = normalizeElement(enemyElement);
-    if (!h || !e) return 1.0;
-    if (
-      (h === "fire"  && e === "wood")  ||
-      (h === "wood"  && e === "water") ||
-      (h === "water" && e === "fire")  ||
-      (h === "light" && e === "dark")  ||
-      (h === "dark"  && e === "light")
-    ) return 1.3;
-    if (
-      (h === "fire"  && e === "water") ||
-      (h === "water" && e === "wood")  ||
-      (h === "wood"  && e === "fire")  ||
-      (h === "light" && e === "light") ||
-      (h === "dark"  && e === "dark")
-    ) return 0.8;
-    return 1.0;
-  }
-
-  function getSpellMultiplier(spell) {
-    switch (normalizeElement(spell)) {
-      case "wood":    return 1.3;
-      case "dark":    return 1.4;
-      case "light":   return 2.0;
-      case "shingan": return 0.1;
-      default:        return 1.0;
-    }
-  }
-
-  function calcAnalysisBonus(book, adv) {
-    const b = Math.max(0, Math.floor(Number(book) || 0));
-    const a = Math.max(0, Math.floor(Number(adv)  || 0));
-    return Math.min(101000, Math.floor(b * (1 + a / 10)));
-  }
-
-  function getCrystalMultiplier(count) {
-    const c = Math.max(0, Math.floor(Number(count) || 0));
-    return Math.min(11.0, 1 + c * 0.01);
-  }
+  // normalizeElement / getElementModifier / getSpellMultiplier /
+  // calcAnalysisBonus は common/calc-logic.js のものを使用する
 
   function calcMagicDamage(row, params) {
     const enemyMagDef     = row.mdef + Math.floor(row.def * 0.1);
