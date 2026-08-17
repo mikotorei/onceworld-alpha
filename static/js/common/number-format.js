@@ -25,7 +25,7 @@
   };
 
   window.formatNumbers = formatAll;
-  window.fmt = formatValue;
+  // window.fmt は公開しない（calc-utils.js の fmt を上書きしてしまうため）
 
   document.addEventListener("DOMContentLoaded", () => formatAll(document));
   window.addEventListener("load", () => formatAll(document));

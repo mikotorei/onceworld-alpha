@@ -74,8 +74,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // 計算ユーティリティ
   // ============================================================
 
+  // モンスターのステータス = floor(基礎値 × (1 + (Lv - 1) × 0.1))
   function scaleStat(base, lv) {
-    return Math.floor(Number(base) * (1 + lv * 0.1));
+    const l = Math.max(1, Math.floor(Number(lv) || 0));
+    return Math.floor(Number(base) * (1 + (l - 1) * 0.1));
   }
 
   function requiredDefForNullify(enemyAtk) {
@@ -102,11 +104,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function normalizeElement(value) {
     const raw = (value ?? "").toString().trim().toLowerCase();
     const map = {
-      fire: "fire", "火": "fire",
-      water: "water", "水": "water",
-      wood: "wood", tree: "wood", "木": "wood",
-      light: "light", "光": "light",
-      dark: "dark", "闇": "dark"
+      fire: "fire", "火": "fire", "火属性": "fire",
+      water: "water", "水": "water", "水属性": "water",
+      wood: "wood", tree: "wood", "木": "wood", "木属性": "wood",
+      light: "light", "光": "light", "光属性": "light",
+      dark: "dark", "闇": "dark", "闇属性": "dark"
     };
     return map[raw] || raw;
   }

@@ -53,8 +53,11 @@
 
   // ---- レベルスケール ----
 
+  // モンスターのステータス = floor(基礎値 × (1 + (Lv - 1) × 0.1))
+  // level === 0（Lv指定なし）は呼び出し側で基礎値のまま返している
   function scaleValue(base, level) {
-    return Math.floor(base * (1 + level * 0.1));
+    const l = Math.max(1, Math.floor(Number(level) || 0));
+    return Math.floor(base * (1 + (l - 1) * 0.1));
   }
 
   function applyLevelScale() {

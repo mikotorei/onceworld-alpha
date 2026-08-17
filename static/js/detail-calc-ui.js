@@ -167,13 +167,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  function calcCriticalRate(heroLuk, enemyLuk) {
-    if (enemyLuk <= 0) return heroLuk > 0 ? 90 : 0;
-    const ratio = heroLuk / enemyLuk;
-    if (ratio <= 1) return 0;
-    const rate = (ratio - 1) * 12.5;
-    return Math.min(90, Math.floor(rate * 10) / 10);
-  }
+  // 会心率は common/calc-logic.js の calcCritRate を使用する
 
   // --- 補正後ステータス表示 ---
   const scaledSpans = {
@@ -646,7 +640,7 @@ document.addEventListener("DOMContentLoaded", function () {
       outPhyOverkill.textContent = `atk${fmt(oneShotLineRequiredAttack(enemyPhysDef, 0, 1, enemyHp * 10, elementModifier, criticalModifier, touShouCount))}以上`;
 
       // クリティカル発生率
-      const critRate = calcCriticalRate(hero.luk, enemyLuk);
+      const critRate = calcCritRate(hero.luk, enemyLuk);
       outCriticalRate.textContent = critRate === 0
         ? `0%（主人公luk不足）`
         : `約${critRate}%（主人公luk: ${fmt(hero.luk)} / 敵luk: ${fmt(enemyLuk)}）`;

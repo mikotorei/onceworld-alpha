@@ -4,8 +4,8 @@
 // ============================================================
 
 function calcMonsterHp(monster, lv) {
-  const vitScaled = Math.floor(Number(monster.vit) * (1 + lv * 0.1));
-  return vitScaled * 18 + 100;
+  // Lv補正は calc-logic.js の scaleStat に統一する
+  return scaleStat(monster.vit, lv) * 18 + 100;
 }
 
 function calcEnemyPhysDef(defScaled, mdefScaled) {
@@ -175,26 +175,9 @@ function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
 
 
 // ============================================================
-// 会心率計算
-// 自LUK ≤ 敵LUK → 0%, 自LUK = 敵LUK×2 → 10%, 敵LUK×10以上 → 90%上限
+// 会心率計算は common/calc-logic.js の
+// calcCritRate / requiredLukForCritRate を使用する
 // ============================================================
-function calcCritRate(heroLuk, enemyLuk) {
-  const el = Math.floor(Number(enemyLuk || 0));
-  const hl = Math.floor(Number(heroLuk  || 0));
-  if (el <= 0 || hl <= el) return 0;
-  if (hl >= el * 10) return 90;
-  // 自LUK = 敵LUK+1 で10%スタート、敵LUK×10で90%上限（線形補間）
-  return Math.floor(10 + (hl - el - 1) / (el * 10 - el - 1) * 80);
-}
-
-function requiredLukForCritRate(enemyLuk, targetRate) {
-  const el = Math.floor(Number(enemyLuk || 0));
-  if (el <= 0 || targetRate <= 0) return 0;
-  const rate = Math.min(90, Math.max(10, targetRate));
-  if (rate >= 90) return el * 10;
-  // 逆算: 10〜90%の範囲で敵LUK+1〜敵LUK×10に線形マッピング
-  return Math.ceil(el + 1 + (rate - 10) / 80 * (el * 10 - el - 1));
-}
 
 // ============================================================
 // 無効化逆算

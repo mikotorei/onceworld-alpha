@@ -12,7 +12,8 @@
   const isDigits = (s) => /^\d+$/.test(s);
 
   const calcStat = (base, lv) => Math.floor(base * (1 + (lv - 1) * LEVELSCALE));
-  const calcRealHp = (vit) => vit * 18;
+  // 実体力 = 100 + VIT × 18（禁域の液体は主人公専用のため敵には掛からない）
+  const calcRealHp = (vit) => 100 + vit * 18;
 
   const calcExpMultiplier = (lv) => {
     const raw = 0.2 * Math.pow(lv, 1.1);

@@ -55,8 +55,11 @@ function requiredSpdForHits(hits) {
   return entry ? entry[1] : 0;
 }
 
+// モンスターのステータス = floor(基礎値 × (1 + (Lv - 1) × 0.1))
+// lv=0 は「基本」表示用の値なのでLv1と同じ等倍として扱う
 function scaleStat(base, lv) {
-  return Math.floor(Number(base) * (1 + lv * 0.1));
+  const l = Math.max(1, Math.floor(Number(lv) || 0));
+  return Math.floor(Number(base) * (1 + (l - 1) * 0.1));
 }
 
 function buildEnemyScaled(monster, lv, state) {
@@ -110,6 +113,26 @@ function getElementModifier(heroElement, enemyElement) {
 function getCriticalModifier(godCount) {
   const count = Math.max(0, Math.min(1000, Math.floor(Number(godCount) || 0)));
   return 1 + 1.50 + count * 0.003;
+}
+
+// 会心率
+// 自LUK ≤ 敵LUK → 0%, 自LUK = 敵LUK+1 → 10%, 自LUK ≥ 敵LUK×10 → 90%（間は線形補間）
+function calcCritRate(heroLuk, enemyLuk) {
+  const el = Math.floor(Number(enemyLuk || 0));
+  const hl = Math.floor(Number(heroLuk  || 0));
+  if (hl <= el) return 0;
+  if (hl >= el * 10) return 90;
+  return Math.floor(10 + (hl - el - 1) / (el * 10 - el - 1) * 80);
+}
+
+// 目標会心率に必要な自LUK（calcCritRate の逆関数）
+function requiredLukForCritRate(enemyLuk, targetRate) {
+  const el = Math.floor(Number(enemyLuk || 0));
+  if (targetRate <= 0) return 0;
+  if (el <= 0) return 1;
+  const rate = Math.min(90, Math.max(10, targetRate));
+  if (rate >= 90) return el * 10;
+  return Math.ceil(el + 1 + (rate - 10) / 80 * (el * 10 - el - 1));
 }
 
 function getTouShouMultiplier(count) {

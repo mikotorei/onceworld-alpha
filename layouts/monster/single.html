@@ -49,7 +49,7 @@
   <dl class="d-list" id="status-table">
     <div class="d-row">
       <dt>実体力</dt>
-      <dd class="n" id="real-hp" data-base="{{ mul .Params.status.vit 18 }}">{{ mul .Params.status.vit 18 }}</dd>
+      <dd class="n" id="real-hp" data-base="{{ add 100 (mul .Params.status.vit 18) }}">{{ add 100 (mul .Params.status.vit 18) }}</dd>
     </div>
     <div class="d-row"><dt>vit</dt><dd class="n" data-stat="vit" data-base="{{ .Params.status.vit }}">{{ .Params.status.vit }}</dd></div>
     <div class="d-row"><dt>spd</dt><dd class="n" data-stat="spd" data-base="{{ .Params.status.spd }}">{{ .Params.status.spd }}</dd></div>
