@@ -139,9 +139,10 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {number} cycles   - 総サイクル数
    * @returns {boolean} true = 安全
    */
-  function isSafe(start, perCycle, cycles) {
-    // スタート到達点が中間点扱いになる場合（cycles > 0）
-    if (cycles > 0 && isBossFloor(start)) return false;
+  function isSafe(start, perCycle, cycles, isWarpStart) {
+    // 1Fスタート時のみ、初回到達点のボスフロア判定を行う
+    // （ワープの場合はボスフロアに降りても通常エリア扱いのため除外）
+    if (!isWarpStart && cycles > 0 && isBossFloor(start)) return false;
     // 中間通過点: start + k×perCycle (k=1〜cycles-1)
     for (var k = 1; k < cycles; k++) {
       var f = start + k * perCycle;
@@ -182,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (remaining % perCycle !== 0) continue;
 
         var cycles = remaining / perCycle;
-        if (!isSafe(firstReach, perCycle, cycles)) continue;
+        if (!isSafe(firstReach, perCycle, cycles, startType !== "normal")) continue;
 
         results.push({ a: a, b: b, cycles: cycles, perCycle: perCycle, firstReach: firstReach });
       }
