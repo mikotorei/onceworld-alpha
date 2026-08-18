@@ -1,30 +1,56 @@
 # localStorage 調査と共通化の設計案
 
 調査日: 2026-08-18 / 対象: `static/js/` `layouts/` `content/` 配下の全localStorage利用箇所
+最終更新: 2026-08-18（フェーズ3 完了を反映）
 
-このドキュメントは**調査と設計案のみ**で、コードの変更は一切行っていない。
+## 対応状況
+
+✅ の付いた項目はフェーズ3で解消済み。未対応の項目は末尾の「8. 残タスク」に集約している。
+
+| 解消済み | 内容 | コミット |
+|---|---|---|
+| ✅ | localStorage 呼び出しの一元化（`OWStorage`） | `62c4ec9` |
+| ✅ | キー文字列の直書き（3ファイル） | `62c4ec9` |
+| ✅ | `try/catch` 抜け3箇所 | `62c4ec9` |
+| ✅ | 冗長・死んだフィールド4件 | `d1a4591` |
+| ✅ | ビルドシミュの未保存12項目 | `54a1f3a` |
+| ✅ | `__v` マイグレーション基盤 + ビルド退避 | `cbf5118` |
+| ✅ | 統合・詳細計算機の `toushou-count` 保存漏れ | `b8f7bc0` |
+| ✅ | 両計算機のリセットボタン追加 | `b8f7bc0` |
+| ✅ | `onceworld_origin_exp` の boolean 化 | `40d57f9` |
+
+採用した設計は、API が **案A（薄いラッパー）**、マイグレーションが **案1（値の中に `__v`）**、
+保存対象の宣言が **案Y（JS側に対象IDリスト）**。いずれも5章の比較のとおり。
 
 ---
 
 ## 1. 全localStorageキーと保存内容の構造
 
-現在9キー。うち1つ（`calc_active_tab`）のみJSではなくレイアウトHTMLのインラインscriptにある。
+現在9キー + 退避用1キー。キー定義はすべて `storage-manager.js` の `KEYS` にある。
+読み書きのうち `calc_active_tab` の1つだけがJSファイルではなくレイアウトHTMLの
+インラインscriptにある（残タスク R-3）。
 
 ### 1.1 一覧
 
 | # | キー | 定義箇所 | 用途 | 値の型 |
 |---|---|---|---|---|
-| 1 | `onceworld_origin_exp` | `common/monster-level.js:5` | 「経験の起源」チェック状態 | **文字列 `"1"` / `"0"`** |
-| 2 | `calc_state_v5` | `tools/calc/calc-ui.js:19` | 統合計算機の入力状態 | JSON |
-| 3 | `detail_calc_state_v1` | `detail-calc-ui.js:24` | 詳細計算機の入力状態 | JSON |
-| 4 | `status_sim_inline_v7` | `tools/status/status-sim.js:7` | ステシミュの作業状態 | JSON |
-| 5 | `status_sim_build_slots_v1` | `status-sim.js:8` ほか2箇所 | 名前付きビルドの保存スロット | JSON |
-| 6 | `status_sim_ss_calc_v1` | `status-sim.js:748` | ステシミュの振り分けPt計算欄 | JSON |
-| 7 | `build_sim_state_v1` | `tools/build-sim/build-sim-ui.js:8` | ビルドシミュの状態 | JSON |
-| 8 | `exp_calc_hunt_v1` | `tools/exp-calc/exp-calc.js:346` | 討伐数計算の設定 | JSON |
-| 9 | `calc_active_tab` | `layouts/tools/calc-wrapper.html:43` | 選択中タブ | **文字列 `"integrated"` / `"detail"`** |
+| 1 | `onceworld_origin_exp` | `storage-manager.js` `KEYS.ORIGIN_EXP` | 「経験の起源」チェック状態 | ✅ **boolean**（旧 `"1"`/`"0"` は移行で吸収） |
+| 2 | `calc_state_v5` | `KEYS.CALC` | 統合計算機の入力状態 | JSON（封筒） |
+| 3 | `detail_calc_state_v1` | `KEYS.DETAIL_CALC` | 詳細計算機の入力状態 | JSON（封筒） |
+| 4 | `status_sim_inline_v7` | `KEYS.STATUS_INLINE` | ステシミュの作業状態 | JSON（封筒） |
+| 5 | `status_sim_build_slots_v1` | `KEYS.BUILD_SLOTS` | 名前付きビルドの保存スロット | JSON（封筒） |
+| 6 | `status_sim_ss_calc_v1` | `KEYS.SS_CALC` | ステシミュの振り分けPt計算欄 | JSON（封筒） |
+| 7 | `build_sim_state_v1` | `KEYS.BUILD_SIM` | ビルドシミュの状態 | JSON（封筒） |
+| 8 | `exp_calc_hunt_v1` | `KEYS.EXP_HUNT` | 討伐数計算の設定 | JSON（封筒） |
+| 9 | `calc_active_tab` | `KEYS.CALC_TAB` | 選択中タブ | **文字列 `"integrated"` / `"detail"`** |
+| 退避 | `status_sim_build_slots_v1__pre_v1_backup` | `storage-manager.js` が自動作成 | 5の旧形式の退避（読み書き専用ではなく保険） | 旧形式のバイト列そのまま |
 
-`onceworld_origin_exp` と `calc_active_tab` だけが生文字列で、残り7つはJSON。
+✅ キー定義は `static/js/common/storage-manager.js` の `KEYS` に一元化された。
+生文字列のまま残るのは `calc_active_tab` のみ。
+
+**保存形式（封筒）**: バージョン管理下の8キーは `{ "__v": 1, "data": <実データ> }` で保存される。
+`__v` を持たない旧データは「バージョン0」として読まれ、`MIGRATIONS` を通してから返る。
+以下の 1.2 に載せた構造は、すべて `data` の中身を指す。
 
 ### 1.2 各キーの構造
 
@@ -36,7 +62,8 @@
   lv: 1,                   // 敵Lv
   hero: {
     atk, int, spd,
-    analysisBook, analysisBookAdvanced, crystalCount   // すべて文字列（正規化済み整数）
+    analysisBook, analysisBookAdvanced, crystalCount,
+    toushouCount                                       // ✅ 追加。すべて文字列（正規化済み整数）
   },
   state: {
     heroElement, attackType, spell,
@@ -51,7 +78,8 @@
 {
   monster_id: "",
   lv: 1,
-  hero:  { vit, spd, atk, int, def, mdef, luk, analysisBook, analysisBookAdvanced, crystalCount },
+  hero:  { vit, spd, atk, int, def, mdef, luk, analysisBook, analysisBookAdvanced,
+           crystalCount, toushouCount },   // ✅ toushouCount を追加
   enemy: { vit, spd, atk, int, def, mdef, luk },
   state: {
     heroElement, attackType, spell, enemyElement, enemyAttackType,
@@ -65,7 +93,7 @@
 ```js
 {
   basePointTotal: 0,
-  statPointTotal: 0,                       // 保存のみ（1.3参照）
+  statPointTotal: 0,                       // 保存のみ（意図的に維持。3.1参照）
   base:    { vit, spd, atk, int, def, mdef, luk },
   shaker:  0,
   protein: { vit, spd, atk, int, def, mdef, luk },
@@ -96,8 +124,8 @@
 {
   charaLv, spTenme, penCount, altarCount, tenshoCount, scrollCount,
   sageDrop, forbiddenBook,
-  hasCosmoCube, hasContract,               // boolean
-  tenmeCount                               // 保存のみ・spTenme と重複（1.3参照）
+  hasCosmoCube, hasContract                // boolean
+  // ✅ tenmeCount は削除済み（spTenme と重複していた）
 }
 ```
 
@@ -107,9 +135,12 @@
 {
   state:      { attackType, heroElement, spell, debuffWood, debuffDark,
                 npanLimit, hasContract, hasCosmoCube, reverseHitRate,
-                useMinRandom, calcMode, nullifyTarget },   // nullifyTarget は保存のみ
-  pointLimit: { sageDrop, forbiddenBook, hasContract, tenmeCount },  // tenmeCount は保存のみ
-  statPoint:  { lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount }
+                useMinRandom, calcMode },     // ✅ nullifyTarget は削除済み
+  pointLimit: { sageDrop, forbiddenBook },    // ✅ 復元される2項目のみに縮小
+  statPoint:  { lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount },
+  inputs:     { analysisBook, analysisBookAdvanced, crystalCount, toushouCount,
+                devilEye, npanLimit, tenkuFloor, reverseLv, reverseNpan,
+                reverseHits, reverseCrit, reverseMonster }   // ✅ 新設（3.2参照）
 }
 ```
 
@@ -119,23 +150,32 @@
 { kigen: true, medal: 0, zipang: 0, luminous: 0, house: true }
 ```
 
-**唯一、保存と復元が完全に一致しているキー。**
+調査当時、**唯一保存と復元が完全に一致していたキー**。現在は他のキーも一致している。
+
+#### `onceworld_origin_exp` — 経験の起源
+
+```js
+true   // ✅ boolean。旧形式の "1" / "0" は MIGRATIONS の v0→v1 で吸収
+```
 
 ---
 
 ## 2. 読み書きしているファイル
 
+✅ **すべて `OWStorage` 経由になった。**`localStorage` の直接呼び出しはコードベースから
+消えている（`storage-manager.js` 内部を除く）。
+
 | キー | 書き込み | 読み込み |
 |---|---|---|
-| `onceworld_origin_exp` | `common/monster-level.js:143` | `common/monster-level.js:40` |
-| `calc_state_v5` | `tools/calc/calc-ui.js:152` | `calc-ui.js:158`, `calc-ui.js:331` |
-| `detail_calc_state_v1` | `detail-calc-ui.js:289` | `detail-calc-ui.js:295` |
-| `status_sim_inline_v7` | `status-sim.js:495` | `status-sim.js:496`, `:497`(remove) |
-| **`status_sim_build_slots_v1`** | `status-sim.js:499` | `status-sim.js:498`、`detail-calc-ui.js:359`、`calc-ui.js:619` |
-| `status_sim_ss_calc_v1` | `status-sim.js:754` | `status-sim.js:772` |
-| `build_sim_state_v1` | `build-sim-ui.js:132` | `build-sim-ui.js:142` |
-| `exp_calc_hunt_v1` | `exp-calc.js:350` | `exp-calc.js:362` |
-| `calc_active_tab` | `calc-wrapper.html:61` | `calc-wrapper.html:69` |
+| `onceworld_origin_exp` | `common/monster-level.js` | `common/monster-level.js` |
+| `calc_state_v5` | `tools/calc/calc-ui.js` | `calc-ui.js`（2箇所） |
+| `detail_calc_state_v1` | `detail-calc-ui.js` | `detail-calc-ui.js` |
+| `status_sim_inline_v7` | `status-sim.js` | `status-sim.js`（remove も） |
+| **`status_sim_build_slots_v1`** | `status-sim.js` | `status-sim.js`、`detail-calc-ui.js`、`calc-ui.js` |
+| `status_sim_ss_calc_v1` | `status-sim.js` | `status-sim.js` |
+| `build_sim_state_v1` | `build-sim-ui.js` | `build-sim-ui.js` |
+| `exp_calc_hunt_v1` | `exp-calc.js` | `exp-calc.js` |
+| `calc_active_tab` | `calc-wrapper.html`（インライン） | `calc-wrapper.html`（インライン） |
 
 ### ツールをまたぐのは1キーだけ
 
@@ -144,25 +184,31 @@
 - 書き込み: ステシミュ（`status-sim.js`）だけ
 - 読み込み: ステシミュ + 統合計算機 + 詳細計算機（「ビルド引用」機能）
 
-さらに `detail-calc-ui.js:399` と `calc-ui.js:657` が `window.addEventListener("storage")` で
-別タブの更新を監視している。**共通化の際はこの storage イベント連携を壊さないこと。**
+さらに2ファイルが別タブの更新を監視している。共通化にあたっては
+`OWStorage.onChange(key, cb)` に置き換え、連携を維持した。
 
 ---
 
 ## 3. 保存漏れ・復元漏れ
 
-### 3.1 保存されるが復元されない（書き込み専用フィールド）
+### 3.1 保存されるが復元されない（書き込み専用フィールド）— ✅ 解消済み（`d1a4591`）
+
+4件のうち3件を削除し、1件は意図的に残した。
 
 | キー | フィールド | 状況 |
 |---|---|---|
-| `status_sim_inline_v7` | `statPointTotal` | `collectState` で保存されるが `applyState` に復元処理がない。ただし `build-sim-logic.js:398,572,624` が `simState.statPointTotal` として参照するため、**ビルドスロット経由では意味を持つ**。ステシミュ自身の復元では捨てられる |
-| `status_sim_ss_calc_v1` | `tenmeCount` | `spTenme` と同じ `$("ss-sp-tenme-count")` から読んでおり**完全に重複**。`loadSsCalc` にも復元処理なし。純粋な冗長フィールド |
-| `build_sim_state_v1` | `state.nullifyTarget` | `state` の初期値 `"auto"` として定義されているが、**コードベース全体で他に一切参照がない**（`build-sim-ui.js:46` の1箇所のみ）。死んだフィールドが永続化されている |
-| `build_sim_state_v1` | `pointLimit.tenmeCount` | `statPoint.tenme` と同じ `bs-sp-tenme-count` 由来で重複。`loadSimState` は `statPoint.tenme` 側だけ復元する |
+| `status_sim_inline_v7` | `statPointTotal` | **維持**。`applyState` では復元されないが、`build-sim-logic.js` が3箇所で `simState.statPointTotal` を参照しており、ビルドスロット経由で意味を持つため残した |
+| `status_sim_ss_calc_v1` | `tenmeCount` | ✅ **削除**。`spTenme` と同じ `$("ss-sp-tenme-count")` から読む完全な重複だった |
+| `build_sim_state_v1` | `state.nullifyTarget` | ✅ **削除**。定義箇所以外に参照が一切ない死んだフィールドだった |
+| `build_sim_state_v1` | `pointLimit.tenmeCount` | ✅ **削除**。`statPoint.tenme` と重複 |
+| `build_sim_state_v1` | `pointLimit.hasContract` | ✅ **削除**。調査時の見落とし。実装中に発見。`state.hasContract` と重複していた |
 
-### 3.2 入力欄があるのに保存対象外
+削除したフィールドが既存データに残っていても復元側は参照しないため、後方互換は保たれる。
 
-**ビルドシミュが最も深刻。20個の `bs-*` 入力のうち保存されるのは8個だけ。**
+### 3.2 入力欄があるのに保存対象外 — ✅ 解消済み（`54a1f3a` / `b8f7bc0`）
+
+**調査時点ではビルドシミュの20個の `bs-*` 入力のうち保存されるのは8個だけだった。**
+現在は20個すべてが保存対象。
 
 | 保存される（8） | 保存されない（12） |
 |---|---|
@@ -180,25 +226,40 @@
 | | `bs-reverse-crit` |
 
 魔法計算に必要な解析書・魔晶立方体、物理計算に必要な闘晶立方体がすべて保存対象外で、
-リロードのたびに 0 に戻る。
+リロードのたびに 0 に戻っていた。
 
-**統合計算機・詳細計算機にも同じ問題がある。**
+**対応**: `BS_PERSIST_INPUTS`（案Y）に id / 保存キー / 型 / 既定値を宣言的に一覧化し、
+`build_sim_state_v1` の `inputs` 配下へ保存するようにした。
+`inputs` を持たない既存データを読んだ場合は全項目が既定値になる。
 
-| ツール | 未保存の入力 | 影響 |
+実装時に判明した2点:
+
+- `bs-npan-limit` は `state.npanLimit` として保存されてはいたが**DOMに書き戻されておらず**、
+  リロードで既定値3に戻っていた。今回DOM側も復元する
+- `bs-reverse-monster-search` は `setupMonsterSearch` がクロージャの `picked` に
+  選択状態を持つため、テキストを入れるだけでは未選択のまま。`restore(title)` を追加した
+
+**統合計算機・詳細計算機にも同じ問題があった。** ✅ 両方とも解消済み（`b8f7bc0`）。
+
+| ツール | 未保存だった入力 | 対応 |
 |---|---|---|
-| 統合計算機 | `toushou-count` | `calc-ui.js:488` で計算に使われるのに `saveState` の `hero` に含まれない |
-| 詳細計算機 | `detail-toushou-count` | `detail-calc-ui.js:626` で使われるのに `getHeroInputs` に含まれない |
+| 統合計算機 | `toushou-count` | `saveState` の `hero` と `loadState` の復元マップに追加 |
+| 詳細計算機 | `detail-toushou-count` | `getHeroInputs` と `loadState` の `heroMap` に追加 |
 
 闘晶立方体は物理ダメージ最大11倍（パンドラ時21倍）の主要素材なので、
-毎回入れ直しになるのは実用上の不便が大きい。
+毎回入れ直しになるのは実用上の不便が大きかった。
+
+あわせて両計算機に**リセットボタン**を追加した（計算ボタンの下・確認ダイアログ付き）。
+保存値を削除し、入力欄・状態・結果表示を初期状態に戻す。
 
 ### 3.3 復元されるが保存されない
 
 **該当なし。** 全キーで「復元側にあって保存側にない」フィールドは存在しなかった。
 
-### 3.4 例外処理の抜け
+### 3.4 例外処理の抜け — ✅ 解消済み（`62c4ec9`）
 
-`status-sim.js` の3箇所が `try/catch` なしで localStorage を呼んでいる。
+調査時点では `status-sim.js` の3箇所が `try/catch` なしで localStorage を呼んでいた。
+`OWStorage` 経由になり、すべて内部で保護されている。
 
 | 箇所 | 内容 |
 |---|---|
@@ -206,33 +267,42 @@
 | `status-sim.js:497` | `clearAutoState` — `removeItem` が裸 |
 | `status-sim.js:499` | `saveBuildSlots` — `setItem` が裸 |
 
-プライベートブラウジングや容量超過（`QuotaExceededError`）で例外が飛ぶと、
-呼び出し元の処理がそこで止まる。他ファイルは全て `try/catch` で保護されている。
+プライベートブラウジングや容量超過（`QuotaExceededError`）で例外が飛ぶと
+呼び出し元の処理がそこで止まっていた。現在は `write` が `false` を返すだけで処理は継続する。
 
 ---
 
-## 4. キー文字列の直書き
+## 4. キー文字列の直書き — ✅ 解消済み（`62c4ec9`）
+
+調査時点の状況:
 
 | キー | 直書きファイル数 | ファイル |
 |---|---:|---|
 | **`status_sim_build_slots_v1`** | **3** | `status-sim.js:8`、`detail-calc-ui.js:25`、`calc-ui.js:613` |
 | その他8キー | 各1 | — |
 
+現在はキー文字列の直書きは**0箇所**で、すべて `OWStorage.KEYS.*` を参照している。
+
 問題は `status_sim_build_slots_v1` の1つだけ。ただし3ファイルのうち
 `detail-calc-ui.js` と `calc-ui.js` は**関数スコープ内でローカル定数として再定義**しており
 （`calc-ui.js:613` は関数の中）、片方だけ変更しても気付けない。
 
-**バージョン接尾辞も不統一**: `_v1`（5個）/ `_v5`（1個）/ `_v7`（1個）/ 接尾辞なし（2個）。
-どのキーにもマイグレーション処理は存在せず、構造を変えると
-`JSON.parse` は通るが中身が合わずに**黙って初期値に戻る**（実質データ消失）。
+**バージョン接尾辞の不統一は未解消**: `_v1`（5個）/ `_v5`（1個）/ `_v7`（1個）/ 接尾辞なし（2個）。
+ただし `__v` によるスキーマバージョン管理が入ったため、
+キー名の接尾辞に頼る必要はなくなった（残タスク R-2 参照）。
+
+✅ マイグレーション処理の不在は解消済み。構造を変える際は
+`SCHEMA_VERSIONS` の番号を上げ、`MIGRATIONS` に変換関数を足せばよい。
 
 ---
 
-## 5. 設計案
+## 5. 設計案（当時の比較・採用結果を追記）
+
+採用したのは **案A + 案1 + 案Y**。以下は判断の根拠として当時の比較をそのまま残す。
 
 ### 5.1 storage-manager.js のAPI設計
 
-#### 案A: 薄いラッパー（キー定数 + JSON入出力のみ）
+#### 案A: 薄いラッパー（キー定数 + JSON入出力のみ）— ✅ 採用
 
 ```js
 const STORAGE_KEYS = {
@@ -259,7 +329,7 @@ Storage.onChange(key, cb)     // storage イベントをキー単位で購読
 | キー直書きと `try/catch` 抜けが一掃される | マイグレーションの受け皿がない |
 | storage イベント購読が統一される | |
 
-#### 案B: スキーマ駆動（推奨）
+#### 案B: スキーマ駆動（推奨）— 部分採用
 
 ```js
 Storage.define("calc", {
@@ -287,12 +357,16 @@ Storage.load("calc");     // 読み込んで DOM に流し込む
 まず案Aでキー定数と `try/catch` を一元化（低リスク・即効性あり）、
 その上で保存漏れが多いビルドシミュから案Bへ順次移行する。
 
+**結果**: 案A を全ツールに適用（`62c4ec9`）。案B のうち「宣言的な項目リスト」の部分だけを
+ビルドシミュに導入した（`54a1f3a` の `BS_PERSIST_INPUTS`）。
+`Storage.define` のような完全なスキーマ駆動APIには至っていない（残タスク R-1）。
+
 ### 5.2 マイグレーション方式
 
 現状**どのキーにもマイグレーションが無い**ため、構造変更＝ユーザーデータ消失。
 共通化と同時に受け皿を用意すべき。
 
-#### 案1: バージョン番号を値の中に持つ（推奨）
+#### 案1: バージョン番号を値の中に持つ（推奨）— ✅ 採用
 
 ```js
 { __v: 5, data: { /* 実データ */ } }
@@ -326,6 +400,14 @@ Storage.load("calc");     // 読み込んで DOM に流し込む
 失われた場合の影響が他キーと段違いに大きい。ここだけは
 移行前に旧キーのバックアップを別キーへ退避することを推奨する。
 
+**結果**（`cbf5118`）: 案1をそのまま採用。`MIGRATIONS` は空のまま無変換で導入し、
+`status_sim_build_slots_v1` は旧形式を最初に読み書きした時点で
+`status_sim_build_slots_v1__pre_v1_backup` へバイト単位で退避する仕組みを入れた
+（一度だけ。読み込み経路と書き込み経路の両方に仕掛けてある）。
+
+その後 `onceworld_origin_exp` の boolean 化（`40d57f9`）で、
+この基盤に**実際の変換を伴う移行を初めて載せた**。
+
 ### 5.3 保存対象の宣言方法
 
 #### 案X: HTMLの data- 属性で指定
@@ -344,7 +426,7 @@ document.querySelectorAll("[data-persist]")   // 収集は1行
 | HTMLとJSの二重管理が消える | `build-sim.html` と `content/tools/status/index.md` は63個のIDが**二重にベタ書き**されており（refactoring-survey.md C-1）、両方に属性を書く必要がある。C-1を先に解消しないと不整合が起きる |
 | | Markdown内のHTMLでも属性は生き残るが、Goldmarkの制約に注意が必要 |
 
-#### 案Y: JS側に対象IDリストを持つ（推奨）
+#### 案Y: JS側に対象IDリストを持つ（推奨）— ✅ 採用（ビルドシミュのみ）
 
 ```js
 const PERSIST_FIELDS = [
@@ -374,37 +456,62 @@ JSにリストを持ちつつ、`data-persist` 属性を持つ要素がリスト
 未解消の現状で `data-` 属性方式を採ると、**同じ入力欄に2箇所で属性を書く**ことになり
 かえって漏れが増えるため。C-1を解消した後なら案Xも有力になる。
 
+**結果**: 案Yをビルドシミュに適用（`BS_PERSIST_INPUTS`）。
+統合計算機・詳細計算機は項目数が少ないため、既存の保存マップに直接追加する形にとどめた。
+
 漏れ検出は、案Yのリストと実HTMLのID一覧を突き合わせる
 **検証スクリプト**（`node` で `layouts/` と `content/` を走査してリストと比較）で代替できる。
 これは今回の調査で使った手法がそのまま流用できる。
 
 ---
 
-## 6. 推奨する進め方
+## 6. 進め方（実施結果）
 
 段階を分け、各段階で「計算結果・保存データが変わらないこと」を検証しながら進める。
 
-| 段階 | 内容 | リスク |
-|---|---|---|
-| 1 | `storage-manager.js` を案Aで作成。キー定数・`try/catch`・storage購読を一元化。既存の保存構造は**一切変えない** | 低 |
-| 2 | `status-sim.js` の未保護3箇所（3.4）を `Storage.write` 経由にして例外を潰す | 低 |
-| 3 | 冗長・死んだフィールドを整理（`tenmeCount` ×2、`nullifyTarget`）。読み込み側は既に無視しているので後方互換あり | 低 |
-| 4 | `__v` による無変換マイグレーションを導入。`status_sim_build_slots_v1` は事前退避 | 中 |
-| 5 | 案Yの `PERSIST_FIELDS` をビルドシミュに導入し、未保存12項目を保存対象に追加 | 中 |
-| 6 | 統合計算機・詳細計算機の `toushou-count` 保存漏れを解消 | 低 |
+| 段階 | 内容 | 状況 | コミット |
+|---|---|---|---|
+| 1 | `storage-manager.js` を案Aで作成。キー定数・`try/catch`・storage購読を一元化 | ✅ 完了 | `62c4ec9` |
+| 2 | `status-sim.js` の未保護3箇所（3.4）を解消 | ✅ 段階1に内包 | `62c4ec9` |
+| 3 | 冗長・死んだフィールドを整理 | ✅ 完了（4件） | `d1a4591` |
+| 4 | `__v` による無変換マイグレーション導入 + ビルド退避 | ✅ 完了 | `cbf5118` |
+| 5 | 案Yの宣言的リストをビルドシミュに導入 | ✅ 完了（12項目） | `54a1f3a` |
+| 6 | 統合・詳細計算機の `toushou-count` 保存漏れ + リセットボタン | ✅ 完了 | `b8f7bc0` |
+| 追加 | `onceworld_origin_exp` の boolean 化 | ✅ 完了 | `40d57f9` |
 
-段階1〜3は既存の保存データに一切触れないため、先行して安全に実施できる。
+実施順は 1 → 3 → 5 → 4 → 6 → boolean化。段階5を4より先に行ったのは、
+既存データに触れない作業を優先したため。
 
 ---
 
-## 7. 着手前に決めておくべきこと
+## 7. 着手前に決めておくべきこと（決定済み）
 
-- **`status_sim_build_slots_v1` の後方互換をどこまで保証するか。**
-  ユーザーが貯めた名前付きビルドは復元不能な資産であり、
-  ここを壊す変更は他のキーと同列に扱えない。
-- **保存漏れを「バグとして直す」か「仕様として据え置く」か。**
-  3.2の未保存項目を保存対象にすると、これまで毎回0から始まっていた入力が
-  前回値を引き継ぐようになる。挙動変更としてユーザーに影響する。
-- **`onceworld_origin_exp` の型。**
-  唯一の生文字列 `"1"`/`"0"` を boolean のJSONに統一するかどうか。
-  統一するならマイグレーションが必須。
+| 論点 | 決定 |
+|---|---|
+| `status_sim_build_slots_v1` の後方互換 | **完全に保証する。** キー名も構造も変えず、読み込み時に旧形式を受け入れる。加えて自動退避も実装した |
+| 保存漏れの扱い | **バグとして直す。** ただし挙動変更を伴うため、両計算機にリセットボタンを追加して初期状態に戻せるようにした |
+| `onceworld_origin_exp` の型 | **boolean に統一。** 読み込み時は `"1"` / `"0"` / `true` / `false` のすべてを受け入れる |
+
+---
+
+## 8. 残タスク
+
+フェーズ3 完了時点で未対応の項目。いずれも既知の不具合ではなく、設計上の改善余地。
+
+| # | 内容 | 参照 | 優先度 |
+|---|---|---|---|
+| R-1 | **案B（完全なスキーマ駆動API）への移行。** 現在、宣言的な項目リストを持つのはビルドシミュの `BS_PERSIST_INPUTS` だけ。統合計算機・詳細計算機・ステシミュは各自が保存マップを手書きしている。`Storage.define` 相当のAPIに寄せれば、保存漏れが構造的に起きにくくなる | 5.1 案B | 中 |
+| R-2 | **キー名のバージョン接尾辞の不統一。** `_v1` / `_v5` / `_v7` / 接尾辞なしが混在。`__v` が入った今、接尾辞は歴史的な残骸でしかない。ただしキー名を変えると既存データの移行が必要なので、単独で行う価値は低い | 4章 | 低 |
+| R-3 | **`calc_active_tab` がレイアウトHTMLのインラインscriptにある。** 唯一JSファイル外にある保存処理。`OWStorage` は経由しているが、タブ切り替えロジックごと共通JSへ移すのが筋 | 1.1 / 2章 | 低 |
+| R-4 | **`statPointTotal` の書き込み専用状態。** ステシミュ自身の復元では捨てられ、ビルドスロット経由でのみ意味を持つ。意図的に維持しているが、役割が分かりにくい。`applyState` でも復元するか、ビルドスロット専用フィールドとして分離するのが望ましい | 3.1 | 低 |
+| R-5 | **退避キーの後始末。** `status_sim_build_slots_v1__pre_v1_backup` は作られたまま消えない。移行が十分に行き渡ったと判断できた時点で削除する処理を入れるか、手動削除の手順を残すか決める必要がある | 5.2 | 低 |
+| R-6 | **`bs-devil-eye`（ゴッドオブデビルアイ）が未接続。** HTMLに入力欄があり保存対象にも入れたが、`build-sim-ui.js` での参照は `BS_PERSIST_INPUTS` の登録1件のみで、**計算には一切使われていない**。機能を実装するか入力欄を削除するかの判断が必要 | 3.2 | 中 |
+
+### 着手前に決めておくべきこと（残タスク向け）
+
+- **R-1 を進めるなら、`data-` 属性方式（案X）を再検討する価値がある。**
+  案Yを選んだ理由はHTML二重管理（`refactoring-survey.md` の C-1）が未解消だったため。
+  C-1 を先に片付ければ、入力欄の追加と保存指定を1箇所で完結させられる。
+- **R-5 の判断には、ユーザーの利用状況が読めないという制約がある。**
+  静的サイトなので「全ユーザーが移行済み」を確認する手段がない。
+  退避キーは数KB程度なので、当面は残しておくのが無難。
