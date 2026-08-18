@@ -6,6 +6,57 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 const SIM_STATE_KEY = OWStorage.KEYS.BUILD_SIM;
+
+// 保存対象の入力欄（宣言的に一覧化する）
+// kind: "int" = 整数、"digits" = カンマ整形される数値文字列、"text" = そのまま
+const BS_PERSIST_INPUTS = [
+  { id: "bs-analysis-book",          key: "analysisBook",         kind: "int",    def: 0   },
+  { id: "bs-analysis-book-advanced", key: "analysisBookAdvanced", kind: "int",    def: 0   },
+  { id: "bs-crystal-count",          key: "crystalCount",         kind: "int",    def: 0   },
+  { id: "bs-toushou-count",          key: "toushouCount",         kind: "int",    def: 0   },
+  { id: "bs-devil-eye",              key: "devilEye",             kind: "int",    def: 0   },
+  { id: "bs-npan-limit",             key: "npanLimit",            kind: "int",    def: 3   },
+  { id: "bs-tenku-floor",            key: "tenkuFloor",           kind: "digits", def: ""  },
+  { id: "bs-reverse-lv",             key: "reverseLv",            kind: "digits", def: "0" },
+  { id: "bs-reverse-npan",           key: "reverseNpan",          kind: "digits", def: "1" },
+  { id: "bs-reverse-hits",           key: "reverseHits",          kind: "int",    def: 1   },
+  { id: "bs-reverse-crit",           key: "reverseCrit",          kind: "int",    def: 0   },
+  { id: "bs-reverse-monster-search", key: "reverseMonster",       kind: "text",   def: ""  }
+];
+
+// 逆算タブのモンスターは setupMonsterSearch 生成後に復元するため一旦保持する
+let pendingReverseMonster = "";
+
+function getPersistedInputs() {
+  const out = {};
+  BS_PERSIST_INPUTS.forEach(f => {
+    const el = $(f.id);
+    if (!el) { out[f.key] = f.def; return; }
+    const raw = String(el.value ?? "");
+    if (f.kind === "int") {
+      const n = parseInt(raw.replace(/,/g, ""), 10);
+      out[f.key] = Number.isFinite(n) ? n : f.def;
+    } else if (f.kind === "digits") {
+      out[f.key] = raw.replace(/[^\d]/g, "");
+    } else {
+      out[f.key] = raw;
+    }
+  });
+  return out;
+}
+
+function applyPersistedInputs(saved) {
+  const d = saved || {};
+  BS_PERSIST_INPUTS.forEach(f => {
+    // 未保存の既存データを読んだ場合は既定値
+    const v = Object.prototype.hasOwnProperty.call(d, f.key) ? d[f.key] : f.def;
+    if (f.key === "reverseMonster") { pendingReverseMonster = String(v ?? ""); return; }
+    const el = $(f.id);
+    if (!el) return;
+    el.value = String(v ?? f.def);
+  });
+}
+
 const EQUIP_URL = (() => {
   const p = window.location.pathname.split("/tools/")[0];
   return window.location.origin + p + "/db/equipment.json";
@@ -133,7 +184,8 @@ function saveSimState() {
     // hasContract は state.hasContract、tenmeCount は statPoint.tenme と
     // 重複するため保存しない
     pointLimit: { sageDrop, forbiddenBook },
-    statPoint: spInputs
+    statPoint: spInputs,
+    inputs: getPersistedInputs()
   });
 }
 
@@ -166,6 +218,8 @@ function loadSimState() {
   if ($("bs-scroll-count"))   $("bs-scroll-count").value   = String(d.statPoint.scrollCount || 0);
       state.hasCosmoCube = !!d.statPoint.hasCosmoCube;
     }
+    // d.inputs が無い既存データでも既定値で正常動作する
+    applyPersistedInputs(d.inputs);
   } catch (e) {}
 }
 
@@ -340,7 +394,19 @@ function setupMonsterSearch(searchId, suggestId, lvInputId, shortcutWrapId, onSe
     closeSuggest();
   });
 
-  return { getPicked: () => picked, clear: function() { picked = null; search.value = ""; closeSuggest(); if (lvInput) lvInput.value = ""; if (scWrap) scWrap.innerHTML = ""; } };
+  // 保存された選択を復元する（該当モンスターが無ければ何もしない）
+  function restore(title) {
+    const t = String(title || "").trim();
+    if (!t || !Array.isArray(window.MONSTERS)) return false;
+    const m = window.MONSTERS.find(x => String(x.title) === t);
+    if (!m) return false;
+    picked = m;
+    search.value = m.title;
+    renderShortcuts(m);
+    return true;
+  }
+
+  return { getPicked: () => picked, restore, clear: function() { picked = null; search.value = ""; closeSuggest(); if (lvInput) lvInput.value = ""; if (scWrap) scWrap.innerHTML = ""; } };
 }
 
 let reverseSearchHandle = null;
@@ -1199,6 +1265,14 @@ $("bs-apply-stat-point-btn")?.addEventListener("click", () => {
   }
 });
 
+// 保存対象入力欄→変更時に保存
+BS_PERSIST_INPUTS.forEach(f => {
+  const el = $(f.id);
+  if (!el) return;
+  el.addEventListener("input",  saveSimState);
+  el.addEventListener("change", saveSimState);
+});
+
 // 振り分け上限入力→リアルタイム計算
 ["bs-sage-drop", "bs-forbidden-book"].forEach(id => {
   $(id)?.addEventListener("input", () => { updatePointLimitDisplay(); saveSimState(); });
@@ -1436,6 +1510,13 @@ reverseSearchHandle = setupMonsterSearch(
   "bs-reverse-lv",
   "bs-reverse-lv-shortcuts"
 );
+
+// 保存された逆算モンスターを復元（Lv欄は復元済みの値を保つ）
+if (pendingReverseMonster) {
+  const keepLv = $("bs-reverse-lv")?.value;
+  reverseSearchHandle?.restore(pendingReverseMonster);
+  if (keepLv !== undefined && $("bs-reverse-lv")) $("bs-reverse-lv").value = keepLv;
+}
 
  $("bs-reverse-monster-clear")?.addEventListener("click", () => {
    reverseSearchHandle?.clear();
