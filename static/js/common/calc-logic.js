@@ -2,6 +2,27 @@
 // calc-logic.js  ゲーム計算ロジック（DOM非依存）
 // ============================================================
 
+// 効果素材の所持上限を返す。パンドラの箱の所持状態を自動で加味する
+// pandora.js / game-data.js が未読み込みでも fallback で動く
+function materialCap(materialId, fallback) {
+  const fb = (fallback === undefined || fallback === null) ? 1000 : fallback;
+  if (typeof OWPandora !== "undefined" && typeof OWPandora.materialCap === "function") {
+    return OWPandora.materialCap(materialId, fb);
+  }
+  if (typeof getMaterialMax === "function") {
+    const max = getMaterialMax(materialId, false);
+    if (max !== null && max !== undefined) return max;
+  }
+  return fb;
+}
+
+// 0以上・上限以下の整数に丸める
+function clampCount(v, max) {
+  const n = Math.floor(Number(v) || 0);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(max, n));
+}
+
 // 正規化テーブルは game-data.js の ELEMENT_ALIASES
 function normalizeElement(value) {
   const raw = (value ?? "").toString().trim().toLowerCase();
@@ -82,7 +103,7 @@ function getElementModifier(heroElement, enemyElement) {
 }
 
 function getCriticalModifier(godCount) {
-  const count = Math.max(0, Math.min(1000, Math.floor(Number(godCount) || 0)));
+  const count = clampCount(godCount, materialCap("god_of_devil_eye", 1000));
   return 1 + 1.50 + count * 0.003;
 }
 
@@ -107,7 +128,7 @@ function requiredLukForCritRate(enemyLuk, targetRate) {
 }
 
 function getTouShouMultiplier(count) {
-  const c = Math.min(1000, Math.max(0, Math.floor(Number(count) || 0)));
+  const c = clampCount(count, materialCap("battle_crystal_cube", 1000));
   return 1 + c * 0.01;
 }
 
@@ -142,7 +163,10 @@ function requiredDefenseForNullify(enemyAttack) {
 }
 
 function clampAnalysisBonus(v) {
-  return Math.min(101000, Math.max(0, Math.floor(Number(v) || 0)));
+  const bookCap = materialCap("analysis_book", 1000);
+  const advCap  = materialCap("analysis_of_analysis", 1000);
+  const cap     = Math.floor(bookCap * (1 + advCap / 10));
+  return Math.min(cap, Math.max(0, Math.floor(Number(v) || 0)));
 }
 
 // 倍率は game-data.js の SPELLS
@@ -152,15 +176,15 @@ function getSpellMultiplier(spell) {
 }
 
 function calcAnalysisBonus(bookCount, advancedBookCount) {
-  const book = Math.max(0, Math.floor(Number(bookCount) || 0));
-  const adv  = Math.max(0, Math.floor(Number(advancedBookCount) || 0));
+  const book = clampCount(bookCount, materialCap("analysis_book", 1000));
+  const adv  = clampCount(advancedBookCount, materialCap("analysis_of_analysis", 1000));
   const value = book * (1 + adv / 10);
   return clampAnalysisBonus(value);
 }
 
 function getCrystalMultiplier(crystalCount) {
-  const count = Math.max(0, Math.floor(Number(crystalCount) || 0));
-  return Math.min(11.0, 1 + count * 0.01);
+  const count = clampCount(crystalCount, materialCap("magic_crystal_cube", 1000));
+  return 1 + count * 0.01;
 }
 
 function calcMagicDamageRange(params) {
@@ -225,10 +249,10 @@ function calcMagicOneShotRequiredInt(params) {
 function calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tenshoCount, scrollCount) {
   const maxLv   = Math.min(200, Math.max(1, Math.floor(Number(lv)   || 1)));
   const t       = Math.min(30,  Math.max(0, Math.floor(Number(tenme) || 0)));
-  const pen     = Math.max(0, Math.floor(Number(penCount    || 0)));
-  const altar   = Math.max(0, Math.floor(Number(altarCount  || 0)));
-  const tensho  = Math.max(0, Math.floor(Number(tenshoCount || 0)));
-  const scroll  = Math.max(0, Math.floor(Number(scrollCount || 0)));
+  const pen     = clampCount(penCount,    materialCap("johanne_quill",  1000));
+  const altar   = clampCount(altarCount,  materialCap("johanne_altar",  1000));
+  const tensho  = clampCount(tenshoCount, materialCap("status_crystal", 1000));
+  const scroll  = clampCount(scrollCount, materialCap("super_scroll",   1000));
 
   // ① レベルによる獲得ポイント累積（Lv2からレベルアップでポイント取得）
   let lvPoints = 0;
@@ -260,8 +284,8 @@ function calcTotalStatPoints(lv, tenme, hasCosmoCube, penCount, altarCount, tens
 
 function calcBasePointLimit(sageDrop, forbiddenBook, hasContract, tenmeCount) {
   const BASE       = 10000;
-  const sage       = Math.min(10000, Math.max(0, Math.floor(Number(sageDrop      || 0)))) * 10;
-  const forbidden  = Math.min(80000, Math.max(0, Math.floor(Number(forbiddenBook || 0)))) * 80;
+  const sage       = clampCount(sageDrop,      materialCap("sage_lost_item", 1000)) * 10;
+  const forbidden  = clampCount(forbiddenBook, materialCap("forbidden_book", 1000)) * 80;
   const contract   = hasContract ? 900000 : 0;
   const tenme      = Math.max(0, Math.floor(Number(tenmeCount || 0)));
   const tenmeBonus = tenme >= 11 ? (tenme - 10) * 1000000 : 0;
