@@ -268,6 +268,22 @@ Lv.N→N+1 = 前回の必要経験値 × 天命・殲儀倍率 + 現在Lv × 5
 
 ## 注意事項
 
+### game-data.js の二重読み込み
+
+`static/js/common/game-data.js` はトップレベルに `const` 宣言（`SPELLS` / `MATERIALS` /
+`ELEMENT_CHART` / `ELEMENT_ALIASES`）を持つため、**同一ページで二重読み込みすると
+`SyntaxError: Identifier 'SPELLS' has already been declared` になり、
+2回目のスクリプトが丸ごと実行されない**。読み込み箇所を増やす際は重複しないか確認すること。
+
+現在の読み込み箇所:
+- `layouts/tools/build-sim.html`
+- `layouts/tools/calc.html`
+- `layouts/tools/calc-wrapper.html`
+- `layouts/tools/tenku/single.html`
+- `content/tools/status/index.md`
+
+なお `calc-logic.js` はトップレベルが `function` 宣言のみなので二重読み込みでもエラーにならない。
+
 ### ファイルの区別
 - `calc-integrated.html`（統合計算機）と `calc-detail.html`（詳細計算機）は**別物**
   - 統合計算機: IDにプレフィックスなし（`hero-atk`, `toushou-count`）
