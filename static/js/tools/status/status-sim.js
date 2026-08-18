@@ -760,7 +760,6 @@ function saveSsCalc() {
       hasCosmoCube:  ssHasCosmoCube,
       sageDrop:      $("ss-sage-drop")?.value        || "0",
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
-      tenmeCount:    $("ss-sp-tenme-count")?.value   || "0",
       hasContract:   ssHasContract,
   });
 }

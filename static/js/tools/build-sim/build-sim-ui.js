@@ -42,8 +42,7 @@ const state = {
   hasCosmoCube:    false,
   reverseHitRate:  0,
   useMinRandom:    false,
-  calcMode:        "damage",
-  nullifyTarget:   "auto"
+  calcMode:        "damage"
 };
 
 let lastReverseResult = null;
@@ -126,11 +125,14 @@ function estimateBasePointMultiplier(simState, stat) {
 }
 
 function saveSimState() {
-  const inputs = getPointLimitInputs();
+  const { sageDrop, forbiddenBook } = getPointLimitInputs();
   const spInputs = getStatPointInputs();
   OWStorage.write(SIM_STATE_KEY, {
     state,
-    pointLimit: inputs,
+    // 復元されるのは sageDrop / forbiddenBook のみ。
+    // hasContract は state.hasContract、tenmeCount は statPoint.tenme と
+    // 重複するため保存しない
+    pointLimit: { sageDrop, forbiddenBook },
     statPoint: spInputs
   });
 }
