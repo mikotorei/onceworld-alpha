@@ -155,6 +155,26 @@ function oneShotLineRequiredAttack(defense, mdefense, hits, hp, elementModifier,
   return Math.max(0, Math.ceil(x));
 }
 
+// 死刑囚の身代わり晩餐: 主人公が受けるダメージを1個につき0.09%軽減する
+// 所持数の上限は materialCap 経由（通常1000 / パンドラ2000）
+// 軽減率が100%を超える場合はダメージ0で底打ちする
+function getDamageReductionRate(dinnerCount) {
+  const n = clampCount(dinnerCount, materialCap("convict_substitute_dinner", 1000));
+  return n * 0.0009;
+}
+
+// 軽減後のダメージを返す。0未満にはならない
+// 0.0009 の積み重ねによる浮動小数点誤差を避けるため、
+// 1万分率（0.09% = 9/10000）の整数演算で計算する
+function applyDamageReduction(damage, dinnerCount) {
+  const d = Number(damage) || 0;
+  if (d <= 0) return 0;
+  const n = clampCount(dinnerCount, materialCap("convict_substitute_dinner", 1000));
+  const remain = 10000 - n * 9;          // 残存率の1万分率
+  if (remain <= 0) return 0;
+  return Math.floor(d * remain / 10000);
+}
+
 function requiredDefenseForNullify(enemyAttack) {
   const a = Math.floor(Number(enemyAttack));
   if (!Number.isFinite(a)) return 0;

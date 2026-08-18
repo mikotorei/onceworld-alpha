@@ -91,6 +91,11 @@ const MATERIALS = [
     ui: { kind: "count", unit: "個", showMax: true, slots: [
       { tool: "pet-sim", section: "common", inputId: "kneaderInput" }
     ] } },
+  { id: "convict_substitute_dinner", name: "死刑囚の身代わり晩餐", baseMax: 1000, effect: "主人公への被ダメージ -0.09%/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "detail",    section: "defense", inputId: "detail-dinner-count" },
+      { tool: "build-sim", section: "defense", inputId: "bs-dinner-count" }
+    ] } },
   { id: "ancient_tilaphis_statue", name: "古のティラピス像", baseMax: 1000, effect: "天命輪廻倍率 -0.00005/個",
     ui: { kind: "count", unit: "個", showMax: false, slots: [
       { tool: "exp-calc", section: "hero", inputId: "heroTilapia" },

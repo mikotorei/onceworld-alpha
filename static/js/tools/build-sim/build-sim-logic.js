@@ -143,18 +143,17 @@ function requiredStatForNullify(enemyAttack) {
 }
 
 // 現在のdef/mdefで何ダメージ受けるか（min〜max）
-function calcReceivedDamage(heroStat, enemyAttack, elementModifier) {
+function calcReceivedDamage(heroStat, enemyAttack, elementModifier, dinnerCount = 0) {
   const a = Math.floor(Number(enemyAttack || 0));
   const d = Math.floor(Number(heroStat   || 0));
   const em = Number(elementModifier || 1);
   const base = (a * 7) - (d * 4);
   if (base <= 0) return { min: 0, max: 0, nullified: true };
   const modified = base * em;
-  return {
-    min: Math.floor(modified * 0.9),
-    max: Math.floor(modified * 1.1),
-    nullified: false
-  };
+  // 死刑囚の身代わり晩餐で軽減する
+  const min = applyDamageReduction(Math.floor(modified * 0.9), dinnerCount);
+  const max = applyDamageReduction(Math.floor(modified * 1.1), dinnerCount);
+  return { min, max, nullified: max <= 0 };
 }
 
 // ============================================================

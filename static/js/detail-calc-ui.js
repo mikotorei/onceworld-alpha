@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "detail-hero-vit", "detail-hero-spd", "detail-hero-atk",
     "detail-hero-int", "detail-hero-def", "detail-hero-mdef", "detail-hero-luk",
     "detail-analysis-book", "detail-analysis-book-advanced", "detail-crystal-count",
-    "detail-toushou-count", "detail-god-eye-count"
+    "detail-toushou-count", "detail-god-eye-count", "detail-dinner-count"
   ];
   const enemyInputIds = [
     "detail-enemy-vit", "detail-enemy-spd", "detail-enemy-atk",
@@ -769,8 +769,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const enemyHits   = hitsFromSpd(enemy.spd);
       const recvElemMod = getElementModifier(state.enemyElement, state.heroElement);
       const recv        = damageRangeTotal(enemy.atk, heroPhysDef, enemyHits, recvElemMod, 1.0);
-      outRecvDmg.textContent = recv.min > 0
-        ? `${formatMinMax(recv.min, recv.max)}（多段: ${fmt(enemyHits)}）`
+      const dinner      = Math.max(0, parseFormattedInt(document.getElementById("detail-dinner-count"), 0));
+      const recvMin     = applyDamageReduction(recv.min, dinner);
+      const recvMax     = applyDamageReduction(recv.max, dinner);
+      outRecvDmg.textContent = recvMax > 0
+        ? `${formatMinMax(recvMin, recvMax)}（多段: ${fmt(enemyHits)}）`
         : "0（無効化）";
     } else {
       outNullMdef.textContent = `${fmt(requiredDefenseForNullify(enemy.int))}以上`;
@@ -788,8 +791,11 @@ document.addEventListener("DOMContentLoaded", function () {
         heroElement: state.enemyElement,
         enemyElement: state.heroElement
       });
-      outRecvDmg.textContent = recvMag.min > 0
-        ? `${formatMinMax(recvMag.min, recvMag.max)}`
+      const dinnerM    = Math.max(0, parseFormattedInt(document.getElementById("detail-dinner-count"), 0));
+      const recvMagMin = applyDamageReduction(recvMag.min, dinnerM);
+      const recvMagMax = applyDamageReduction(recvMag.max, dinnerM);
+      outRecvDmg.textContent = recvMagMax > 0
+        ? `${formatMinMax(recvMagMin, recvMagMax)}`
         : "0（無効化）";
     }
   });

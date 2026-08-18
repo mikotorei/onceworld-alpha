@@ -64,6 +64,11 @@ const EQUIP_URL = (() => {
 
 function $(id) { return document.getElementById(id); }
 
+// 死刑囚の身代わり晩餐の所持数
+function bsDinnerCount() {
+  return Math.max(0, parseInt($("bs-dinner-count")?.value || "0", 10) || 0);
+}
+
 // クリティカル倍率。OFF のときは 1.0（デビルアイは効かない）
 function bsCriticalModifier() {
   if (!state.critical) return 1.0;
@@ -1201,7 +1206,7 @@ function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
 
   if (showDef) {
     const neededDef = requiredStatForNullify(scaled.atk);
-    const dmg = calcReceivedDamage(currentDef, scaled.atk, getElementModifier(state.heroElement, scaled.element));
+    const dmg = calcReceivedDamage(currentDef, scaled.atk, getElementModifier(state.heroElement, scaled.element), bsDinnerCount());
     const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
     appendResult(wrap, "【物理無効化】");
     appendResult(wrap, "必要DEF: " + fmt(neededDef) + " 以上");
@@ -1213,7 +1218,7 @@ function renderNullifyResult(wrap, picked, lv, lvLabel, hero) {
 
   if (showMdef) {
     const neededMdef = requiredStatForNullify(scaled.int);
-    const dmg = calcReceivedDamage(currentMdef, scaled.int, getElementModifier(state.heroElement, scaled.element));
+    const dmg = calcReceivedDamage(currentMdef, scaled.int, getElementModifier(state.heroElement, scaled.element), bsDinnerCount());
     const sep = document.createElement("hr"); sep.style.margin = "8px 0"; wrap.appendChild(sep);
     appendResult(wrap, "【魔法無効化】");
     appendResult(wrap, "必要MDEF: " + fmt(neededMdef) + " 以上");
@@ -1410,6 +1415,7 @@ document.querySelectorAll(".bs-critical-btn").forEach(btn => {
   });
 });
 $("bs-devil-eye")?.addEventListener("input", saveSimState);
+$("bs-dinner-count")?.addEventListener("input", saveSimState);
 syncCriticalUI();
 
 // 乱数ボタン
