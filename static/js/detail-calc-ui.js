@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const heroInputIds = [
     "detail-hero-vit", "detail-hero-spd", "detail-hero-atk",
     "detail-hero-int", "detail-hero-def", "detail-hero-mdef", "detail-hero-luk",
-    "detail-analysis-book", "detail-analysis-book-advanced", "detail-crystal-count"
+    "detail-analysis-book", "detail-analysis-book-advanced", "detail-crystal-count",
+    "detail-toushou-count", "detail-god-eye-count"
   ];
   const enemyInputIds = [
     "detail-enemy-vit", "detail-enemy-spd", "detail-enemy-atk",
@@ -55,8 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const calcBtn         = document.getElementById("detail-calc-btn");
   const criticalToggle  = document.getElementById("detail-critical-toggle");
   const godEyeRow       = document.getElementById("detail-god-eye-row");
-  const godEye0Btn      = document.getElementById("detail-god-eye-0");
-  const godEye1000Btn   = document.getElementById("detail-god-eye-1000");
+  const godEyeInput     = document.getElementById("detail-god-eye-count");
 
   const physicalPanel          = document.getElementById("detail-physical-panel");
   const magicPanel             = document.getElementById("detail-magic-panel");
@@ -95,6 +95,14 @@ document.addEventListener("DOMContentLoaded", function () {
     godEyeCount:      0
   };
 
+  // ゴッドオブデビルアイの所持数（0〜baseMax）。旧形式の 0/1000 もそのまま通る
+  function clampGodEye(v) {
+    const max = (typeof getMaterialMax === "function")
+      ? (getMaterialMax("god_of_devil_eye", false) || 1000) : 1000;
+    const n = Math.floor(Number(String(v ?? "").replace(/,/g, "")) || 0);
+    return Math.max(0, Math.min(max, Number.isFinite(n) ? n : 0));
+  }
+
   // --- UI ヘルパー ---
   function setHiddenForce(el, isHidden) {
     if (!el) return;
@@ -114,8 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
     debuffWoodMagicBtn.setAttribute("aria-pressed", state.debuffWood && state.attackType === "magic"    ? "true" : "false");
     criticalToggle.setAttribute("aria-pressed", state.critical ? "true" : "false");
     criticalToggle.textContent = state.critical ? "クリティカルON" : "クリティカルOFF";
-    godEye0Btn.setAttribute("aria-pressed",    state.godEyeCount === 0    ? "true" : "false");
-    godEye1000Btn.setAttribute("aria-pressed", state.godEyeCount === 1000 ? "true" : "false");
+    if (godEyeInput) godEyeInput.value = formatIntString(state.godEyeCount);
   }
 
   function applyModeUI() {
@@ -383,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
         state.debuffWood  = !!st.state.debuffWood;
         state.debuffDark  = !!st.state.debuffDark;
         state.critical    = state.attackType === "physical" ? !!st.state.critical : false;
-        state.godEyeCount = state.critical ? (Number(st.state.godEyeCount) === 1000 ? 1000 : 0) : 0;
+        state.godEyeCount = state.critical ? clampGodEye(st.state.godEyeCount) : 0;
       }
 
       if (st?.monster_id && Array.isArray(window.MONSTERS)) {
@@ -547,19 +554,18 @@ document.addEventListener("DOMContentLoaded", function () {
     calcBtn.click();
   });
 
-  godEye0Btn.addEventListener("click", () => {
-    state.godEyeCount = 0;
-    setDebuffButtons();
-    saveState();
-    calcBtn.click();
-  });
-
-  godEye1000Btn.addEventListener("click", () => {
-    state.godEyeCount = 1000;
-    setDebuffButtons();
-    saveState();
-    calcBtn.click();
-  });
+  if (godEyeInput) {
+    godEyeInput.addEventListener("input", () => {
+      state.godEyeCount = clampGodEye(godEyeInput.value);
+      saveState();
+    });
+    godEyeInput.addEventListener("blur", () => {
+      state.godEyeCount = clampGodEye(godEyeInput.value);
+      godEyeInput.value = formatIntString(state.godEyeCount);
+      saveState();
+      calcBtn.click();
+    });
+  }
 
   // --- クリアボタン ---
   document.getElementById("detail-hero-clear").addEventListener("click", () => {
