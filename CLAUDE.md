@@ -268,6 +268,27 @@ Lv.N→N+1 = 前回の必要経験値 × 天命・殲儀倍率 + 現在Lv × 5
 
 ## 注意事項
 
+### localStorage の保存形式
+
+localStorage の読み書きは `static/js/common/storage-manager.js` の `OWStorage` に集約している。
+`localStorage` を直接呼ばないこと。
+
+JSONで保存するキーは**封筒形式**で保存される。
+
+```json
+{ "__v": 1, "data": { ...実データ... } }
+```
+
+- `__v` を持たない保存済みデータは「バージョン0（旧形式）」として読み込まれる
+- 移行関数は `MIGRATIONS[key][n]`（バージョン n を n+1 にする関数）。
+  未定義なら無変換。現時点は全キー無変換
+- スキーマを変えるときは `SCHEMA_VERSIONS` の番号を上げ、`MIGRATIONS` に変換を足す
+- 生文字列で保存するキー（`onceworld_origin_exp` / `calc_active_tab`）は封筒の対象外
+
+`status_sim_build_slots_v1`（名前付きビルド）は**ユーザーが手で貯めた資産**で、
+失うと復元できない。旧形式を最初に読み書きした時点で
+`status_sim_build_slots_v1__pre_v1_backup` へ原本をバイト単位で退避する（一度だけ）。
+
 ### game-data.js の二重読み込み
 
 `static/js/common/game-data.js` はトップレベルに `const` 宣言（`SPELLS` / `MATERIALS` /
