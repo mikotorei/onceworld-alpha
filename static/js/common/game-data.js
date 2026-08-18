@@ -20,22 +20,92 @@ const SPELLS = [
 // ------------------------------------------------------------
 // 効果素材
 // ------------------------------------------------------------
-// baseMax: 通常時の所持上限。パンドラ所持で2倍になる（getMaterialMax を使うこと）
-// id は content/item/ のファイル名に合わせている
-// （スーパースクロールのみ素材ページ未作成のため super_scroll を暫定採用）
+// ui: UI自動生成用のメタ情報（material-ui.js が使う）
+//   kind    "count" = 数値入力
+//   unit    単位表示。null なら単位なし
+//   showMax MAXボタンを出すか
+//   slots   表示先。tool:section と inputId を明示する
+//           （MATERIALS の id とUI上のID語幹が一致しないため自動導出はしない）
 const MATERIALS = [
-  { id: "battle_crystal_cube",     name: "闘晶立方体",       baseMax: 1000, effect: "物理ダメージ +1%/個" },
-  { id: "magic_crystal_cube",      name: "魔晶立方体",       baseMax: 1000, effect: "解析書補正後のINT +1%/個" },
-  { id: "johanne_quill",           name: "ヨハネの羽ペン",   baseMax: 1000, effect: "振り分けPt +1%/個" },
-  { id: "johanne_altar",           name: "ヨハネの祭壇",     baseMax: 1000, effect: "振り分けPt +0.2%/個" },
-  { id: "status_crystal",          name: "ステータス天晶",   baseMax: 1000, effect: "振り分けPt +10000/個" },
-  { id: "super_scroll",            name: "スーパースクロール", baseMax: 1000, effect: "振り分けPt +0.2%/個" },
-  { id: "forbidden_liquid",        name: "禁域の液体",       baseMax: 1000, effect: "主人公HP +1%/個" },
-  { id: "ancient_tilaphis_statue", name: "古のティラピス像", baseMax: 1000, effect: "天命輪廻倍率 -0.00005/個" },
-  { id: "sky_statue_adventurer",   name: "天空像~冒険者~",   baseMax: 1000, effect: "天空回廊で所持数分フロアが進む" },
-  { id: "sky_statue_devil",        name: "天空像~悪魔~",     baseMax: 1000, effect: "SG撃破時に所持数×100F追加" },
-  { id: "sage_lost_item",          name: "賢者の落とし物",   baseMax: 1000, effect: "基礎ポイント上限 +10/個" },
-  { id: "forbidden_book",          name: "禁域の書物",       baseMax: 1000, effect: "基礎ポイント上限 +80/個" }
+  { id: "battle_crystal_cube",     name: "闘晶立方体",       baseMax: 1000, effect: "物理ダメージ +1%/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "build-sim", section: "physical", inputId: "bs-toushou-count" },
+      { tool: "calc",      section: "physical", inputId: "toushou-count" },
+      { tool: "detail",    section: "physical", inputId: "detail-toushou-count" }
+    ] } },
+  { id: "magic_crystal_cube",      name: "魔晶立方体",       baseMax: 1000, effect: "解析書補正後のINT +1%/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "build-sim", section: "magic", inputId: "bs-crystal-count" },
+      { tool: "calc",      section: "magic", inputId: "crystal-count" },
+      { tool: "detail",    section: "magic", inputId: "detail-crystal-count" }
+    ] } },
+  { id: "analysis_book",           name: "解析書",           baseMax: 1000, effect: "魔法がわずかに強くなる（1冊INT+1相当）",
+    ui: { kind: "count", unit: "冊", showMax: false, slots: [
+      { tool: "build-sim", section: "magic", inputId: "bs-analysis-book" },
+      { tool: "calc",      section: "magic", inputId: "analysis-book" },
+      { tool: "detail",    section: "magic", inputId: "detail-analysis-book" }
+    ] } },
+  { id: "analysis_of_analysis",    name: "解析書の解析書",   baseMax: 1000, effect: "解析書の効果 +10%",
+    ui: { kind: "count", unit: "冊", showMax: false, slots: [
+      { tool: "build-sim", section: "magic", inputId: "bs-analysis-book-advanced" },
+      { tool: "calc",      section: "magic", inputId: "analysis-book-advanced" },
+      { tool: "detail",    section: "magic", inputId: "detail-analysis-book-advanced" }
+    ] } },
+  { id: "god_of_devil_eye",        name: "ゴッドオブデビルアイ", baseMax: 1000, effect: "クリティカル時ダメージ +0.3%/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "build-sim", section: "physical", inputId: "bs-devil-eye" },
+      { tool: "calc",      section: "critical", inputId: "god-eye-count" },
+      { tool: "detail",    section: "critical", inputId: "detail-god-eye-count" }
+    ] } },
+  { id: "johanne_quill",           name: "ヨハネの羽ペン",   baseMax: 1000, effect: "振り分けPt +1%/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "stat-point", inputId: "bs-pen-count" },
+      { tool: "status",    section: "stat-point", inputId: "ss-pen-count" }
+    ] } },
+  { id: "johanne_altar",           name: "ヨハネの祭壇",     baseMax: 1000, effect: "振り分けPt +0.2%/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "stat-point", inputId: "bs-altar-count" },
+      { tool: "status",    section: "stat-point", inputId: "ss-altar-count" }
+    ] } },
+  { id: "status_crystal",          name: "ステータス天晶",   baseMax: 1000, effect: "振り分けPt +10000/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "stat-point", inputId: "bs-tensho-count" },
+      { tool: "status",    section: "stat-point", inputId: "ss-tensho-count" }
+    ] } },
+  { id: "super_scroll",            name: "スーパースクロール", baseMax: 1000, effect: "振り分けPt +0.2%/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "stat-point", inputId: "bs-scroll-count" },
+      { tool: "status",    section: "stat-point", inputId: "ss-scroll-count" }
+    ] } },
+  { id: "sage_lost_item",          name: "賢者の落とし物",   baseMax: 1000, effect: "基礎ポイント上限 +10/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "point-limit", inputId: "bs-sage-drop" },
+      { tool: "status",    section: "point-limit", inputId: "ss-sage-drop" }
+    ] } },
+  { id: "forbidden_book",          name: "禁域の書物",       baseMax: 1000, effect: "基礎ポイント上限 +80/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "build-sim", section: "point-limit", inputId: "bs-forbidden-book" },
+      { tool: "status",    section: "point-limit", inputId: "ss-forbidden-book" }
+    ] } },
+  { id: "dragon_brand_kneader",    name: "ドラゴン印の手ごね機", baseMax: 1000, effect: "ペットの粉使用上限 +1/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [
+      { tool: "pet-sim", section: "common", inputId: "kneaderInput" }
+    ] } },
+  { id: "ancient_tilaphis_statue", name: "古のティラピス像", baseMax: 1000, effect: "天命輪廻倍率 -0.00005/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "exp-calc", section: "hero", inputId: "heroTilapia" },
+      { tool: "exp-calc", section: "pet",  inputId: "petTilapia" }
+    ] } },
+  { id: "sky_statue_adventurer",   name: "天空像~冒険者~",   baseMax: 1000, effect: "天空回廊で所持数分フロアが進む",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "guide", section: "common", inputId: "ownedAdventurer" }
+    ] } },
+  { id: "sky_statue_devil",        name: "天空像~悪魔~",     baseMax: 1000, effect: "SG撃破時に所持数×100F追加",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [
+      { tool: "guide", section: "common", inputId: "ownedDevil" }
+    ] } },
+  { id: "forbidden_liquid",        name: "禁域の液体",       baseMax: 1000, effect: "主人公HP +1%/個",
+    ui: { kind: "count", unit: "個", showMax: false, slots: [] } }   // UI未実装
 ];
 
 // ------------------------------------------------------------
