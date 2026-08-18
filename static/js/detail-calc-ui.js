@@ -163,7 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
       luk:                 Math.max(0, parseFormattedInt(document.getElementById("detail-hero-luk"), 0)),
       analysisBook:        Math.max(0, parseFormattedInt(document.getElementById("detail-analysis-book"), 0)),
       analysisBookAdvanced: Math.max(0, parseFormattedInt(document.getElementById("detail-analysis-book-advanced"), 0)),
-      crystalCount:        Math.max(0, parseFormattedInt(document.getElementById("detail-crystal-count"), 0))
+      crystalCount:        Math.max(0, parseFormattedInt(document.getElementById("detail-crystal-count"), 0)),
+      toushouCount:        Math.max(0, parseFormattedInt(document.getElementById("detail-toushou-count"), 0))
     };
   }
 
@@ -290,6 +291,54 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {}
   }
 
+  // 結果表示を初期状態（-）に戻す
+  function clearResults() {
+    [outEnemyHp, outPhyDmg, outHits, outPhyMinAtk, outPhyNpan, outPhyOne, outPhyOverkill,
+     outCriticalRate, outMagDmg, outMagMinInt, outMagNpan, outMagOne, outMagOverkill,
+     outHitLuk, outHitLukStable, outEvadeLuk, outNullDef, outNullMdef, outRecvDmg].forEach(el => {
+      if (el) el.textContent = "-";
+    });
+  }
+
+  // 保存値をクリアして初期状態に戻す
+  function resetAll() {
+    OWStorage.remove(LS_KEY);
+
+    // 自ステ・敵ステの入力欄を初期値に
+    ["detail-hero-vit", "detail-hero-spd", "detail-hero-atk", "detail-hero-int",
+     "detail-hero-def", "detail-hero-mdef", "detail-hero-luk",
+     "detail-analysis-book", "detail-analysis-book-advanced",
+     "detail-crystal-count", "detail-toushou-count",
+     "detail-enemy-vit", "detail-enemy-spd", "detail-enemy-atk", "detail-enemy-int",
+     "detail-enemy-def", "detail-enemy-mdef", "detail-enemy-luk"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = formatIntString(0);
+    });
+    if (lvInput) lvInput.value = formatIntString(1);
+
+    // 状態を初期値に
+    state.heroElement     = "fire";
+    state.attackType      = "physical";
+    state.spell           = "fire";
+    state.enemyElement    = "";
+    state.enemyAttackType = "physical";
+    state.debuffWood      = false;
+    state.debuffDark      = false;
+    state.critical        = false;
+    state.godEyeCount     = 0;
+
+    // モンスター選択と結果表示をクリア
+    pickedMonster = null;
+    if (search) search.value = "";
+    if (selectedBox) selectedBox.hidden = true;
+    if (selectedName) selectedName.textContent = "";
+    clearResults();
+    applyModeUI();
+
+    // applyModeUI が saveState を呼ぶため、最後に消し直す
+    OWStorage.remove(LS_KEY);
+  }
+
   function loadState() {
     try {
       const st = OWStorage.read(LS_KEY);
@@ -306,7 +355,8 @@ document.addEventListener("DOMContentLoaded", function () {
           "detail-hero-luk":                "luk",
           "detail-analysis-book":           "analysisBook",
           "detail-analysis-book-advanced":  "analysisBookAdvanced",
-          "detail-crystal-count":           "crystalCount"
+          "detail-crystal-count":           "crystalCount",
+          "detail-toushou-count":           "toushouCount"
         };
         Object.keys(heroMap).forEach(id => {
           const el = document.getElementById(id);
@@ -587,6 +637,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // --- 計算ボタン ---
+  // リセットボタン（誤操作防止のため確認ダイアログを挟む）
+  document.getElementById("detail-reset-btn")?.addEventListener("click", () => {
+    if (!window.confirm("入力内容と保存された値をリセットし、初期状態に戻します。よろしいですか？")) return;
+    resetAll();
+  });
+
   calcBtn.addEventListener("click", () => {
     const hero  = getHeroInputs();
     const base  = getEnemyInputs();

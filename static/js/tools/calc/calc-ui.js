@@ -146,11 +146,52 @@ document.addEventListener("DOMContentLoaded", function () {
         spd:                 normalizeFormattedNonNegIntValue(document.getElementById("hero-spd").value, 0),
         analysisBook:         normalizeFormattedNonNegIntValue(document.getElementById("analysis-book").value, 0),
         analysisBookAdvanced: normalizeFormattedNonNegIntValue(document.getElementById("analysis-book-advanced").value, 0),
-        crystalCount:         normalizeFormattedNonNegIntValue(document.getElementById("crystal-count").value, 0)
+        crystalCount:         normalizeFormattedNonNegIntValue(document.getElementById("crystal-count").value, 0),
+        toushouCount:         normalizeFormattedNonNegIntValue(document.getElementById("toushou-count")?.value, 0)
       };
       const st = { monster_id: picked ? picked.id : "", lv: currentLv, hero, state };
       OWStorage.write(LS_KEY, st);
     } catch (e) {}
+  }
+
+  // 結果表示を初期状態（-）に戻す
+  function clearResults() {
+    [outEnemyHp, outPhyDmg, outHits, outPhyNpan, outPhyOne, outPhyOverkill,
+     outMagDmg, outMagNpan, outMagOne, outMagOverkill,
+     outHitLuk, outHitLukStable, outEvadeLuk, outNullDef, outNullMdef].forEach(el => {
+      if (el) el.textContent = "-";
+    });
+  }
+
+  // 保存値をクリアして初期状態に戻す
+  function resetAll() {
+    OWStorage.remove(LS_KEY);
+
+    // 入力欄を初期値に
+    ["hero-atk", "hero-int", "hero-spd", "analysis-book",
+     "analysis-book-advanced", "crystal-count", "toushou-count"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = formatIntString(0);
+    });
+
+    // 状態を初期値に
+    state.heroElement = "fire";
+    state.attackType  = "physical";
+    state.spell       = "fire";
+    state.debuffWood  = false;
+    state.debuffDark  = false;
+    state.critical    = false;
+    state.godEyeCount = 0;
+
+    // モンスター選択と結果表示をクリア
+    currentLv = 1;
+    if (search) search.value = "";
+    clearPicked();
+    clearResults();
+    applyModeUI();
+
+    // clearPicked / applyModeUI が saveState を呼ぶため、最後に消し直す
+    OWStorage.remove(LS_KEY);
   }
 
   function loadState() {
@@ -165,7 +206,8 @@ document.addEventListener("DOMContentLoaded", function () {
           "hero-spd":              "spd",
           "analysis-book":          "analysisBook",
           "analysis-book-advanced": "analysisBookAdvanced",
-          "crystal-count":          "crystalCount"
+          "crystal-count":          "crystalCount",
+          "toushou-count":          "toushouCount"
         };
         Object.keys(map).forEach(id => {
           const el = document.getElementById(id);
@@ -466,6 +508,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // --- 計算ボタン ---
+  // リセットボタン（誤操作防止のため確認ダイアログを挟む）
+  document.getElementById("calc-reset-btn")?.addEventListener("click", () => {
+    if (!window.confirm("入力内容と保存された値をリセットし、初期状態に戻します。よろしいですか？")) return;
+    resetAll();
+  });
+
   calcBtn.addEventListener("click", () => {
     if (!picked || !enemyScaled) return;
 
