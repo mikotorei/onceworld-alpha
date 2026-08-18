@@ -434,3 +434,10 @@
 #basePointTotal {
   width: 140px;
 }
+
+/* パンドラの箱のトグル行（素材欄の先頭） */
+.material-pandora-row{
+  border-bottom: 1px dashed rgba(0,0,0,0.25);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}

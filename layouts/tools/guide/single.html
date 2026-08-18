@@ -126,6 +126,10 @@
 </div>{{/* /.guide-wrap */}}
 
 {{ if .Params.show_floor_tool }}
+  <script src="{{ "js/common/storage-manager.js" | relURL }}" defer></script>
+  <script src="{{ "js/common/game-data.js" | relURL }}" defer></script>
+  <script src="{{ "js/common/pandora.js" | relURL }}" defer></script>
+  <script src="{{ "js/common/material-ui.js" | relURL }}" defer></script>
   <script src="{{ "js/common/calc-utils.js" | relURL }}" defer></script>
   <script src="{{ "js/guide-floor-calc.js?v=2" | relURL }}" defer></script>
 {{ end }}
