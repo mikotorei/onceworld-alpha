@@ -27,12 +27,14 @@
     SS_CALC:       "status_sim_ss_calc_v1",
     BUILD_SIM:     "build_sim_state_v1",
     EXP_HUNT:      "exp_calc_hunt_v1",
-    CALC_TAB:      "calc_active_tab"             // 生文字列 "integrated"/"detail"
+    CALC_TAB:      "calc_active_tab",            // 生文字列 "integrated"/"detail"
+    PANDORA:       "onceworld_pandora"           // boolean。効果素材の所持上限が2倍になる
   };
 
   // 現行スキーマバージョン。ここに載っているキーだけ封筒に入る。
   // 生文字列キー（ORIGIN_EXP / CALC_TAB）は対象外。
   const SCHEMA_VERSIONS = {
+    [KEYS.PANDORA]:       1,
     [KEYS.ORIGIN_EXP]:    1,
     [KEYS.CALC]:          1,
     [KEYS.DETAIL_CALC]:   1,
