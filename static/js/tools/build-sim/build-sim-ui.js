@@ -64,6 +64,23 @@ const EQUIP_URL = (() => {
 
 function $(id) { return document.getElementById(id); }
 
+// クリティカル倍率。OFF のときは 1.0（デビルアイは効かない）
+function bsCriticalModifier() {
+  if (!state.critical) return 1.0;
+  const n = Math.max(0, parseInt($("bs-devil-eye")?.value || "0", 10) || 0);
+  return getCriticalModifier(n);
+}
+
+// クリティカルUIの表示を state に合わせる
+function syncCriticalUI() {
+  document.querySelectorAll(".bs-critical-btn").forEach(b => {
+    b.setAttribute("aria-pressed",
+      (b.getAttribute("data-val") === "1") === state.critical ? "true" : "false");
+  });
+  const row = $("bs-devil-eye-row");
+  if (row) row.style.setProperty("display", state.critical ? "" : "none", state.critical ? "" : "important");
+}
+
 const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
 const tabPanels  = Array.from(document.querySelectorAll("[data-panel]"));
 
@@ -93,7 +110,8 @@ const state = {
   hasCosmoCube:    false,
   reverseHitRate:  0,
   useMinRandom:    false,
-  calcMode:        "damage"
+  calcMode:        "damage",
+  critical:        false
 };
 
 let lastReverseResult = null;
@@ -203,6 +221,7 @@ function loadSimState() {
       state.reverseHitRate = [0,1,50,99].includes(Number(d.state.reverseHitRate)) ? Number(d.state.reverseHitRate) : 0;
       if (["damage","nullify"].includes(d.state.calcMode)) state.calcMode = d.state.calcMode;
       state.useMinRandom = !!d.state.useMinRandom;
+      state.critical     = !!d.state.critical;
       if (Number.isFinite(Number(d.state.npanLimit))) state.npanLimit = Math.max(1, Number(d.state.npanLimit));
     }
     if (d.pointLimit) {
@@ -450,10 +469,10 @@ function renderReverseResult() {
   const useAssassinClaw = weaponId === "assassin_claw";
 
   if (state.attackType === "physical") {
-    const touShouCount = Math.max(0, Math.min(1000, parseInt($("bs-toushou-count")?.value||"0", 10)||0));
-    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom, useAssassinClaw, touShouCount);
-    const bsTouShouCount = Math.max(0, Math.min(1000, parseInt($("bs-toushou-count")?.value||"0", 10)||0));
-    const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark, bsTouShouCount);
+    const touShouCount = Math.max(0, parseInt($("bs-toushou-count")?.value||"0", 10)||0);
+    const critMod = bsCriticalModifier();
+    neededVal = reversePhysicalAtk(picked, lv, hero.spd, state.heroElement, state.debuffWood, state.debuffDark, targetNpan, state.useMinRandom, useAssassinClaw, touShouCount, critMod);
+    const current = calcPhysicalKillInfo(hero.atk, hero.spd, picked, lv, state.heroElement, state.debuffWood, state.debuffDark, touShouCount, critMod);
     statKey = "atk";
     const clawLabel = useAssassinClaw ? " 【暗殺者のカギ爪：DEF無視・ダメージ1/10】" : "";
     const randomLabel = state.useMinRandom ? "（最低乱数）" : "（平均）";
@@ -1381,6 +1400,17 @@ $("bs-reverse-crit")?.addEventListener("change", () => {
   if (v < 10) el.value = "10";
   else if (v > 90) el.value = "90";
 });
+
+// クリティカル切替（ON のときだけデビルアイが効く）
+document.querySelectorAll(".bs-critical-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.critical = btn.getAttribute("data-val") === "1";
+    syncCriticalUI();
+    saveSimState();
+  });
+});
+$("bs-devil-eye")?.addEventListener("input", saveSimState);
+syncCriticalUI();
 
 // 乱数ボタン
 document.querySelectorAll(".bs-random-btn").forEach(btn => {

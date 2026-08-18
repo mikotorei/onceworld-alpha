@@ -500,10 +500,17 @@
         <button id="bs-magic-all1000-btn" type="button" class="chip-btn">解析書・魔晶ALL1000</button>
       </div>
     </div>
-    <div class="bs-phys-only" style="margin-top:12px">
+    <div class="mode-row bs-phys-only" style="margin-top:12px">
+      <span class="mode-label">クリティカル</span>
+      <div class="chip-group">
+        <button class="chip-btn bs-critical-btn" type="button" data-val="0" aria-pressed="true">OFF</button>
+        <button class="chip-btn bs-critical-btn" type="button" data-val="1" aria-pressed="false">ON</button>
+      </div>
+    </div>
+    <div class="bs-phys-only" id="bs-devil-eye-row" style="margin-top:12px">
       <div class="hero-grid">
         <div class="hero-row hero-stat-row">
-          <span class="hero-label">デビルアイ</span>
+          <span class="hero-label">ゴッドオブデビルアイ</span>
           <input id="bs-devil-eye" type="number" min="0" max="1000" value="0">
         </div>
       </div>
