@@ -36,9 +36,9 @@
 
     // ▼ 起源チェックの復元（localStorage）
     if (originExp) {
-      const saved = OWStorage.readRaw(STORAGE_KEY_ORIGIN);
-      if (saved === "1") originExp.checked = true;
-      if (saved === "0") originExp.checked = false;
+      // 保存形式は boolean。旧形式の "1"/"0" は OWStorage の移行で吸収される
+      const saved = OWStorage.read(STORAGE_KEY_ORIGIN, null);
+      if (typeof saved === "boolean") originExp.checked = saved;
     }
 
     const recalcStats = (lv) => {
@@ -137,7 +137,7 @@
     if (originExp) {
       originExp.addEventListener("change", () => {
         // ▼ 起源チェックの保存（localStorage）
-        OWStorage.writeRaw(STORAGE_KEY_ORIGIN, originExp.checked ? "1" : "0");
+        OWStorage.write(STORAGE_KEY_ORIGIN, originExp.checked);
 
         requestRecalc(true);
       });

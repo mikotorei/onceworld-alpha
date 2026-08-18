@@ -283,7 +283,9 @@ JSONで保存するキーは**封筒形式**で保存される。
 - 移行関数は `MIGRATIONS[key][n]`（バージョン n を n+1 にする関数）。
   未定義なら無変換。現時点は全キー無変換
 - スキーマを変えるときは `SCHEMA_VERSIONS` の番号を上げ、`MIGRATIONS` に変換を足す
-- 生文字列で保存するキー（`onceworld_origin_exp` / `calc_active_tab`）は封筒の対象外
+- 生文字列で保存するキーは `calc_active_tab` のみ。これだけ封筒の対象外
+- `onceworld_origin_exp` は boolean で保存する。旧形式の `"1"` / `"0"` は
+  `MIGRATIONS` の v0→v1 で boolean に変換されるため、読み込み側は boolean だけ見ればよい
 
 `status_sim_build_slots_v1`（名前付きビルド）は**ユーザーが手で貯めた資産**で、
 失うと復元できない。旧形式を最初に読み書きした時点で

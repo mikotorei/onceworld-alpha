@@ -19,7 +19,7 @@
 
 (() => {
   const KEYS = {
-    ORIGIN_EXP:    "onceworld_origin_exp",       // 生文字列 "1"/"0"
+    ORIGIN_EXP:    "onceworld_origin_exp",       // boolean（旧形式の "1"/"0" は移行で吸収）
     CALC:          "calc_state_v5",
     DETAIL_CALC:   "detail_calc_state_v1",
     STATUS_INLINE: "status_sim_inline_v7",
@@ -33,6 +33,7 @@
   // 現行スキーマバージョン。ここに載っているキーだけ封筒に入る。
   // 生文字列キー（ORIGIN_EXP / CALC_TAB）は対象外。
   const SCHEMA_VERSIONS = {
+    [KEYS.ORIGIN_EXP]:    1,
     [KEYS.CALC]:          1,
     [KEYS.DETAIL_CALC]:   1,
     [KEYS.STATUS_INLINE]: 1,
@@ -45,7 +46,13 @@
   // 移行関数。MIGRATIONS[key][n] は「バージョン n のデータを n+1 にする」関数。
   // 未定義なら無変換（データをそのまま次のバージョンとして扱う）。
   // 例: MIGRATIONS[KEYS.CALC] = { 1: (d) => ({ ...d, newField: 0 }) };
-  const MIGRATIONS = {};
+  const MIGRATIONS = {
+    // 経験の起源: 旧形式は生文字列 "1"/"0"（JSON.parse すると数値 1/0）だった。
+    // 数値・文字列・真偽値のいずれで保存されていても boolean に揃える。
+    [KEYS.ORIGIN_EXP]: {
+      0: (d) => d === true || d === 1 || d === "1"
+    }
+  };
 
   // 失うと復元できないユーザー資産。旧形式を最初に読んだ時点で退避する。
   const BACKUP_KEYS = [KEYS.BUILD_SLOTS];
