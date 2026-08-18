@@ -39,30 +39,7 @@
               <button class="chip-btn bs-cosmocube-btn" type="button" data-val="1" aria-pressed="false">所持</button>
             </div>
           </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ヨハネの羽ペン</span>
-            <input id="bs-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-pen-count').value='1000';document.getElementById('bs-pen-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ヨハネの祭壇</span>
-            <input id="bs-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-altar-count').value='1000';document.getElementById('bs-altar-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">ステータス天晶</span>
-            <input id="bs-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-tensho-count').value='1000';document.getElementById('bs-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">スーパースクロール</span>
-            <input id="bs-scroll-count" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-scroll-count').value='1000';document.getElementById('bs-scroll-count').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1000個）</span>
-          </div>
+          <div data-material-slot="build-sim:stat-point"></div>
           <div class="bs-point-limit-result">
             <span class="bs-point-limit-label">獲得振り分けポイント</span>
             <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
@@ -76,18 +53,7 @@
 <div class="bs-point-sub-section">
         <summary>振り分け上限を計算する</summary>
         <div class="bs-point-limit-grid">
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">賢者の落とし物</span>
-            <input id="bs-sage-drop" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-sage-drop').value='1000';document.getElementById('bs-sage-drop').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1,000個）</span>
-          </div>
-          <div class="bs-point-limit-row">
-            <span class="bs-point-limit-label">禁域の書物</span>
-            <input id="bs-forbidden-book" type="number" min="0" max="1000" value="0" class="lv-input">
-            <button type="button" class="chip-btn" onclick="document.getElementById('bs-forbidden-book').value='1000';document.getElementById('bs-forbidden-book').dispatchEvent(new Event('input'))">MAX</button>
-            <span class="bs-label-text">個（最大1,000個）</span>
-          </div>
+          <div data-material-slot="build-sim:point-limit"></div>
           <div class="bs-point-limit-row">
             <span class="bs-point-limit-label">超越の契約書</span>
             <div class="chip-group">
@@ -661,6 +627,7 @@
 <script src="{{ "js/common/help-drawer.js" | relURL }}" defer></script>
 <script src="{{ "js/common/storage-manager.js" | relURL }}" defer></script>
 <script src="{{ "js/common/game-data.js" | relURL }}" defer></script>
+<script src="{{ "js/common/material-ui.js" | relURL }}" defer></script>
 <script src="{{ "js/common/calc-logic.js" | relURL }}" defer></script>
 <script src="{{ "js/tools/status/status-sim.js" | relURL }}" defer></script>
 <script src="{{ "js/tools/build-sim/build-sim-logic.js" | relURL }}" defer></script>

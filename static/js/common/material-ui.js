@@ -116,4 +116,10 @@
   }
 
   window.OWMaterialUI = { buildMaterialField, renderMaterialSlots, validateMaterialSlots };
+
+  // スロットを自動で埋める。
+  // 利用側のJSは DOMContentLoaded 内で入力欄を参照するため、
+  // それより早い DOMContentLoaded の最初のリスナーとして登録する
+  // （material-ui.js を利用側より前に読み込むこと）。
+  document.addEventListener("DOMContentLoaded", () => renderMaterialSlots(document));
 })();
