@@ -60,10 +60,16 @@
   }
 
   // ページ内の data-material-slot をすべて埋める。生成した欄数を返す
+  // data-pandora-slot の容器にはパンドラのトグルだけを置く
   function renderMaterialSlots(root) {
     const r = root || document;
     const slots = r.querySelectorAll("[data-material-slot]");
     let count = 0;
+
+    r.querySelectorAll("[data-pandora-slot]").forEach(container => {
+      container.innerHTML = "";
+      container.appendChild(buildPandoraToggle());
+    });
 
     slots.forEach(container => {
       const key = (container.getAttribute("data-material-slot") || "").trim();

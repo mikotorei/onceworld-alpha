@@ -7,8 +7,8 @@
  * ═══════════════════════════════════════════════
  *
  * 変数定義：
- *   A = 天空像～悪魔～  所持数（0〜2000、上限は1000/2000で切替可）
- *   B = 天空像～冒険者～ 所持数（0〜2000、100の倍数制約なし）
+ *   A = 天空像～悪魔～  所持数（上限はパンドラの箱に連動: 1000 / 2000）
+ *   B = 天空像～冒険者～ 所持数（上限はパンドラの箱に連動: 1000 / 2000）
  *
  * ── スタート地点 ──
  *   1F        : 初回に冒険者像2個を一時的に置く → 初回到達 = B F
@@ -31,7 +31,17 @@
 document.addEventListener("DOMContentLoaded", function () {
 
   /* ── 定数 ── */
-  const MAX_B      = 2000;
+  // 天空像の所持上限。パンドラの箱の所持で 1000 -> 2000 になる
+  // 変数名の A / B は入力欄の対応が逆になっている点に注意
+  //   limitA = 悪魔像（ownedDevil） / limitB = 冒険者像（ownedAdventurer）
+  function capAdventurer() {
+    return (typeof OWPandora !== "undefined")
+      ? OWPandora.materialCap("sky_statue_adventurer", 1000) : 1000;
+  }
+  function capDevil() {
+    return (typeof OWPandora !== "undefined")
+      ? OWPandora.materialCap("sky_statue_devil", 1000) : 1000;
+  }
   const BOSS_FLOORS = [10000, 100000, 1000000, 10000000];
 
   /* ── DOM 参照 ── */
@@ -66,15 +76,29 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ── 所持数の上限clamp ── */
-  ["ownedAdventurer", "ownedDevil"].forEach(function (id) {
-    var el = document.getElementById(id);
+  [["ownedAdventurer", capAdventurer], ["ownedDevil", capDevil]].forEach(function (pair) {
+    var el = document.getElementById(pair[0]);
     if (!el) return;
     el.addEventListener("blur", function () {
+      var max = pair[1]();
       var v = parseInt(String(el.value||"").replace(/,/g, ""), 10) || 0;
-      if (v > 2000) el.value = (2000).toLocaleString("ja-JP");
-      if (v < 0)    el.value = "0";
+      if (v > max) el.value = max.toLocaleString("ja-JP");
+      if (v < 0)   el.value = "0";
     });
   });
+
+  /* ── パンドラの状態が変わったら所持数を上限に合わせて切り詰める ── */
+  if (typeof OWPandora !== "undefined" && typeof OWPandora.onChange === "function") {
+    OWPandora.onChange(function () {
+      [["ownedAdventurer", capAdventurer], ["ownedDevil", capDevil]].forEach(function (pair) {
+        var el = document.getElementById(pair[0]);
+        if (!el) return;
+        var max = pair[1]();
+        var v = parseInt(String(el.value||"").replace(/,/g, ""), 10) || 0;
+        if (v > max) el.value = max.toLocaleString("ja-JP");
+      });
+    });
+  }
 
   /* ── カンマを除去して整数取得 ── */
   function getInt(el, fallback) {
@@ -87,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /* ── 状態 ── */
   let startType = "normal";  // normal | warp1 | warp2
   let calcMode  = "list";    // list | owned
-  let maxA      = 2000;
+
 
   /* ── スタート地点切替 ── */
   startTypeBtns.forEach(function (btn) {
@@ -113,14 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /* ── 悪魔像上限切替 ── */
-  maxABtns.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      maxA = parseInt(btn.getAttribute("data-max-a"), 10) || 2000;
-      maxABtns.forEach(function (b) {
-        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-      });
-    });
-  });
+  /* 天空像の上限はパンドラの箱に連動する（手動切替は廃止） */
 
   /**
    * ボスフロアかどうか判定
@@ -310,13 +327,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    var limitA = maxA;
-    var limitB = MAX_B;
+    var maxAdventurer = capAdventurer();
+    var maxDevil      = capDevil();
+    var limitA = maxDevil;
+    var limitB = maxAdventurer;
     var isOwnedMode = (calcMode === "owned");
 
     if (isOwnedMode) {
-      limitB = Math.min(MAX_B, Math.max(0, getInt(inputOwnedB, 0)));
-      limitA = Math.min(2000,  Math.max(0, getInt(inputOwnedA, 0)));
+      limitB = Math.min(maxAdventurer, Math.max(0, getInt(inputOwnedB, 0)));
+      limitA = Math.min(maxDevil,      Math.max(0, getInt(inputOwnedA, 0)));
     }
 
     var combinations = findCombinations(target, startFloor, limitA, limitB);
