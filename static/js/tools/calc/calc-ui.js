@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const analysisBookRow         = document.getElementById("analysis-book-row");
   const analysisBookAdvancedRow = document.getElementById("analysis-book-advanced-row");
   const crystalRow              = document.getElementById("crystal-row");
+  const toushouRow              = document.getElementById("toushou-row");
 
   const attackTypeButtons  = Array.from(document.querySelectorAll("[data-attack-type]"));
   const heroElementButtons = Array.from(document.querySelectorAll("[data-hero-element]"));
@@ -121,6 +122,8 @@ document.addEventListener("DOMContentLoaded", function () {
     setHiddenForce(analysisBookRow,         !isMagic);
     setHiddenForce(analysisBookAdvancedRow, !isMagic);
     setHiddenForce(crystalRow,              !isMagic);
+    // 闘晶立方体は物理ダメージにのみ効くため物理タブ限定
+    setHiddenForce(toushouRow,              isMagic);
     setHiddenForce(criticalToggle,          isMagic);
     setHiddenForce(godEyeRow, isMagic || !state.critical);
     setHiddenForce(resultPhysical,          isMagic);
