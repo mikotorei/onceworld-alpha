@@ -343,25 +343,22 @@ clearResult();
 // ============================================================
 // 討伐数計算
 // ============================================================
-var HUNT_STORAGE_KEY = "exp_calc_hunt_v1";
+var HUNT_STORAGE_KEY = OWStorage.KEYS.EXP_HUNT;
 
 function saveHuntSettings() {
-  try {
-    localStorage.setItem(HUNT_STORAGE_KEY, JSON.stringify({
+  OWStorage.write(HUNT_STORAGE_KEY, {
       kigen:    $("hasKigenOn")?.getAttribute("aria-pressed") === "true",
       medal:    parseInt($("medalCount")?.value||"0", 10)||0,
       zipang:   parseInt($("zipangCount")?.value||"0", 10)||0,
       luminous: parseInt($("luminousCount")?.value||"0", 10)||0,
       house:    $("hasHouse")?.getAttribute("aria-pressed") === "true",
-    }));
-  } catch(e) {}
+  });
 }
 
 function loadHuntSettings() {
   try {
-    var raw = localStorage.getItem(HUNT_STORAGE_KEY);
-    if (!raw) return;
-    var d = JSON.parse(raw);
+    var d = OWStorage.read(HUNT_STORAGE_KEY);
+    if (!d) return;
     if ($("hasKigenOn")) $("hasKigenOn").setAttribute("aria-pressed", d.kigen ? "true" : "false");
     if ($("hasKigen"))   $("hasKigen").setAttribute("aria-pressed",   d.kigen ? "false" : "true");
     if ($("medalCount"))   $("medalCount").value   = d.medal   || 0;

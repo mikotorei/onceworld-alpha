@@ -40,7 +40,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const TAB_KEY = "calc_active_tab";
+  const TAB_KEY = OWStorage.KEYS.CALC_TAB;
   const buttons = Array.from(document.querySelectorAll(".tool-tab-btn"));
   const panels  = {
     integrated: document.getElementById("tab-integrated"),
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
       el.hidden = isHidden;
       el.style.setProperty("display", isHidden ? "none" : "", isHidden ? "important" : "");
     });
-    try { localStorage.setItem(TAB_KEY, tabId); } catch (e) {}
+    OWStorage.writeRaw(TAB_KEY, tabId);
   }
 
   buttons.forEach(btn => {
@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const hash  = location.hash.replace("#", "");
-  const saved = (() => { try { return localStorage.getItem(TAB_KEY); } catch(e) { return null; } })();
+  const saved = OWStorage.readRaw(TAB_KEY);
   const initial = (hash && panels[hash]) ? hash : (saved && panels[saved]) ? saved : "integrated";
   switchTab(initial);
 });
@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
 <script src="{{ "js/common/calc-utils.js" | relURL }}"></script>
+<script src="{{ "js/common/storage-manager.js" | relURL }}"></script>
 <script src="{{ "js/common/game-data.js" | relURL }}"></script>
 <script src="{{ "js/common/calc-logic.js" | relURL }}"></script>
 

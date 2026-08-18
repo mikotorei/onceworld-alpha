@@ -2,7 +2,7 @@
 (() => {
   const LEVELSCALE = 0.1;
 
-  const STORAGE_KEY_ORIGIN = "onceworld_origin_exp"; // 経験の起源 保存キー
+  const STORAGE_KEY_ORIGIN = OWStorage.KEYS.ORIGIN_EXP; // 経験の起源 保存キー
 
   const clampLv = (v) => {
     const n = parseInt(v, 10);
@@ -36,11 +36,9 @@
 
     // ▼ 起源チェックの復元（localStorage）
     if (originExp) {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY_ORIGIN);
-        if (saved === "1") originExp.checked = true;
-        if (saved === "0") originExp.checked = false;
-      } catch (_) {}
+      const saved = OWStorage.readRaw(STORAGE_KEY_ORIGIN);
+      if (saved === "1") originExp.checked = true;
+      if (saved === "0") originExp.checked = false;
     }
 
     const recalcStats = (lv) => {
@@ -139,9 +137,7 @@
     if (originExp) {
       originExp.addEventListener("change", () => {
         // ▼ 起源チェックの保存（localStorage）
-        try {
-          localStorage.setItem(STORAGE_KEY_ORIGIN, originExp.checked ? "1" : "0");
-        } catch (_) {}
+        OWStorage.writeRaw(STORAGE_KEY_ORIGIN, originExp.checked ? "1" : "0");
 
         requestRecalc(true);
       });

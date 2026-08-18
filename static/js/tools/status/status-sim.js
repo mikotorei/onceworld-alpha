@@ -4,8 +4,8 @@ const BASE_STATS = ["vit", "spd", "atk", "int", "def", "mdef", "luk"];
 const EQUIP_KEYS = ["weapon", "head", "body", "hands", "feet", "shield", "accessory1", "accessory2", "accessory3", "accessory4"];
 const ACCESSORY_KEYS = ["accessory1", "accessory2", "accessory3", "accessory4"];
 const PET_KEYS = ["pet1", "pet2", "pet3"];
-const AUTO_STORAGE_KEY  = "status_sim_inline_v7";
-const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
+const AUTO_STORAGE_KEY  = OWStorage.KEYS.STATUS_INLINE;
+const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
 const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾", accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4" };
 
 const pathParts = window.location.pathname.split("/tools/")[0];
@@ -492,11 +492,11 @@ function applyState(saved) {
 
 }
 
-function saveAutoState(state) { localStorage.setItem(AUTO_STORAGE_KEY,  JSON.stringify(state)); }
-function loadAutoState()       { try { return JSON.parse(localStorage.getItem(AUTO_STORAGE_KEY)||"{}"); } catch { return {}; } }
-function clearAutoState()      { localStorage.removeItem(AUTO_STORAGE_KEY); }
-function loadBuildSlots()      { try { return JSON.parse(localStorage.getItem(BUILD_STORAGE_KEY)||"{}"); } catch { return {}; } }
-function saveBuildSlots(data)  { localStorage.setItem(BUILD_STORAGE_KEY, JSON.stringify(data)); }
+function saveAutoState(state) { OWStorage.write(AUTO_STORAGE_KEY, state); }
+function loadAutoState()       { return OWStorage.read(AUTO_STORAGE_KEY, {}) || {}; }
+function clearAutoState()      { OWStorage.remove(AUTO_STORAGE_KEY); }
+function loadBuildSlots()      { return OWStorage.read(BUILD_STORAGE_KEY, {}) || {}; }
+function saveBuildSlots(data)  { OWStorage.write(BUILD_STORAGE_KEY, data); }
 
 function refreshBuildSelect() {
   const select = $("buildSlotSelect");
@@ -745,13 +745,12 @@ window.statusSimRecalc = recalc;
 // ============================================================
 // 振り分けポイント・上限計算（ステシミュ用）
 // ============================================================
-const SS_CALC_KEY = "status_sim_ss_calc_v1";
+const SS_CALC_KEY = OWStorage.KEYS.SS_CALC;
 
 function saveSsCalc() {
   // ss-chara-lvが存在するページ（ステシミュ）のみ保存
   if (!$("ss-chara-lv")) return;
-  try {
-    localStorage.setItem(SS_CALC_KEY, JSON.stringify({
+  OWStorage.write(SS_CALC_KEY, {
       charaLv:       $("ss-chara-lv")?.value       || "200",
       spTenme:       $("ss-sp-tenme-count")?.value  || "0",
       penCount:      $("ss-pen-count")?.value        || "0",
@@ -763,15 +762,13 @@ function saveSsCalc() {
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
       tenmeCount:    $("ss-sp-tenme-count")?.value   || "0",
       hasContract:   ssHasContract,
-    }));
-  } catch(e) {}
+  });
 }
 
 function loadSsCalc() {
   try {
-    const raw = localStorage.getItem(SS_CALC_KEY);
-    if (!raw) return;
-    const sc = JSON.parse(raw);
+    const sc = OWStorage.read(SS_CALC_KEY);
+    if (!sc) return;
     if ($("ss-chara-lv"))       $("ss-chara-lv").value        = sc.charaLv       || "200";
     if ($("ss-sp-tenme-count")) $("ss-sp-tenme-count").value  = sc.spTenme       || "0";
     if ($("ss-pen-count"))      $("ss-pen-count").value       = sc.penCount      || "0";

@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 
 (function () {
-  const LS_KEY = "detail_calc_state_v1";
-  const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
+  const LS_KEY = OWStorage.KEYS.DETAIL_CALC;
+  const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
 
   // --- 出力要素 ---
   const outEnemyHp      = document.getElementById("detail-out-enemy-hp");
@@ -286,15 +286,14 @@ document.addEventListener("DOMContentLoaded", function () {
         monster_id: pickedMonster ? pickedMonster.id : "",
         state
       };
-      localStorage.setItem(LS_KEY, JSON.stringify(st));
+      OWStorage.write(LS_KEY, st);
     } catch (e) {}
   }
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      const st = JSON.parse(raw);
+      const st = OWStorage.read(LS_KEY);
+      if (!st) return;
 
       if (st?.hero) {
         const heroMap = {
@@ -356,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!importSelect || !importBtn) return;
 
     function loadBuilds() {
-      try { return JSON.parse(localStorage.getItem(BUILD_STORAGE_KEY) || "{}"); } catch { return {}; }
+      return OWStorage.read(BUILD_STORAGE_KEY, {}) || {};
     }
 
     function refreshSelect() {
@@ -395,9 +394,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     refreshSelect();
-    window.addEventListener("storage", e => {
-      if (e.key === BUILD_STORAGE_KEY) refreshSelect();
-    });
+    OWStorage.onChange(BUILD_STORAGE_KEY, refreshSelect);
   }
 
   // --- 初期化 ---

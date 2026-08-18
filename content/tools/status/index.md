@@ -519,6 +519,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <link rel="stylesheet" href="../../css/status-sim.css">
 
+<script src="../../js/common/storage-manager.js" defer></script>
 <script src="../../js/common/game-data.js" defer></script>
 <script src="../../js/common/calc-logic.js" defer></script>
 <script src="../../js/tools/status/status-sim.js" defer></script>

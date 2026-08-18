@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 
 (function () {
-  const LS_KEY = "calc_state_v5";
+  const LS_KEY = OWStorage.KEYS.CALC;
 
   // --- 出力要素 ---
   const outEnemyHp     = document.getElementById("out-enemy-hp");
@@ -149,15 +149,14 @@ document.addEventListener("DOMContentLoaded", function () {
         crystalCount:         normalizeFormattedNonNegIntValue(document.getElementById("crystal-count").value, 0)
       };
       const st = { monster_id: picked ? picked.id : "", lv: currentLv, hero, state };
-      localStorage.setItem(LS_KEY, JSON.stringify(st));
+      OWStorage.write(LS_KEY, st);
     } catch (e) {}
   }
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      const st = JSON.parse(raw);
+      const st = OWStorage.read(LS_KEY);
+      if (!st) return;
 
       if (st?.hero) {
         const map = {
@@ -328,9 +327,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // localStorage からモンスターを復元
   (function restorePicked() {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (!raw) return;
-      const st = JSON.parse(raw);
+        const st = OWStorage.read(LS_KEY);
+        if (!st) return;
       const mid = (st?.monster_id ?? "").toString();
       if (!mid || !Array.isArray(window.MONSTERS)) return;
       const found = window.MONSTERS.find(m => String(m.id) === mid);
@@ -610,13 +608,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- ビルド引用 ---
   function initBuildImport() {
-    const BUILD_STORAGE_KEY = "status_sim_build_slots_v1";
+    const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
     const importSelect = document.getElementById("build-import-select");
     const importBtn    = document.getElementById("build-import-btn");
     if (!importSelect || !importBtn) return;
 
     function loadBuilds() {
-      try { return JSON.parse(localStorage.getItem(BUILD_STORAGE_KEY) || "{}"); } catch { return {}; }
+      return OWStorage.read(BUILD_STORAGE_KEY, {}) || {};
     }
 
     function refreshImportSelect() {
@@ -653,9 +651,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // ステシミュ側で保存が行われたとき（別タブ等）にselectを更新
-    window.addEventListener("storage", function(e) {
-      if (e.key === BUILD_STORAGE_KEY) refreshImportSelect();
-    });
+    OWStorage.onChange(BUILD_STORAGE_KEY, refreshImportSelect);
   }
 })();
 

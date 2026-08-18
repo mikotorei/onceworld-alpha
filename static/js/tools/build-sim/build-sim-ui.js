@@ -5,7 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-const SIM_STATE_KEY = "build_sim_state_v1";
+const SIM_STATE_KEY = OWStorage.KEYS.BUILD_SIM;
 const EQUIP_URL = (() => {
   const p = window.location.pathname.split("/tools/")[0];
   return window.location.origin + p + "/db/equipment.json";
@@ -126,22 +126,19 @@ function estimateBasePointMultiplier(simState, stat) {
 }
 
 function saveSimState() {
-  try {
-    const inputs = getPointLimitInputs();
-    const spInputs = getStatPointInputs();
-    localStorage.setItem(SIM_STATE_KEY, JSON.stringify({
-      state,
-      pointLimit: inputs,
-      statPoint: spInputs
-    }));
-  } catch (e) {}
+  const inputs = getPointLimitInputs();
+  const spInputs = getStatPointInputs();
+  OWStorage.write(SIM_STATE_KEY, {
+    state,
+    pointLimit: inputs,
+    statPoint: spInputs
+  });
 }
 
 function loadSimState() {
   try {
-    const raw = localStorage.getItem(SIM_STATE_KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
+    const d = OWStorage.read(SIM_STATE_KEY);
+    if (!d) return;
     if (d.state) {
       if (["physical","magic"].includes(d.state.attackType)) state.attackType = d.state.attackType;
       if (["fire","water","wood","light","dark"].includes(d.state.heroElement)) state.heroElement = d.state.heroElement;
