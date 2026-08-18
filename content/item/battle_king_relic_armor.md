@@ -5,5 +5,5 @@ image = "img/item/battle_king_relic_armor.png"
 weight = 15100
 category = "効果素材"
 sell = 27000
-effect = "アリーナのモンスター達のレベル上限が上がる*3"
+effect = "アリーナのモンスター達のレベル上限が上がる"
 +++
