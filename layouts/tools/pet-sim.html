@@ -29,8 +29,17 @@
   </section>
 
   <section>
+    <h2>ドラゴン印の手ごね機</h2>
+    <div class="input-row">
+      <input type="number" id="kneaderInput" min="0" max="1000" value="0" placeholder="0〜1000" />
+      <span class="kinoko-label">個（粉の使用上限が所持数分だけ増える）</span>
+    </div>
+  </section>
+
+  <section>
     <h2>粉使用数</h2>
     <div class="powder-grid" id="powderGrid"></div>
+    <p class="powder-note" id="powderMaxNote"></p>
   </section>
 
   <section>
@@ -71,6 +80,7 @@
 </div>
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
+<script src="{{ "js/common/game-data.js" | relURL }}"></script>
 <script src="{{ "js/pet-sim.js" | relURL }}"></script>
 <script src="{{ "js/common/help-drawer.js" | relURL }}" defer></script>
 {{ end }}

@@ -227,3 +227,10 @@
     grid-template-columns:repeat(7, minmax(0,1fr));
   }
 }
+
+/* 粉の使用上限の注記 */
+.powder-note{
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(0,0,0,0.6);
+}

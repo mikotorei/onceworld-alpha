@@ -29,6 +29,8 @@ var lvInput     = document.getElementById('lvInput');
 var sengiInput  = document.getElementById('sengiInput');
 var powderGrid  = document.getElementById('powderGrid');
 var kinokoInput = document.getElementById('kinokoInput');
+var kneaderInput = document.getElementById('kneaderInput');
+var powderMaxNote = document.getElementById('powderMaxNote');
 var houseBtn    = document.getElementById('houseBtn');
 var result      = document.getElementById('result');
 
@@ -45,13 +47,12 @@ STAT_KEYS.forEach(function (s) {
   input.type        = 'number';
   input.id          = 'powder-' + s;
   input.min         = '0';
-  input.max         = '1100';
   input.value       = '0';
-  input.placeholder = '0〜1100';
   input.addEventListener('input', function () {
+    var max = getPowderMax();
     var v = parseInt(input.value, 10);
-    if (!isNaN(v) && v > 1100) input.value = 1100;
-    if (!isNaN(v) && v < 0)    input.value = 0;
+    if (!isNaN(v) && v > max) input.value = max;
+    if (!isNaN(v) && v < 0)   input.value = 0;
     render();
   });
 
@@ -95,10 +96,47 @@ function getSengi() {
 
 function getPowder(s) {
   var el = document.getElementById('powder-' + s);
-  var v  = parseInt(el.value, 10);
+  var max = getPowderMax();
+  var v   = parseInt(el.value, 10);
   if (isNaN(v) || v < 0) return 0;
-  if (v > 1100)          return 1100;
+  if (v > max)           return max;
   return v;
+}
+
+// ドラゴン印の手ごね機の所持数（0〜baseMax）
+function getKneader() {
+  if (!kneaderInput) return 0;
+  var max = 1000;
+  if (typeof getMaterialMax === 'function') {
+    max = getMaterialMax('dragon_brand_kneader', false) || 1000;
+  }
+  var v = parseInt(kneaderInput.value, 10);
+  if (isNaN(v) || v < 0) return 0;
+  if (v > max)           return max;
+  return v;
+}
+
+// 粉の使用上限 = 100 + 手ごね機の所持数
+var POWDER_BASE_MAX = 100;
+function getPowderMax() {
+  return POWDER_BASE_MAX + getKneader();
+}
+
+// 粉入力欄の max / placeholder を現在の上限に合わせ、超過分は切り詰める
+function applyPowderMax() {
+  var max = getPowderMax();
+  STAT_KEYS.forEach(function (s) {
+    var el = document.getElementById('powder-' + s);
+    if (!el) return;
+    el.max = String(max);
+    el.placeholder = '0〜' + max;
+    var v = parseInt(el.value, 10);
+    if (!isNaN(v) && v > max) el.value = max;
+  });
+  if (powderMaxNote) {
+    powderMaxNote.textContent = '粉の使用上限: ' + max
+      + '（基本100 + 手ごね機' + getKneader() + '個）';
+  }
 }
 
 function getKinoko() {
@@ -244,11 +282,20 @@ STAT_KEYS.forEach(function (s) {
   var el = document.getElementById('powder-' + s);
   if (!el) return;
   el.addEventListener('input', function () {
+    var max = getPowderMax();
     var v = parseInt(el.value, 10);
-    if (!isNaN(v) && v > 1100) el.value = 1100;
+    if (!isNaN(v) && v > max) el.value = max;
     if (!isNaN(v) && v < 0) el.value = 0;
   });
 });
+
+if (kneaderInput) {
+  kneaderInput.addEventListener('input', function () {
+    applyPowderMax();
+    render();
+  });
+}
+applyPowderMax();
 
 lvInput.addEventListener('input', render);
 sengiInput.addEventListener('input', render);
