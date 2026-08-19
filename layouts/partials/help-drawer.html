@@ -1,0 +1,30 @@
+{{- /*
+  ❓ヘルプドロワーの外枠（全ツール共通）。
+
+  引数:
+    title 見出しに出すツール名
+    body  本文のHTML（<h3> と <p> の並び）
+
+  開閉は static/js/common/help-drawer.js が
+  owHelpBtn / owHelpOverlay / owHelpDrawer / owHelpClose を見て行う。
+  そのため4つのIDはこのパーシャルでしか書かない。
+
+  Markdownのページからは layouts/shortcodes/help-drawer.html 経由で
+  {{< help-drawer title="..." >}}本文{{< /help-drawer >}} と書く。
+*/ -}}
+{{- $lines := slice
+    `<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>`
+    ``
+    `<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>`
+    ``
+    `<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">`
+    `<div class="ow-help-drawer-header">`
+    (printf `<span class="ow-help-drawer-title">%s</span>` .title)
+    `<button class="ow-help-drawer-close" id="owHelpClose">✕</button>`
+    `</div>`
+    `<div class="ow-help-drawer-body">`
+    (trim .body " \t\r\n")
+    `</div>`
+    `</div>`
+-}}
+{{- delimit $lines "\n" | replaceRE "\r\n" "\n" | safeHTML -}}

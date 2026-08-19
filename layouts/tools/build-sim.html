@@ -305,32 +305,20 @@
 <script src="{{ "js/tools/build-sim/build-sim-logic.js" | relURL }}" defer></script>
 <script src="{{ "js/tools/build-sim/build-sim-ui.js" | relURL }}" defer></script>
 
-<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
+{{ partial "help-drawer.html" (dict "title" "ビルドシミュレーター 使い方" "body" `<h3>基本操作</h3>
+<p>① ビルド入力又はステータスシミュで装備・ペット・ステータスを設定する</p>
+<p>② 目標モンスターとLvを入力する</p>
+<p>③ 「逆算する」を押す</p>
+<p>④ 「この条件で装備を探索」で必要な強化・振り分けを分析する</p>
 
-<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
+<h3>与ダメ逆算</h3>
+<p>目標パン数を達成するために必要なATKを計算します。</p>
+<p>乱数（平均/最低）・多段数・会心率・命中確率の設定が可能です。</p>
 
-<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
-  <div class="ow-help-drawer-header">
-    <span class="ow-help-drawer-title">ビルドシミュレーター 使い方</span>
-    <button class="ow-help-drawer-close" id="owHelpClose">✕</button>
-  </div>
-  <div class="ow-help-drawer-body">
-    <h3>基本操作</h3>
-    <p>① ビルド入力又はステータスシミュで装備・ペット・ステータスを設定する</p>
-    <p>② 目標モンスターとLvを入力する</p>
-    <p>③ 「逆算する」を押す</p>
-    <p>④ 「この条件で装備を探索」で必要な強化・振り分けを分析する</p>
+<h3>無効化逆算</h3>
+<p>被ダメを0にするために必要なDEF/MDEFを計算します。</p>
 
-    <h3>与ダメ逆算</h3>
-    <p>目標パン数を達成するために必要なATKを計算します。</p>
-    <p>乱数（平均/最低）・多段数・会心率・命中確率の設定が可能です。</p>
-
-    <h3>無効化逆算</h3>
-    <p>被ダメを0にするために必要なDEF/MDEFを計算します。</p>
-
-    <h3>探索について</h3>
-    <p>逆算後に「この条件で装備を探索」を押すと、現在の装備をG強化・ステポイント振り分けでどこまで補えるかを分析します。</p>
-  </div>
-</div>
+<h3>探索について</h3>
+<p>逆算後に「この条件で装備を探索」を押すと、現在の装備をG強化・ステポイント振り分けでどこまで補えるかを分析します。</p>`) }}
 
 {{ end }}

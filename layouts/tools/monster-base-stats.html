@@ -197,24 +197,12 @@
   </div>
 
   <link rel="stylesheet" href="{{ "css/monster-base-stats.css" | relURL }}">
-  <button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
-
-<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
-
-<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
-<div class="ow-help-drawer-header">
-<span class="ow-help-drawer-title">モンスター基礎ステ表 使い方</span>
-<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
-</div>
-<div class="ow-help-drawer-body">
-<h3>基本操作</h3>
+  {{ partial "help-drawer.html" (dict "title" "モンスター基礎ステ表 使い方" "body" `<h3>基本操作</h3>
 <p>検索欄にモンスター名・属性・攻撃タイプ・射程を入力すると絞り込みができます。ヘッダーをタップするとソートできます。</p>
 <h3>オプション</h3>
 <p>レベルスケールでLvを指定するとそのLvでのステータスを表示できます。SPD倍率でSPDに倍率（1〜10倍）をかけた値を確認できます。</p>
 <h3>絞り込み</h3>
-<p>属性・攻撃タイプ・射程などで絞り込みができます。</p>
-</div>
-</div>
+<p>属性・攻撃タイプ・射程などで絞り込みができます。</p>`) }}
 
 <script defer src="{{ "js/monster-base-stats.js" | relURL }}"></script>
 <script src="{{ "js/common/help-drawer.js" | relURL }}" defer></script>

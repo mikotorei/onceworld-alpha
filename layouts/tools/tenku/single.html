@@ -169,22 +169,10 @@
 
 </div>
 
-<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
-
-<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
-
-<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
-<div class="ow-help-drawer-header">
-<span class="ow-help-drawer-title">天空回廊計算表 使い方</span>
-<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
-</div>
-<div class="ow-help-drawer-body">
-<h3>計算表</h3>
+{{ partial "help-drawer.html" (dict "title" "天空回廊計算表 使い方" "body" `<h3>計算表</h3>
 <p>階層を入力するとそのフロアのモンスター一覧と必要ステータスが表示されます。表示グループを切り替えて無効化・命中・魔法ワンパンなど確認したい項目を選べます。</p>
 <h3>安全フロア判定</h3>
-<p>自分のDEF・MDEF・LUKを入力すると現在のステータスで対応できるフロアを確認できます。</p>
-</div>
-</div>
+<p>自分のDEF・MDEF・LUKを入力すると現在のステータスで対応できるフロアを確認できます。</p>`) }}
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
 <script src="{{ "js/common/storage-manager.js" | relURL }}"></script>

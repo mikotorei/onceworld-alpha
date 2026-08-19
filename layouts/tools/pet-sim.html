@@ -58,24 +58,12 @@
 
 </div>
 
-<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
-
-<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
-
-<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
-<div class="ow-help-drawer-header">
-<span class="ow-help-drawer-title">ペットステシミュレーター 使い方</span>
-<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
-</div>
-<div class="ow-help-drawer-body">
-<h3>基本操作</h3>
+{{ partial "help-drawer.html" (dict "title" "ペットステシミュレーター 使い方" "body" `<h3>基本操作</h3>
 <p>モンスターを選択してレベル・殲儀回数・粉使用数・キノコ数を入力するとステータスが表示されます。</p>
 <h3>粉使用数</h3>
 <p>各ステータスに個別に粉の使用数（0〜100）を入力できます。「全部MAX」で全ステータスを一括で100に設定できます。</p>
 <h3>キノコ</h3>
-<p>粉込みの計算後に最も高いステータス1つにキノコ補正が加算されます。キノコハウスONで補正値が100倍になります。</p>
-</div>
-</div>
+<p>粉込みの計算後に最も高いステータス1つにキノコ補正が加算されます。キノコハウスONで補正値が100倍になります。</p>`) }}
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
 <script src="{{ "js/common/storage-manager.js" | relURL }}"></script>
