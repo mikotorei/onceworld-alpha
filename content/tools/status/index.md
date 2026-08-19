@@ -199,76 +199,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   </div>
   </div>
   <div class="equip-grid">
-
-  <div class="equip-row pet-row">
-    <div class="slot">ペット1</div>
-    <div class="main">
-      <div class="pet-search-wrap">
-        <input id="pet_search_pet1" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="pet_suggest_pet1" class="pet-suggest" hidden></div>
-        <select id="select_pet1" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">段階</span>
-      <div class="lvbox">
-        <select id="stage_pet1">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="equip-row pet-row">
-    <div class="slot">ペット2</div>
-    <div class="main">
-      <div class="pet-search-wrap">
-        <input id="pet_search_pet2" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="pet_suggest_pet2" class="pet-suggest" hidden></div>
-        <select id="select_pet2" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">段階</span>
-      <div class="lvbox">
-        <select id="stage_pet2">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="equip-row pet-row">
-    <div class="slot">ペット3</div>
-    <div class="main">
-      <div class="pet-search-wrap">
-        <input id="pet_search_pet3" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="pet_suggest_pet3" class="pet-suggest" hidden></div>
-        <select id="select_pet3" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">段階</span>
-      <div class="lvbox">
-        <select id="stage_pet3">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
+{{< pet-rows indent="  " gap="false" >}}
   </div>
 </details>
 

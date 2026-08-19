@@ -1,0 +1,38 @@
+{{- /*
+  ペット行を生成する。スロット定義は data/slots.yaml の pet。
+  引数・改行の扱いは slots/equip-rows.html と同じ。
+  段階の選択肢は 0〜4 の固定5件。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $gap := true -}}
+{{- if isset . "gap" }}{{ $gap = .gap }}{{ end -}}
+{{- $rows := slice -}}
+{{- range $s := site.Data.slots.pet -}}
+{{- $lines := slice
+    `<div class="equip-row pet-row">`
+    (printf `  <div class="slot">%s</div>` $s.label)
+    `  <div class="main">`
+    `    <div class="pet-search-wrap">`
+    (printf `      <input id="pet_search_%s" type="search" placeholder="名前で検索して選択" autocomplete="off">` $s.key)
+    (printf `      <div id="pet_suggest_%s" class="pet-suggest" hidden></div>` $s.key)
+    (printf `      <select id="select_%s" hidden></select>` $s.key)
+    `    </div>`
+    `  </div>`
+    `  <div class="lv-row">`
+    `    <span class="lvtag">段階</span>`
+    `    <div class="lvbox">`
+    (printf `      <select id="stage_%s">` $s.key)
+-}}
+{{- range $n := seq 0 4 -}}
+{{- $lines = $lines | append (printf `        <option value="%d">%d</option>` $n $n) -}}
+{{- end -}}
+{{- $lines = $lines | append
+    `      </select>`
+    `    </div>`
+    `  </div>`
+    `</div>`
+-}}
+{{- $rows = $rows | append (delimit $lines "\n") -}}
+{{- end -}}
+{{- $body := delimit $rows (cond $gap "\n\n" "\n") -}}
+{{- $body | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
