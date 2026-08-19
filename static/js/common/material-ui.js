@@ -13,10 +13,15 @@
 (() => {
   // 1素材分の入力欄DOMを生成して返す
   // material: MATERIALS の1要素 / slot: material.ui.slots の1要素
+  // 現在の所持上限。パンドラの切り替えで変わるため都度求める
+  function currentCap(material) {
+    return (typeof OWPandora !== "undefined")
+      ? OWPandora.materialCap(material.id, material.baseMax) : material.baseMax;
+  }
+
   function buildMaterialField(material, slot) {
     const ui = material.ui || {};
-    const max = (typeof OWPandora !== "undefined")
-      ? OWPandora.materialCap(material.id, material.baseMax) : material.baseMax;
+    const max = currentCap(material);
 
     const row = document.createElement("div");
     row.className = "bs-point-limit-row material-row";
@@ -41,9 +46,11 @@
       btn.type = "button";
       btn.className = "chip-btn material-max-btn";
       btn.textContent = "MAX";
-      // インライン onclick ではなくリスナーで束ねる
+      // インライン onclick ではなくリスナーで束ねる。
+      // 生成時の max を閉じ込めるとパンドラ切り替えに追随しないため、
+      // クリックのたびに現在の上限を読み直す
       btn.addEventListener("click", () => {
-        input.value = String(max);
+        input.value = String(currentCap(material));
         input.dispatchEvent(new Event("input", { bubbles: true }));
       });
       row.appendChild(btn);
@@ -188,8 +195,7 @@
     MATERIALS.forEach(m => {
       const ui = m.ui;
       if (!ui || !Array.isArray(ui.slots)) return;
-      const max = (typeof OWPandora !== "undefined")
-        ? OWPandora.materialCap(m.id, m.baseMax) : m.baseMax;
+      const max = currentCap(m);
 
       ui.slots.forEach(slot => {
         const el = r.getElementById

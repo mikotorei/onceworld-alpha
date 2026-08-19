@@ -37,30 +37,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <button class="chip-btn ss-cosmocube-btn" type="button" data-val="1" aria-pressed="false">所持</button>
 </div>
 </div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">ヨハネの羽ペン</span>
-<input id="ss-pen-count" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-pen-count').value='1000';document.getElementById('ss-pen-count').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1000個）</span>
-</div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">ヨハネの祭壇</span>
-<input id="ss-altar-count" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-altar-count').value='1000';document.getElementById('ss-altar-count').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1000個）</span>
-</div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">ステータス天晶</span>
-<input id="ss-tensho-count" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-tensho-count').value='1000';document.getElementById('ss-tensho-count').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1000個）</span>
-</div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">スーパースクロール</span>
-<input id="ss-scroll-count" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-scroll-count').value='1000';document.getElementById('ss-scroll-count').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1000個）</span>
-</div>
+<div data-material-slot="status:stat-point"></div>
 <div class="bs-point-limit-result">
 <span class="bs-point-limit-label">獲得振り分けポイント</span>
 <span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
@@ -75,18 +52,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <div class="bs-point-sub-section">
 <div class="bs-point-sub-title">振り分け上限を計算する</div>
 <div class="bs-point-limit-grid">
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">賢者の落とし物</span>
-<input id="ss-sage-drop" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-sage-drop').value='1000';document.getElementById('ss-sage-drop').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1,000個）</span>
-</div>
-<div class="bs-point-limit-row">
-<span class="bs-point-limit-label">禁域の書物</span>
-<input id="ss-forbidden-book" type="number" min="0" max="1000" value="0" class="lv-input">
-<button type="button" class="chip-btn" onclick="document.getElementById('ss-forbidden-book').value='1000';document.getElementById('ss-forbidden-book').dispatchEvent(new Event('input'))">MAX</button>
-<span class="bs-label-text">個（最大1,000個）</span>
-</div>
+<div data-material-slot="status:point-limit"></div>
 <div class="bs-point-limit-row">
 <span class="bs-point-limit-label">超越の契約書</span>
 <div class="chip-group">
@@ -198,7 +164,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <div class="series-select-row">
   <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>
   </div>
-  <div class="bs-point-limit-grid" data-material-slot="status:equip"></div>
+  <div class="bs-point-limit-grid" data-material-slot="status:equip" data-pandora-toggle="off"></div>
 
   <div class="equip-row">
     <div class="slot">武器</div>
