@@ -147,7 +147,6 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <details class="fold" id="foldEquip" open>
   <summary>装備</summary>
-  <div class="equip-grid">
   <div class="series-select-row">
   <span class="series-select-label">シリーズ一括</span>
   <div class="chip-group">
@@ -165,6 +164,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>
   </div>
   <div class="bs-point-limit-grid" data-material-slot="status:equip" data-pandora-toggle="off"></div>
+  <div class="equip-grid">
 
   <div class="equip-row">
     <div class="slot">武器</div>
