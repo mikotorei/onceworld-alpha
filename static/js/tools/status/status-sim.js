@@ -47,10 +47,10 @@ let dataReady = false;
 function $(id) { return document.getElementById(id); }
 function n(v, fb = 0) { const x = Number(v); return Number.isFinite(x) ? x : fb; }
 function clamp0(v)     { return Math.max(0, n(v, 0)); }
-function clampLv(v)    { return Math.max(0, Math.min(1100, Math.floor(n(v, 0)))); }
+function clampLv(v)    { return Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(n(v, 0)))); }
 function clamp1(v)     { return Math.max(1, n(v, 1)); }
 function clampStage(v) { return Math.max(0, Math.min(4, n(v, 0))); }
-function clampG(v)     { return Math.max(0, Math.min(300, Math.floor(Number(v) || 0))); }
+function clampG(v)     { return Math.max(0, Math.min(getEquipGLevelMax(), Math.floor(Number(v) || 0))); }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
 function floorStats(s) { const o = zeroStats(); STATS.forEach(k => { o[k] = k === "mov" ? (s?.[k]||0) : floorSafe(s?.[k]||0); }); return o; }
 function roundSafe(x)  { return Math.round((Number(x) || 0) + 1e-6); }
@@ -1015,7 +1015,7 @@ document.querySelectorAll(".stat-filter-btn").forEach(btn => {
   });
 });
 
-// 素材強化1100一括
+// 素材強化 上限一括
 $("enhance1100AllBtn")?.addEventListener("click", () => {
   const armorKeys = ["weapon","head","body","hands","feet","shield"];
   armorKeys.forEach(k => {
@@ -1025,7 +1025,7 @@ $("enhance1100AllBtn")?.addEventListener("click", () => {
     const selectedId = selectEl ? selectEl.value : "";
     const item = selectedId ? equipmentMap.get(String(selectedId)) : null;
     if (item?.no_enhance) return;
-    el.value = "1100";
+    el.value = String(getEquipEnhanceMax());
     el.dispatchEvent(new Event("input"));
   });
   recalc();

@@ -102,5 +102,9 @@ description = "武器・防具・アクセサリーの装備データ一覧"
 </div>
 
 <link rel="stylesheet" href="../css/equipment.css">
+<script src="../js/common/storage-manager.js"></script>
+<script src="../js/common/game-data.js"></script>
+<script src="../js/common/pandora.js"></script>
+<script src="../js/common/calc-logic.js"></script>
 <script src="../js/equipment-db.js"></script>
 <script src="../js/common/help-drawer.js"></script>

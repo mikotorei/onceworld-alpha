@@ -201,7 +201,7 @@ function calcWeaponArmorStat(item, stat, lv) {
   const base = Number(item.base_add?.[stat] || 0);
   if (base === 0) return 0;
   if (item.no_enhance) return base;
-  const useLv = (lv !== undefined) ? lv : 1100;
+  const useLv = (lv !== undefined) ? lv : getEquipEnhanceMax();
   return Math.floor(base * (1 + useLv * 0.1));
 }
 
@@ -209,7 +209,7 @@ function calcWeaponArmorStatG(item, stat, glv) {
   if (!item || item.no_enhance) return calcWeaponArmorStat(item, stat, 0);
   const base = Number(item.base_add?.[stat] || 0);
   if (base === 0) return 0;
-  const g = Math.max(0, Math.min(300, Math.floor(glv)));
+  const g = Math.max(0, Math.min(getEquipGLevelMax(), Math.floor(glv)));
   if (g === 0) return Math.floor(base * 111);
   return Math.floor(base * 111 + (base * 25 + 10000) * g);
 }
@@ -237,7 +237,7 @@ function calcAccessoryStat(item, stat, lv) {
 
 // ============================================================
 // 素材強化最適化（共通関数）
-// currentLv → 1100 までの範囲で stat を補う
+// currentLv → 強化上限 までの範囲で stat を補う
 // armorSlots: 各スロットの情報
 // stat: "atk" / "luk" など
 // remainingFinal: finalTotal換算の不足値
@@ -249,7 +249,9 @@ function applyOptimalMatEnhancement(armorSlots, stat, remainingFinal, effectiveM
   let remaining = Math.ceil(remainingFinal / mul);
   if (remaining <= 0) return 0;
 
-  // 各スロットで「現在lv → 1100」で得られるstat増加量と効率を計算
+  const lvMax = getEquipEnhanceMax();
+
+  // 各スロットで「現在lv → 強化上限」で得られるstat増加量と効率を計算
   // 1lv追加でのstat増加 = base_add × 0.1（切り捨て）
   const candidates = [];
   armorSlots.forEach(s => {
@@ -257,10 +259,10 @@ function applyOptimalMatEnhancement(armorSlots, stat, remainingFinal, effectiveM
     const base = Number(s.item.base_add?.[stat] || 0);
     if (base === 0) return;
     const currentLv = s.currentLv;
-    if (currentLv >= 1100) return; // 既に1100達成済み
-    const maxAddableLv = 1100 - currentLv;
+    if (currentLv >= lvMax) return; // 既に上限達成済み
+    const maxAddableLv = lvMax - currentLv;
     const statPer1Lv   = base * 0.1; // 1lv追加あたりのstat増加（小数のまま）
-    const totalStat    = Math.floor(base * (1 + 1100 * 0.1)) - Math.floor(base * (1 + currentLv * 0.1));
+    const totalStat    = Math.floor(base * (1 + lvMax * 0.1)) - Math.floor(base * (1 + currentLv * 0.1));
     candidates.push({ slot: s, base, currentLv, maxAddableLv, statPer1Lv, totalStat });
   });
 
@@ -271,22 +273,23 @@ function applyOptimalMatEnhancement(armorSlots, stat, remainingFinal, effectiveM
     if (remaining <= 0) break;
     const s = c.slot;
     if (c.totalStat <= remaining) {
-      // このスロットを1100まで全部使う
+      // このスロットを上限まで全部使う
       remaining         -= c.totalStat;
-      s.neededLv         = 1100;
-      s.addedLv          = 1100 - c.currentLv;
-      s.newLvStatVal     = Math.floor(c.base * (1 + 1100 * 0.1));
+      s.neededLv         = lvMax;
+      s.addedLv          = lvMax - c.currentLv;
+      s.newLvStatVal     = Math.floor(c.base * (1 + lvMax * 0.1));
     } else {
       // 一部使う: 必要なlv数を逆算
       const neededLv = Math.ceil(remaining / c.statPer1Lv);
-      const targetLv = Math.min(1100, c.currentLv + neededLv);
+      const targetLv = Math.min(lvMax, c.currentLv + neededLv);
       s.neededLv         = targetLv;
       s.addedLv          = targetLv - c.currentLv;
       s.newLvStatVal     = Math.floor(c.base * (1 + targetLv * 0.1));
       remaining          = 0;
     }
     // canEnhanceをtrue（+1100で達成可能）にマーク
-    if (s.neededLv >= 1100) s.canEnhanceAfterMat = true;
+    // G解禁は強化上限とは連動せず +1100 固定
+    if (s.neededLv >= EQUIP_G_UNLOCK_LV) s.canEnhanceAfterMat = true;
   }
 
   return remaining * mul; // finalTotal換算で返す
@@ -331,7 +334,7 @@ function applyOptimalGEnhancement(armorSlots, stat, remainingFinal, effectiveMul
     } else {
       const neededG = Math.ceil(remaining / s.perG);
       const fromG   = Math.max(s.currentGlv, r.from);
-      const toG     = Math.min(300, fromG + neededG);
+      const toG     = Math.min(getEquipGLevelMax(), fromG + neededG);
       s.neededGlv   = toG;
       s.addedGlv    = Math.max(0, toG - s.currentGlv);
       s.newStatVal  = calcWeaponArmorStatG(s.item, stat, toG);
@@ -356,8 +359,8 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   const armorAnalysis = ARMOR_SLOTS.map(slot => {
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
-    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
+    const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
 
@@ -368,7 +371,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
 
     return {
@@ -433,7 +436,7 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
   let remainingAfterMat = remainingAfterStat;
   const effectiveMulForG = (effectiveMultiplier > 0) ? effectiveMultiplier : 1;
   const hasNonMaxLvSlots = armorAnalysis.some(s =>
-    s.item && !s.item.no_enhance && Number(s.item.base_add?.[stat] || 0) > 0 && s.currentLv < 1100
+    s.item && !s.item.no_enhance && Number(s.item.base_add?.[stat] || 0) > 0 && s.currentLv < getEquipEnhanceMax()
   );
   if (hasNonMaxLvSlots && remainingAfterMat > 0) {
     remainingAfterMat = applyOptimalMatEnhancement(armorAnalysis, stat, remainingAfterMat, effectiveMulForG);
@@ -532,8 +535,8 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
   const armorAnalysis = ARMOR_SLOTS.map(slot => {
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
-    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
+    const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
 
@@ -544,7 +547,7 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
 
     return {
@@ -636,8 +639,8 @@ function analyzeAtkAndLukNeeded(
   const makeSlotAnalysis = (stat) => ARMOR_SLOTS.map(slot => {
     const picked = equipState[slot];
     const item   = picked?.id ? equipItemsMap.get(String(picked.id)) : null;
-    const currentLv  = Math.max(0, Math.min(1100, Math.floor(Number(picked?.lv  || 0))));
-    const currentGlv = Math.max(0, Math.min(300,  Math.floor(Number(picked?.glv || 0))));
+    const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
+    const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
     const canEnhance = !!(item && !item.no_enhance && base > 0);
     let currentStatVal = 0;
@@ -646,7 +649,7 @@ function analyzeAtkAndLukNeeded(
         ? calcWeaponArmorStatG(item, stat, currentGlv)
         : calcWeaponArmorStat(item, stat, currentLv);
     }
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, 300) : currentStatVal;
+    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
     const perG = canEnhance ? (base * 25 + 10000) : 0;
     return {
       slot, label: SLOT_LABEL[slot], item,
@@ -690,7 +693,7 @@ function analyzeAtkAndLukNeeded(
   const atkEffMulG = (effectiveAtkMultiplier > 0) ? effectiveAtkMultiplier : 1;
   let atkRemainingAfterMat = atkRemainingAfterStat;
   const atkHasNonMaxLv = atkSlots.some(s =>
-    s.item && !s.item.no_enhance && Number(s.item.base_add?.["atk"] || 0) > 0 && s.currentLv < 1100
+    s.item && !s.item.no_enhance && Number(s.item.base_add?.["atk"] || 0) > 0 && s.currentLv < getEquipEnhanceMax()
   );
   if (atkHasNonMaxLv && atkRemainingAfterMat > 0) {
     atkRemainingAfterMat = applyOptimalMatEnhancement(atkSlots, "atk", atkRemainingAfterMat, atkEffMulG);
@@ -736,19 +739,19 @@ function analyzeAtkAndLukNeeded(
         if (atkSlot.addedGlv > 0) {
           ls.currentGlv     = atkSlot.neededGlv;
           ls.currentStatVal = calcWeaponArmorStatG(ls.item, "luk", ls.currentGlv);
-          ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", 300) : ls.currentStatVal;
+          ls.maxGStatVal    = ls.canEnhance ? calcWeaponArmorStatG(ls.item, "luk", getEquipGLevelMax()) : ls.currentStatVal;
         }
         if (atkSlot.addedLv > 0) {
           ls.currentLv      = atkSlot.neededLv;
           ls.currentStatVal = calcWeaponArmorStat(ls.item, "luk", ls.currentLv);
-          if (ls.currentLv >= 1100) ls.canEnhance = true;
+          if (ls.currentLv >= EQUIP_G_UNLOCK_LV) ls.canEnhance = true;
         }
       }
     });
 
     // luk素材強化
     const lukHasNonMaxLv = lukSlots.some(s =>
-      s.item && !s.item.no_enhance && Number(s.item.base_add?.["luk"] || 0) > 0 && s.currentLv < 1100
+      s.item && !s.item.no_enhance && Number(s.item.base_add?.["luk"] || 0) > 0 && s.currentLv < getEquipEnhanceMax()
     );
     if (lukHasNonMaxLv) {
       lukRemaining = applyOptimalMatEnhancement(lukSlots, "luk", lukRemaining, lukEffMulG);

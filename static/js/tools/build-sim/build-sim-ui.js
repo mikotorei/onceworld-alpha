@@ -767,7 +767,7 @@ function renderGlvAnalysis(analysis, stat, needed, appendMode, customTitle, hide
   if (analysis.stillShort) {
     const maxStat1 = analysis.slots.reduce((s2, s) => {
       if (!s.item) return s2;
-      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, getEquipGLevelMax()) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
     }, 0);
     const em1 = (typeof window.statusSimGetEffectiveMul==="function") ? window.statusSimGetEffectiveMul(stat) : 1;
     const sf1 = Math.max(0, needed - Math.round(maxStat1 * em1));
@@ -991,7 +991,7 @@ function renderHitEquipResult(analysis) {
   if (analysis.stillShort) {
     const maxStat2 = analysis.slots.reduce((s2, s) => {
       if (!s.item) return s2;
-      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, "luk", 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+      return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, "luk", getEquipGLevelMax()) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
     }, 0);
     const em2 = (typeof window.statusSimGetEffectiveMul==="function") ? window.statusSimGetEffectiveMul("luk") : 1;
     const sf2 = Math.max(0, (lastHitResult?.neededLuk||0) - Math.round(maxStat2 * em2));
@@ -1159,7 +1159,7 @@ function renderAtkLukAnalysis(analysis, neededAtk, neededLuk, hitRate) {
       if (needed != null) {
         const maxStatSec = slots.reduce((s2, s) => {
           if (!s.item) return s2;
-          return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, 300) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
+          return s2 + (s.canEnhance ? calcWeaponArmorStatG(s.item, stat, getEquipGLevelMax()) : (s.newLvStatVal !== undefined ? s.newLvStatVal : s.currentStatVal));
         }, 0);
         const emSec = (typeof window.statusSimGetEffectiveMul === "function") ? window.statusSimGetEffectiveMul(stat) : 1;
         const sfSec = Math.max(0, needed - Math.round(maxStatSec * emSec));
@@ -1440,7 +1440,7 @@ document.querySelectorAll(".bs-reverse-hit-btn").forEach(btn => {
   });
 });
 
-// 素材強化1100一括
+// 素材強化 上限一括
 $("enhance1100AllBtn")?.addEventListener("click", () => {
   const armorKeys = ["weapon","head","body","hands","feet","shield"];
   armorKeys.forEach(k => {
@@ -1451,7 +1451,7 @@ $("enhance1100AllBtn")?.addEventListener("click", () => {
     const selectedId = selectEl ? selectEl.value : "";
     const item = selectedId ? window.equipmentMapGlobal?.get(String(selectedId)) : null;
     const noEnhance = !!(item?.no_enhance) || el.disabled;
-    if (!noEnhance) { el.value = "1100"; el.dispatchEvent(new Event("input")); }
+    if (!noEnhance) { el.value = String(getEquipEnhanceMax()); el.dispatchEvent(new Event("input")); }
   });
   window.statusSimRecalc?.();
 });
