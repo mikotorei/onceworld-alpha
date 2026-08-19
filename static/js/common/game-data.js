@@ -118,6 +118,24 @@ const MATERIALS = [
 ];
 
 // ------------------------------------------------------------
+// 上限値
+// ------------------------------------------------------------
+// 効果素材で伸びる上限値をここに集約する。
+//   base      素材を持っていないときの上限
+//   boostedBy 上限を伸ばす素材のID（MATERIALS の id と一致させること）
+//             null なら base 固定
+//   hardCap   素材と無関係な別枠の上限。あれば最終値をここで頭打ちにする
+//
+// 所持数は呼び出し側が渡す（getLimit を game-data.js 内で完結させ、
+// pandora.js / DOM に依存させないため）。
+const LIMITS = {
+  equipEnhance: { base: 1100, boostedBy: "forbidden_lock" },             // 装備の通常強化（禁域のロックは未実装）
+  equipGLevel:  { base: 300,  boostedBy: null },                          // 装備のG強化
+  petPowder:    { base: 100,  boostedBy: "dragon_brand_kneader" },        // ペットの粉使用上限
+  petLevel:     { base: 1200, boostedBy: "hades_helmet", hardCap: 2200 }  // ペットの最大レベル
+};
+
+// ------------------------------------------------------------
 // 属性相性
 // ------------------------------------------------------------
 // ペアは [攻撃側, 防御側]
@@ -167,6 +185,27 @@ const ELEMENT_ALIASES = {
 // ------------------------------------------------------------
 // ヘルパー
 // ------------------------------------------------------------
+
+// 上限値を返す
+//   limitId        LIMITS のキー
+//   materialCounts { 素材ID: 所持数 } の辞書。省略時は素材ぶんの加算なし
+// 未知の limitId は null を返す
+function getLimit(limitId, materialCounts) {
+  const def = LIMITS[limitId];
+  if (!def) return null;
+
+  const base = Number(def.base) || 0;
+  if (!def.boostedBy) return base;
+
+  const counts = materialCounts || {};
+  const raw = Math.floor(Number(counts[def.boostedBy]) || 0);
+  const owned = raw > 0 ? raw : 0;
+
+  const value = base + owned;
+  return (def.hardCap === undefined || def.hardCap === null)
+    ? value
+    : Math.min(def.hardCap, value);
+}
 
 // パンドラの有無を考慮した所持上限を返す
 // 未知のIDは null を返す
