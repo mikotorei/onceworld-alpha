@@ -16,6 +16,38 @@ function materialCap(materialId, fallback) {
   return fb;
 }
 
+// --- 装備の強化上限 ---
+// 上限の定義は game-data.js の LIMITS。所持数はパンドラを加味してクランプする
+function equipMaterialCounts() {
+  const cap = materialCap("forbidden_lock", 1000);
+  const el = (typeof document !== "undefined")
+    ? document.getElementById("forbidden-lock-count") : null;
+  const raw = el ? Math.floor(Number(String(el.value ?? "").replace(/,/g, "")) || 0) : 0;
+  return { forbidden_lock: Math.max(0, Math.min(cap, raw)) };
+}
+
+// 装備の通常強化の上限（既定1100 + 禁域のロック所持数）
+function getEquipEnhanceMax() {
+  if (typeof getLimit !== "function") return 1100;
+  const v = getLimit("equipEnhance", equipMaterialCounts());
+  return (v === null || v === undefined) ? 1100 : v;
+}
+
+// 装備のG強化の上限（素材による変動なし）
+function getEquipGLevelMax() {
+  if (typeof getLimit !== "function") return 300;
+  const v = getLimit("equipGLevel");
+  return (v === null || v === undefined) ? 300 : v;
+}
+
+// 通常強化を上限まで行ったときのステータス倍率（旧: 定数 111）
+function getEquipMaxEnhanceMultiplier() {
+  return 1 + getEquipEnhanceMax() * 0.1;
+}
+
+// G強化の解禁しきい値。強化上限が伸びても +1100 のまま連動しない
+const EQUIP_G_UNLOCK_LV = 1100;
+
 // 0以上・上限以下の整数に丸める
 function clampCount(v, max) {
   const n = Math.floor(Number(v) || 0);
