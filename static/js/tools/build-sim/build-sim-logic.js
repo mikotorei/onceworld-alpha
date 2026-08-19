@@ -210,8 +210,9 @@ function calcWeaponArmorStatG(item, stat, glv) {
   const base = Number(item.base_add?.[stat] || 0);
   if (base === 0) return 0;
   const g = Math.max(0, Math.min(getEquipGLevelMax(), Math.floor(glv)));
-  if (g === 0) return Math.floor(base * 111);
-  return Math.floor(base * 111 + (base * 25 + 10000) * g);
+  const atMax = getEquipMaxEnhanceMultiplier();
+  if (g === 0) return Math.floor(base * atMax);
+  return Math.floor(base * atMax + (base * 25 + 10000) * g);
 }
 
 function calcAccessoryStat(item, stat, lv) {

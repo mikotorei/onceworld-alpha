@@ -130,11 +130,12 @@ function scaleEquipBaseAddG(baseAdd, glv, canUpgrade) {
   const o = zeroStats();
   if (!canUpgrade) { STATS.forEach(k => { o[k] = Number(baseAdd?.[k]||0); }); return o; }
   const g = clampG(glv);
+  const atMax = getEquipMaxEnhanceMultiplier();
   STATS.forEach(k => {
     if (k === "mov") { o[k] = Number(baseAdd?.[k]||0); return; }
     const base = Number(baseAdd?.[k]||0);
     if (base === 0) return;
-    o[k] = g === 0 ? floorSafe(base*111) : floorSafe(base*111 + (base*25+10000)*g);
+    o[k] = g === 0 ? floorSafe(base*atMax) : floorSafe(base*atMax + (base*25+10000)*g);
   });
   return o;
 }
