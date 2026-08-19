@@ -1,0 +1,23 @@
+{{- /*
+  プロテインの折りたたみセクション。
+  引数: indent 各行の先頭に付ける空白
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $lines := slice
+    `<details class="fold" id="foldProtein">`
+    `  <summary>プロテイン</summary>`
+    `  <div class="row">`
+    `    <label class="pill">シェイカー <input id="shakerCount" type="number" min="0" value="0"></label>`
+    `    <button id="proteinAll1000Btn" type="button">プロテイン・シェイカーALL1000</button>`
+    `  </div>`
+    `  <div class="grid">`
+-}}
+{{- range $k := partial "sim/base-stats.html" . -}}
+{{- $lines = $lines | append (printf `    <label class="pill">%s <input id="protein_%s" type="number" min="0" value="0"></label>` $k $k) -}}
+{{- end -}}
+{{- $lines = $lines | append
+    `  </div>`
+    `</details>`
+-}}
+{{- delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}

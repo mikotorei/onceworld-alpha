@@ -1,0 +1,22 @@
+{{- /*
+  ビルド保存の折りたたみセクション。
+  引数: indent 各行の先頭に付ける空白
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $lines := slice
+    `<details class="fold" id="foldBuildSave" open>`
+    `  <summary>ビルド保存</summary>`
+    `  <div class="row">`
+    `    <label class="pill">保存済みビルド <select id="buildSlotSelect"></select></label>`
+    `    <button id="loadBuildBtn" type="button">読込</button>`
+    `    <button id="deleteBuildBtn" type="button">削除</button>`
+    `  </div>`
+    `  <div id="buildPreview" class="build-preview" hidden></div>`
+    `  <div class="row">`
+    `    <label class="pill">保存名 <input id="buildNameInput" type="text" value="" placeholder="例: 物理火力"></label>`
+    `    <button id="saveBuildBtn" type="button">保存</button>`
+    `  </div>`
+    `</details>`
+-}}
+{{- delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}

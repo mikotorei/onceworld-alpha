@@ -94,36 +94,9 @@
       </div>
       <div class="error" id="errBox"></div>
 
-      <details class="fold" id="foldBuildSave" open>
-        <summary>ビルド保存</summary>
-        <div class="row">
-          <label class="pill">保存済みビルド <select id="buildSlotSelect"></select></label>
-          <button id="loadBuildBtn" type="button">読込</button>
-          <button id="deleteBuildBtn" type="button">削除</button>
-        </div>
-        <div id="buildPreview" class="build-preview" hidden></div>
-        <div class="row">
-          <label class="pill">保存名 <input id="buildNameInput" type="text" value="" placeholder="例: 物理火力"></label>
-          <button id="saveBuildBtn" type="button">保存</button>
-        </div>
-      </details>
+{{ partial "sim/build-save-section.html" (dict "indent" "      ") }}
 
-      <details class="fold" id="foldProtein">
-        <summary>プロテイン</summary>
-        <div class="row">
-          <label class="pill">シェイカー <input id="shakerCount" type="number" min="0" value="0"></label>
-          <button id="proteinAll1000Btn" type="button">プロテイン・シェイカーALL1000</button>
-        </div>
-        <div class="grid">
-          <label class="pill">vit <input id="protein_vit" type="number" min="0" value="0"></label>
-          <label class="pill">spd <input id="protein_spd" type="number" min="0" value="0"></label>
-          <label class="pill">atk <input id="protein_atk" type="number" min="0" value="0"></label>
-          <label class="pill">int <input id="protein_int" type="number" min="0" value="0"></label>
-          <label class="pill">def <input id="protein_def" type="number" min="0" value="0"></label>
-          <label class="pill">mdef <input id="protein_mdef" type="number" min="0" value="0"></label>
-          <label class="pill">luk <input id="protein_luk" type="number" min="0" value="0"></label>
-        </div>
-      </details>
+{{ partial "sim/protein-section.html" (dict "indent" "      ") }}
 
       <details class="fold" id="foldEquip" open>
         <summary>装備</summary>
