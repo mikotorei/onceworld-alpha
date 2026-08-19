@@ -179,74 +179,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
   </div>
   </div>
-  <div class="equip-row accessory-row">
-    <div class="slot">アクセ1</div>
-    <div class="main">
-      <div class="equip-search-wrap">
-        <input id="equip_search_accessory1" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="equip_suggest_accessory1" class="equip-suggest" hidden></div>
-        <select id="select_accessory1" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">Lv</span>
-      <div class="lvbox"><input id="level_accessory1" type="number" min="1" value="1"></div>
-      <button id="maxlv_btn_accessory1" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
-    </div>
-    <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory1">-</div></div>
-  </div>
-
-  <div class="equip-row accessory-row">
-    <div class="slot">アクセ2</div>
-    <div class="main">
-      <div class="equip-search-wrap">
-        <input id="equip_search_accessory2" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="equip_suggest_accessory2" class="equip-suggest" hidden></div>
-        <select id="select_accessory2" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">Lv</span>
-      <div class="lvbox"><input id="level_accessory2" type="number" min="1" value="1"></div>
-      <button id="maxlv_btn_accessory2" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
-    </div>
-    <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory2">-</div></div>
-  </div>
-
-  <div class="equip-row accessory-row">
-    <div class="slot">アクセ3</div>
-    <div class="main">
-      <div class="equip-search-wrap">
-        <input id="equip_search_accessory3" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="equip_suggest_accessory3" class="equip-suggest" hidden></div>
-        <select id="select_accessory3" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">Lv</span>
-      <div class="lvbox"><input id="level_accessory3" type="number" min="1" value="1"></div>
-      <button id="maxlv_btn_accessory3" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
-    </div>
-    <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory3">-</div></div>
-  </div>
-
-  <div class="equip-row accessory-row">
-    <div class="slot">アクセ4</div>
-    <div class="main">
-      <div class="equip-search-wrap">
-        <input id="equip_search_accessory4" type="search" placeholder="名前で検索して選択" autocomplete="off">
-        <div id="equip_suggest_accessory4" class="equip-suggest" hidden></div>
-        <select id="select_accessory4" hidden></select>
-      </div>
-    </div>
-    <div class="lv-row">
-      <span class="lvtag">Lv</span>
-      <div class="lvbox"><input id="level_accessory4" type="number" min="1" value="1"></div>
-      <button id="maxlv_btn_accessory4" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>
-    </div>
-    <div class="effectbox"><div class="acc-effect-preview" id="effect_accessory4">-</div></div>
-  </div>
-
+{{< accessory-rows indent="  " gap="false" >}}
   </div>
 </details>
 

@@ -1,0 +1,31 @@
+{{- /*
+  アクセサリ行を生成する。スロット定義は data/slots.yaml の accessory。
+  引数・改行の扱いは slots/equip-rows.html と同じ。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $gap := true -}}
+{{- if isset . "gap" }}{{ $gap = .gap }}{{ end -}}
+{{- $rows := slice -}}
+{{- range $s := site.Data.slots.accessory -}}
+{{- $lines := slice
+    `<div class="equip-row accessory-row">`
+    (printf `  <div class="slot">%s</div>` $s.label)
+    `  <div class="main">`
+    `    <div class="equip-search-wrap">`
+    (printf `      <input id="equip_search_%s" type="search" placeholder="名前で検索して選択" autocomplete="off">` $s.key)
+    (printf `      <div id="equip_suggest_%s" class="equip-suggest" hidden></div>` $s.key)
+    (printf `      <select id="select_%s" hidden></select>` $s.key)
+    `    </div>`
+    `  </div>`
+    `  <div class="lv-row">`
+    `    <span class="lvtag">Lv</span>`
+    (printf `    <div class="lvbox"><input id="level_%s" type="number" min="1" value="1"></div>` $s.key)
+    (printf `    <button id="maxlv_btn_%s" type="button" class="chip-btn" style="font-size:12px;padding:4px 8px;" hidden></button>` $s.key)
+    `  </div>`
+    (printf `  <div class="effectbox"><div class="acc-effect-preview" id="effect_%s">-</div></div>` $s.key)
+    `</div>`
+-}}
+{{- $rows = $rows | append (delimit $lines "\n") -}}
+{{- end -}}
+{{- $body := delimit $rows (cond $gap "\n\n" "\n") -}}
+{{- $body | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
