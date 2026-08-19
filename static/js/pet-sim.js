@@ -98,11 +98,18 @@ function getHelmet() {
   return v;
 }
 
-// ペットの最大レベル = 1200 + ハデスの兜の所持数（ただし上限 2200）
-var LV_BASE_MAX = 1200;
-var LV_HARD_MAX = 2200;
+// 上限計算に渡す素材の所持数
+function materialCounts() {
+  return {
+    hades_helmet: getHelmet(),
+    dragon_brand_kneader: getKneader()
+  };
+}
+
+// ペットの最大レベル。定義は game-data.js の LIMITS.petLevel
 function getLvMax() {
-  return Math.min(LV_HARD_MAX, LV_BASE_MAX + getHelmet());
+  var v = (typeof getLimit === 'function') ? getLimit('petLevel', materialCounts()) : null;
+  return (v === null || v === undefined) ? 1200 : v;
 }
 
 // Lv入力欄の max / placeholder を現在の上限に合わせ、超過分は切り詰める
@@ -116,7 +123,7 @@ function applyLvMax() {
   }
   if (lvMaxNote) {
     lvMaxNote.textContent = '最大レベル: ' + max
-      + '（基本' + LV_BASE_MAX + ' + ハデスの兜' + getHelmet() + '個 / 上限' + LV_HARD_MAX + '）';
+      + '（基本1200 + ハデスの兜' + getHelmet() + '個 / 上限2200）';
   }
 }
 
@@ -157,10 +164,10 @@ function getKneader() {
   return v;
 }
 
-// 粉の使用上限 = 100 + 手ごね機の所持数
-var POWDER_BASE_MAX = 100;
+// 粉の使用上限。定義は game-data.js の LIMITS.petPowder
 function getPowderMax() {
-  return POWDER_BASE_MAX + getKneader();
+  var v = (typeof getLimit === 'function') ? getLimit('petPowder', materialCounts()) : null;
+  return (v === null || v === undefined) ? 100 : v;
 }
 
 // 粉入力欄の max / placeholder を現在の上限に合わせ、超過分は切り詰める
