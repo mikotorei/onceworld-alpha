@@ -71,20 +71,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 </div>
 </details>
 
-<div class="row">
-  <label class="pill">合計 <input id="basePointTotal" type="number" min="0" value="0"></label>
-  <div id="basePointInfo" class="note"></div>
-</div>
+{{< point-total-row >}}
 
-<div class="grid">
-  <label class="pill">vit <div class="pill-input-wrap"><input id="base_vit" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="vit">max</button></div></label>
-  <label class="pill">spd <div class="pill-input-wrap"><input id="base_spd" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="spd">max</button></div></label>
-  <label class="pill">atk <div class="pill-input-wrap"><input id="base_atk" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="atk">max</button></div></label>
-  <label class="pill">int <div class="pill-input-wrap"><input id="base_int" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="int">max</button></div></label>
-  <label class="pill">def <div class="pill-input-wrap"><input id="base_def" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="def">max</button></div></label>
-  <label class="pill">mdef <div class="pill-input-wrap"><input id="base_mdef" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="mdef">max</button></div></label>
-  <label class="pill">luk <div class="pill-input-wrap"><input id="base_luk" type="number" min="0" value="0"><button type="button" class="base-max-btn" data-stat="luk">max</button></div></label>
-</div>
+{{< base-stat-grid >}}
 
 <hr>
 

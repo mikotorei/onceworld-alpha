@@ -1,0 +1,6 @@
+{{- /*
+  振り分け・プロテインで使うステータスの並び。
+  ここが唯一の定義元で、base-stat-grid.html と protein-section.html が参照する。
+  JS側の対応は status-sim.js / build-sim-logic.js の BASE_STATS。
+*/ -}}
+{{- return slice "vit" "spd" "atk" "int" "def" "mdef" "luk" -}}

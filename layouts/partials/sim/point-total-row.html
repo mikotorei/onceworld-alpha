@@ -1,0 +1,13 @@
+{{- /*
+  振り分けポイントの合計入力行。
+  引数: indent 各行の先頭に付ける空白
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $lines := slice
+    `<div class="row">`
+    `  <label class="pill">合計 <input id="basePointTotal" type="number" min="0" value="0"></label>`
+    `  <div id="basePointInfo" class="note"></div>`
+    `</div>`
+-}}
+{{- delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
