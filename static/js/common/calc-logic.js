@@ -40,13 +40,18 @@ function getEquipGLevelMax() {
   return (v === null || v === undefined) ? 300 : v;
 }
 
-// 通常強化を上限まで行ったときのステータス倍率（旧: 定数 111）
+// 通常強化を上限まで行ったときのステータス倍率。
+// 通常強化の表示・計算にのみ使う（上限が伸びれば一緒に伸びる）
 function getEquipMaxEnhanceMultiplier() {
   return 1 + getEquipEnhanceMax() * 0.1;
 }
 
 // G強化の解禁しきい値。強化上限が伸びても +1100 のまま連動しない
 const EQUIP_G_UNLOCK_LV = 1100;
+
+// G強化の基準値となるステータス倍率。1 + 1100 × 0.1 の畳み込みで、
+// 強化上限が伸びても +1100 固定のまま連動しない
+const EQUIP_G_BASE_MULTIPLIER = 111;
 
 // HTML側の入力欄・ラベルを現在の上限に合わせる。
 //   data-equip-limit="enhance" 通常強化の入力欄

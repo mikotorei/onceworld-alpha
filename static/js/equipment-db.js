@@ -71,9 +71,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (mode === "plus1100") {
       return baseVal * getEquipMaxEnhanceMultiplier();
     } else if (mode === "genhance") {
-      const atMax = baseVal * getEquipMaxEnhanceMultiplier();
-      if (gLv === 0) return atMax;
-      return atMax + (baseVal * 25 + 10000) * gLv;
+      const atG0 = baseVal * EQUIP_G_BASE_MULTIPLIER;
+      if (gLv === 0) return atG0;
+      return atG0 + (baseVal * 25 + 10000) * gLv;
     }
     return baseVal;
   }
