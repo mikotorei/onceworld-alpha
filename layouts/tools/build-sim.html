@@ -78,11 +78,7 @@
       <h2>結果</h2>
 {{ partial "sim/stats-table.html" (dict "indent" "      ") }}
 
-      <div class="row buttons">
-        <button id="recalcBtn" type="button">再計算</button>
-        <button id="resetBtn" type="button">振り分けリセット</button>
-      </div>
-      <div class="error" id="errBox"></div>
+{{ partial "sim/result-buttons.html" (dict "indent" "      ") }}
 
 {{ partial "sim/build-save-section.html" (dict "indent" "      ") }}
 

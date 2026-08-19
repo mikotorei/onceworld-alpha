@@ -1,0 +1,23 @@
+{{- /*
+  結果まわりの操作ボタン行とエラー表示。
+
+  引数:
+    indent    各行の先頭に付ける空白
+    clearSave 「自動保存クリア」ボタンを出すか（ステシミュのみ true）
+
+  ビルドシミュには自動保存クリアが無いため、このボタンだけ引数で出し分ける。
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $lines := slice
+    `<div class="row buttons">`
+    `  <button id="recalcBtn" type="button">再計算</button>`
+    `  <button id="resetBtn" type="button">振り分けリセット</button>`
+-}}
+{{- if .clearSave -}}
+{{- $lines = $lines | append `  <button id="clearSaveBtn" type="button">自動保存クリア</button>` -}}
+{{- end -}}
+{{- $lines = $lines | append `</div>` -}}
+{{- $buttons := delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) -}}
+{{- $err := printf `%s<div class="error" id="errBox"></div>` $indent -}}
+{{- printf "%s\n%s" $buttons $err | replaceRE "\r\n" "\n" | safeHTML -}}

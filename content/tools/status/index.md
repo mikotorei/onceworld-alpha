@@ -81,13 +81,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 {{< stats-table >}}
 
-<div class="row buttons">
-  <button id="recalcBtn" type="button">再計算</button>
-  <button id="resetBtn" type="button">振り分けリセット</button>
-  <button id="clearSaveBtn" type="button">自動保存クリア</button>
-</div>
-
-<div class="error" id="errBox"></div>
+{{< result-buttons clearSave="true" >}}
 
 <hr>
 
