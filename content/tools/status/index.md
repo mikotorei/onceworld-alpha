@@ -250,6 +250,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <script src="../../js/common/storage-manager.js" defer></script>
 <script src="../../js/common/game-data.js" defer></script>
+<script src="../../slots-data.js" defer></script>
 <script src="../../js/common/pandora.js" defer></script>
 <script src="../../js/common/material-ui.js" defer></script>
 <script src="../../js/common/calc-logic.js" defer></script>
