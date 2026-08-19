@@ -48,6 +48,44 @@ function getEquipMaxEnhanceMultiplier() {
 // G強化の解禁しきい値。強化上限が伸びても +1100 のまま連動しない
 const EQUIP_G_UNLOCK_LV = 1100;
 
+// HTML側の入力欄・ラベルを現在の上限に合わせる。
+//   data-equip-limit="enhance" 通常強化の入力欄
+//   data-equip-limit="glevel"  G強化の入力欄
+//   data-equip-limit-label="all"  「武器・防具すべて+N」ボタン
+//   data-equip-limit-label="plus" 装備DBの「+N」タブ
+// 上限を超えている値はパンドラと同じ方式で切り詰める。戻り値は切り詰めた欄の数
+function applyEquipLimits(root) {
+  if (typeof document === "undefined") return 0;
+  const r = root || document;
+  const lvMax = getEquipEnhanceMax();
+  const gMax  = getEquipGLevelMax();
+  let trimmed = 0;
+
+  r.querySelectorAll("[data-equip-limit]").forEach(el => {
+    const max = (el.getAttribute("data-equip-limit") === "glevel") ? gMax : lvMax;
+    el.max = String(max);
+    const cur = Math.floor(Number(String(el.value ?? "").replace(/,/g, "")) || 0);
+    if (cur > max) {
+      el.value = String(max);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+      trimmed++;
+    }
+  });
+
+  r.querySelectorAll("[data-equip-limit-label]").forEach(el => {
+    el.textContent = (el.getAttribute("data-equip-limit-label") === "all")
+      ? "武器・防具すべて+" + lvMax
+      : "+" + lvMax;
+  });
+
+  return trimmed;
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", () => applyEquipLimits(document));
+}
+
 // 0以上・上限以下の整数に丸める
 function clampCount(v, max) {
   const n = Math.floor(Number(v) || 0);

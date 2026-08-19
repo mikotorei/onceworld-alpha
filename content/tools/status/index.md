@@ -196,7 +196,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   </div>
   </div>
   <div class="series-select-row">
-  <button id="enhance1100AllBtn" type="button" class="chip-btn">武器・防具すべて+1100</button>
+  <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>
   </div>
 
   <div class="equip-row">
@@ -210,9 +210,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_weapon" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_weapon" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
@@ -227,9 +227,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_head" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_head" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
@@ -244,9 +244,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_body" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_body" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
@@ -261,9 +261,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_hands" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_hands" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
@@ -278,9 +278,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_feet" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_feet" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
@@ -295,9 +295,9 @@ description = "主人公の装備・ペット・ステータスを確認でき�
     </div>
     <div class="lv-row">
       <span class="lvtag">+</span>
-      <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0"></div>
+      <div class="lvbox"><input id="level_shield" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>
       <span class="lvtag">G</span>
-      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="300" value="0"></div>
+      <div class="lvbox"><input id="glevel_shield" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>
     </div>
   </div>
 
