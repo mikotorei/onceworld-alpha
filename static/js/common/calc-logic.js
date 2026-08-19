@@ -120,6 +120,45 @@ function clampCount(v, max) {
   return Math.max(0, Math.min(max, n));
 }
 
+// --- 倍率型素材 ---
+// 適用先の宣言は game-data.js の MATERIALS.apply。
+// ここでは所持上限（パンドラ加味）で切り詰めてから getMultiplier に渡す
+
+// MATERIALS の ui.slots に書かれた入力欄から所持数を読む。
+// ページ上に無ければ0
+function readMaterialCount(material) {
+  if (typeof document === "undefined") return 0;
+  const slots = (material.ui && Array.isArray(material.ui.slots)) ? material.ui.slots : [];
+  for (const slot of slots) {
+    const el = document.getElementById(slot.inputId);
+    if (el) return Math.floor(Number(String(el.value ?? "").replace(/,/g, "")) || 0);
+  }
+  return 0;
+}
+
+// target に紐づく素材の所持数をそろえる。
+// provided に入っている素材はそのまま使い、DOMは引かない
+function collectMaterialCounts(target, provided) {
+  const counts = Object.assign({}, provided || {});
+  if (typeof getMaterialsFor !== "function") return counts;
+  getMaterialsFor(target).forEach(m => {
+    if (Object.prototype.hasOwnProperty.call(counts, m.id)) return;
+    counts[m.id] = readMaterialCount(m);
+  });
+  return counts;
+}
+
+// target に紐づく倍率型素材の倍率。各素材は現在の所持上限で切り詰める
+function materialMultiplier(target, counts) {
+  if (typeof getMultiplier !== "function" || typeof getMaterialsFor !== "function") return 1;
+  const src = counts || {};
+  const clamped = {};
+  getMaterialsFor(target).forEach(m => {
+    clamped[m.id] = clampCount(src[m.id], materialCap(m.id, m.baseMax));
+  });
+  return getMultiplier(target, clamped);
+}
+
 // 正規化テーブルは game-data.js の ELEMENT_ALIASES
 function normalizeElement(value) {
   const raw = (value ?? "").toString().trim().toLowerCase();
@@ -224,9 +263,11 @@ function requiredLukForCritRate(enemyLuk, targetRate) {
   return Math.ceil(el + 1 + (rate - 10) / 80 * (el * 10 - el - 1));
 }
 
+// 物理ダメージの倍率。count は闘晶立方体の所持数。
+// 同じ target を持つ素材が増えたら MATERIALS の定義だけで自動的に加わる
 function getTouShouMultiplier(count) {
-  const c = clampCount(count, materialCap("battle_crystal_cube", 1000));
-  return 1 + c * 0.01;
+  return materialMultiplier("physicalDamage",
+    collectMaterialCounts("physicalDamage", { battle_crystal_cube: count }));
 }
 
 function damageRangeTotal(attack, defense, mdefense, hits, elementModifier, criticalModifier = 1.0, touShouCount = 0) {
@@ -299,9 +340,11 @@ function calcAnalysisBonus(bookCount, advancedBookCount) {
   return clampAnalysisBonus(value);
 }
 
+// 魔法ダメージの倍率。crystalCount は魔晶立方体の所持数。
+// 同じ target を持つ素材が増えたら MATERIALS の定義だけで自動的に加わる
 function getCrystalMultiplier(crystalCount) {
-  const count = clampCount(crystalCount, materialCap("magic_crystal_cube", 1000));
-  return 1 + count * 0.01;
+  return materialMultiplier("magicDamage",
+    collectMaterialCounts("magicDamage", { magic_crystal_cube: crystalCount }));
 }
 
 function calcMagicDamageRange(params) {

@@ -290,6 +290,38 @@ localStorage の `onceworld_pandora` で全ツール共通に管理する。
 データ定義は `static/js/common/game-data.js` の `MATERIALS`。
 上限を求めるときは `getMaterialMax(materialId, hasPandora)` を使う。
 
+### 倍率型素材の宣言
+
+「所持数1個につき○○が+n%」型の素材は `MATERIALS` の `apply` に適用先を宣言する。
+
+```js
+{ id: "battle_crystal_cube", …, apply: { target: "physicalDamage", perUnit: 0.01 } }
+{ id: "magic_crystal_cube",  …, apply: { target: "magicDamage",    perUnit: 0.01 } }
+```
+
+- `target` … 適用先の識別子。現在は `physicalDamage` / `magicDamage`
+- `perUnit` … 1個あたりの倍率の増分
+- `combine` … 同じ `target` の素材が複数あるときの合成方法。
+  省略時は `"multiply"`（`1 + 所持数 × perUnit` の積）。
+  `"add"` を指定した素材どうしは増分を合算して1つの括弧にまとめ、
+  `multiply` 側の積と掛け合わせる
+
+計算式側は倍率を直接書かず、以下を使う。
+
+- `getMultiplier(target, counts)` … `game-data.js`。所持数は引数で受け取る
+- `getMaterialsFor(target)` … `game-data.js`。`target` に紐づく素材定義の一覧
+- `materialMultiplier(target, counts)` … `calc-logic.js`。
+  パンドラを加味した上限で切り詰めてから `getMultiplier` を呼ぶ
+- `collectMaterialCounts(target, provided)` … `calc-logic.js`。
+  `provided` に無い素材だけ `ui.slots` の `inputId` からページ上の値を読む
+
+**同じ `target` の倍率型素材を足すときは `MATERIALS` に1件追加するだけでよい。**
+計算式側・ツール側のコード変更は不要。
+
+対象外（構造が特殊なため個別実装のまま）:
+ゴッドオブデビルアイ（定数項1.5がある）／解析書系（素材間依存）／
+振り分けポイント系（適用順序が結果を変える）／禁域の液体（未実装）
+
 ### 実装に残っているクランプ値との対応
 
 `MATERIALS` はまだ計算側から参照されていないため、各ツールには個別のクランプが残っている。

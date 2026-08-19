@@ -25,15 +25,23 @@ const SPELLS = [
 //   unit    単位表示。null なら単位なし
 //   showMax MAXボタンを出すか
 //   slots   表示先。tool:section と inputId を明示する
+//   apply   倍率型素材の適用先。宣言すると getMultiplier が自動で拾う
+//     target  適用先の識別子（physicalDamage / magicDamage …）
+//     perUnit 1個あたりの倍率の増分
+//     combine 同じ target の素材が複数あるときの合成方法
+//             省略時は "multiply"（1 + 所持数 × perUnit の積）
+//             "add" を指定した素材どうしは増分を合算して1つの括弧にまとめる
 //           （MATERIALS の id とUI上のID語幹が一致しないため自動導出はしない）
 const MATERIALS = [
   { id: "battle_crystal_cube",     name: "闘晶立方体",       baseMax: 1000, effect: "物理ダメージ +1%/個",
+    apply: { target: "physicalDamage", perUnit: 0.01 },
     ui: { kind: "count", unit: "個", showMax: false, slots: [
       { tool: "build-sim", section: "physical", inputId: "bs-toushou-count" },
       { tool: "calc",      section: "physical", inputId: "toushou-count" },
       { tool: "detail",    section: "physical", inputId: "detail-toushou-count" }
     ] } },
   { id: "magic_crystal_cube",      name: "魔晶立方体",       baseMax: 1000, effect: "解析書補正後のINT +1%/個",
+    apply: { target: "magicDamage", perUnit: 0.01 },
     ui: { kind: "count", unit: "個", showMax: false, slots: [
       { tool: "build-sim", section: "magic", inputId: "bs-crystal-count" },
       { tool: "calc",      section: "magic", inputId: "crystal-count" },
@@ -219,6 +227,44 @@ function getMaterialMax(materialId, hasPandora) {
   const m = MATERIALS.find(x => x.id === materialId);
   if (!m) return null;
   return m.baseMax * (hasPandora ? 2 : 1);
+}
+
+// ------------------------------------------------------------
+// 倍率型素材
+// ------------------------------------------------------------
+// MATERIALS の apply に適用先を宣言しておくと、計算式側は
+// getMultiplier(target, counts) を呼ぶだけで済む。
+// 素材を1件足すときに触るのは MATERIALS の定義だけでよい。
+//
+// 所持数は呼び出し側が渡す（getLimit と同じく、game-data.js を
+// pandora.js / DOM に依存させないため）。上限での切り詰めは呼び出し側の責務。
+
+// target に紐づく素材の定義を定義順で返す
+function getMaterialsFor(target) {
+  return MATERIALS.filter(m => m.apply && m.apply.target === target);
+}
+
+// target に紐づく倍率型素材の倍率を返す
+//   combine 省略（= "multiply"）… (1 + 所持数 × perUnit) を掛け合わせる
+//   combine: "add"              … 増分を合算し (1 + 合計) を1つの括弧として掛ける
+function getMultiplier(target, materialCounts) {
+  const counts = materialCounts || {};
+  let mul = 1;
+  let addSum = 0;
+  let hasAdd = false;
+
+  getMaterialsFor(target).forEach(m => {
+    const owned = Math.max(0, Math.floor(Number(counts[m.id]) || 0));
+    const per   = Number(m.apply.perUnit) || 0;
+    if (m.apply.combine === "add") {
+      hasAdd = true;
+      addSum += owned * per;
+    } else {
+      mul *= 1 + owned * per;
+    }
+  });
+
+  return hasAdd ? mul * (1 + addSum) : mul;
 }
 
 // 魔法定義を返す。未知のIDは undefined
