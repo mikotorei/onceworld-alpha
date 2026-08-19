@@ -3,8 +3,6 @@
   引数・改行の扱いは slots/equip-rows.html と同じ。
 */ -}}
 {{- $indent := .indent | default "" -}}
-{{- $gap := true -}}
-{{- if isset . "gap" }}{{ $gap = .gap }}{{ end -}}
 {{- $rows := slice -}}
 {{- range $s := site.Data.slots.accessory -}}
 {{- $lines := slice
@@ -27,5 +25,5 @@
 -}}
 {{- $rows = $rows | append (delimit $lines "\n") -}}
 {{- end -}}
-{{- $body := delimit $rows (cond $gap "\n\n" "\n") -}}
+{{- $body := delimit $rows "\n" -}}
 {{- $body | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}

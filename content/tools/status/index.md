@@ -165,7 +165,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   </div>
   <div class="bs-point-limit-grid" data-material-slot="status:equip" data-pandora-toggle="off"></div>
   <div class="equip-grid">
-{{< equip-rows indent="  " gap="false" >}}
+{{< equip-rows indent="  " >}}
   <div class="stat-filter-row">
   <span class="stat-filter-label">ステ絞り込み</span>
   <div class="chip-group">
@@ -179,7 +179,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
   </div>
   </div>
-{{< accessory-rows indent="  " gap="false" >}}
+{{< accessory-rows indent="  " >}}
   </div>
 </details>
 
@@ -199,7 +199,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   </div>
   </div>
   <div class="equip-grid">
-{{< pet-rows indent="  " gap="false" >}}
+{{< pet-rows indent="  " >}}
   </div>
 </details>
 

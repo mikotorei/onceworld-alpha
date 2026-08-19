@@ -3,20 +3,14 @@
 
   引数:
     indent 各行の先頭に付ける空白
-    gap    行と行の間に空行を入れるか（省略時 true）
 
-  行の前後に改行は付けない。先頭・末尾の空行は呼び出し側で制御する。
-
-  gap は見た目に影響しない。build-sim.html（レイアウト）は行間に空行があり、
-  status/index.md（Markdown）は Goldmark が空行を落とすため無い。
-  従来の出力をバイト単位で保つためだけの切り替え。
+  行と行の間に空行は入れない。行の前後にも改行は付けないため、
+  呼び出し側は {{ partial }} を単独行に置くだけでよい。
 
   改行はLFで出す。リポジトリはLFで管理されており、
   GitHub Actions のビルドもLFのまま行われるため。
 */ -}}
 {{- $indent := .indent | default "" -}}
-{{- $gap := true -}}
-{{- if isset . "gap" }}{{ $gap = .gap }}{{ end -}}
 {{- $rows := slice -}}
 {{- range $s := site.Data.slots.armor -}}
 {{- $lines := slice
@@ -39,5 +33,5 @@
 -}}
 {{- $rows = $rows | append (delimit $lines "\n") -}}
 {{- end -}}
-{{- $body := delimit $rows (cond $gap "\n\n" "\n") -}}
+{{- $body := delimit $rows "\n" -}}
 {{- $body | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
