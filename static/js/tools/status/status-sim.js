@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
 const STATS = ["vit", "spd", "atk", "int", "def", "mdef", "luk", "mov"];
 const BASE_STATS = ["vit", "spd", "atk", "int", "def", "mdef", "luk"];
-const EQUIP_KEYS = ["weapon", "head", "body", "hands", "feet", "shield", "accessory1", "accessory2", "accessory3", "accessory4"];
-const ACCESSORY_KEYS = ["accessory1", "accessory2", "accessory3", "accessory4"];
-const PET_KEYS = ["pet1", "pet2", "pet3"];
+const EQUIP_KEYS = slotKeys(ARMOR_SLOTS_DEF).concat(slotKeys(ACCESSORY_SLOTS_DEF));
+const ACCESSORY_KEYS = slotKeys(ACCESSORY_SLOTS_DEF);
+const PET_KEYS = slotKeys(PET_SLOTS_DEF);
 const AUTO_STORAGE_KEY  = OWStorage.KEYS.STATUS_INLINE;
 const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
-const SLOT_LABEL = { weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾", accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4" };
+const SLOT_LABEL = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
 
 const pathParts = window.location.pathname.split("/tools/")[0];
 const base = window.location.origin + pathParts;

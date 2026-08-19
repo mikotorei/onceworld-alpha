@@ -132,6 +132,48 @@ const MATERIALS = [
 ];
 
 // ------------------------------------------------------------
+// 装備・ペットのスロット
+// ------------------------------------------------------------
+// key   HTMLのID接尾辞（select_weapon / level_weapon など）と状態のキー
+// label 画面に出すスロット名
+//
+// 配列の順序がそのまま表示順になる。
+
+const ARMOR_SLOTS_DEF = [
+  { key: "weapon", label: "武器" },
+  { key: "head",   label: "頭"   },
+  { key: "body",   label: "体"   },
+  { key: "hands",  label: "手"   },
+  { key: "feet",   label: "脚"   },
+  { key: "shield", label: "盾"   }
+];
+
+const ACCESSORY_SLOTS_DEF = [
+  { key: "accessory1", label: "アクセ1" },
+  { key: "accessory2", label: "アクセ2" },
+  { key: "accessory3", label: "アクセ3" },
+  { key: "accessory4", label: "アクセ4" }
+];
+
+const PET_SLOTS_DEF = [
+  { key: "pet1", label: "ペット1" },
+  { key: "pet2", label: "ペット2" },
+  { key: "pet3", label: "ペット3" }
+];
+
+// スロット定義から key の配列を取り出す
+function slotKeys(defs) {
+  return (defs || []).map(s => s.key);
+}
+
+// スロット定義を並べて key -> label のマップにする
+function slotLabelMap(...defsList) {
+  const out = {};
+  defsList.forEach(defs => (defs || []).forEach(s => { out[s.key] = s.label; }));
+  return out;
+}
+
+// ------------------------------------------------------------
 // 上限値
 // ------------------------------------------------------------
 // 効果素材で伸びる上限値をここに集約する。

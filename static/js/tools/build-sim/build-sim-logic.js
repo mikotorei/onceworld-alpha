@@ -346,12 +346,9 @@ function applyOptimalGEnhancement(armorSlots, stat, remainingFinal, effectiveMul
 }
 
 function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentFinalTotal, simState, effectiveMultiplier, overridePointLimit) {
-  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
-  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
-  const SLOT_LABEL = {
-    weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
-    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4"
-  };
+  const ARMOR_SLOTS     = slotKeys(ARMOR_SLOTS_DEF);
+  const ACCESSORY_SLOTS = slotKeys(ACCESSORY_SLOTS_DEF);
+  const SLOT_LABEL      = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
 
   const currentVal = Math.round(Number(currentFinalTotal?.[stat] || 0));
   let shortfall = Math.max(0, neededTotal - currentVal);
@@ -522,12 +519,9 @@ function calcHitRateFromLuk(heroLuk, enemyLuk) {
 // neededLuk: 必要luk
 // currentFinalLuk: 現在のfinalTotal.luk
 function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk, simState, effectiveLukMultiplier, overridePointLimit) {
-  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
-  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
-  const SLOT_LABEL = {
-    weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
-    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4"
-  };
+  const ARMOR_SLOTS     = slotKeys(ARMOR_SLOTS_DEF);
+  const ACCESSORY_SLOTS = slotKeys(ACCESSORY_SLOTS_DEF);
+  const SLOT_LABEL      = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
   const stat = "luk";
 
   const currentVal = Math.round(Number(currentFinalLuk || 0));
@@ -613,12 +607,9 @@ function analyzeAtkAndLukNeeded(
   effectiveAtkMultiplier, effectiveLukMultiplier,
   overridePointLimit
 ) {
-  const ARMOR_SLOTS     = ["weapon", "head", "body", "hands", "feet", "shield"];
-  const ACCESSORY_SLOTS = ["accessory1", "accessory2", "accessory3", "accessory4"];
-  const SLOT_LABEL = {
-    weapon:"武器", head:"頭", body:"体", hands:"手", feet:"脚", shield:"盾",
-    accessory1:"アクセ1", accessory2:"アクセ2", accessory3:"アクセ3", accessory4:"アクセ4"
-  };
+  const ARMOR_SLOTS     = slotKeys(ARMOR_SLOTS_DEF);
+  const ACCESSORY_SLOTS = slotKeys(ACCESSORY_SLOTS_DEF);
+  const SLOT_LABEL      = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
 
   const BASE_STATS = ["vit","spd","atk","int","def","mdef","luk"];
   const basePointTotal = overridePointLimit != null
