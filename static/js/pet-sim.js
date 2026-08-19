@@ -30,6 +30,8 @@ var sengiInput  = document.getElementById('sengiInput');
 var powderGrid  = document.getElementById('powderGrid');
 var kinokoInput = document.getElementById('kinokoInput');
 var kneaderInput = document.getElementById('kneaderInput');
+var helmetInput  = document.getElementById('helmetInput');
+var lvMaxNote    = document.getElementById('lvMaxNote');
 var powderMaxNote = document.getElementById('powderMaxNote');
 var houseBtn    = document.getElementById('houseBtn');
 var result      = document.getElementById('result');
@@ -80,10 +82,49 @@ houseBtn.addEventListener('click', function () {
 });
 
 // 入力値取得
+// ハデスの兜の所持数（0〜baseMax）
+function getHelmet() {
+  if (!helmetInput) return 0;
+  var max = 1000;
+  if (typeof getMaterialMax === 'function') {
+    max = getMaterialMax('hades_helmet', false) || 1000;
+  }
+  if (typeof OWPandora !== 'undefined' && typeof OWPandora.materialCap === 'function') {
+    max = OWPandora.materialCap('hades_helmet', 1000);
+  }
+  var v = parseInt(helmetInput.value, 10);
+  if (isNaN(v) || v < 0) return 0;
+  if (v > max)           return max;
+  return v;
+}
+
+// ペットの最大レベル = 1200 + ハデスの兜の所持数（ただし上限 2200）
+var LV_BASE_MAX = 1200;
+var LV_HARD_MAX = 2200;
+function getLvMax() {
+  return Math.min(LV_HARD_MAX, LV_BASE_MAX + getHelmet());
+}
+
+// Lv入力欄の max / placeholder を現在の上限に合わせ、超過分は切り詰める
+function applyLvMax() {
+  var max = getLvMax();
+  if (lvInput) {
+    lvInput.max = String(max);
+    lvInput.placeholder = '1〜' + max;
+    var v = parseInt(lvInput.value, 10);
+    if (!isNaN(v) && v > max) lvInput.value = String(max);
+  }
+  if (lvMaxNote) {
+    lvMaxNote.textContent = '最大レベル: ' + max
+      + '（基本' + LV_BASE_MAX + ' + ハデスの兜' + getHelmet() + '個 / 上限' + LV_HARD_MAX + '）';
+  }
+}
+
 function getLv() {
+  var max = getLvMax();
   var v = parseInt(lvInput.value, 10);
   if (isNaN(v) || v < 1) return 1;
-  if (v > 1200)          return 1200;
+  if (v > max)           return max;
   return v;
 }
 
@@ -131,7 +172,7 @@ function applyPowderMax() {
     el.max = String(max);
     el.placeholder = '0〜' + max;
     var v = parseInt(el.value, 10);
-    if (!isNaN(v) && v > max) el.value = max;
+    if (!isNaN(v) && v > max) el.value = String(max);
   });
   if (powderMaxNote) {
     powderMaxNote.textContent = '粉の使用上限: ' + max
@@ -284,7 +325,7 @@ STAT_KEYS.forEach(function (s) {
   el.addEventListener('input', function () {
     var max = getPowderMax();
     var v = parseInt(el.value, 10);
-    if (!isNaN(v) && v > max) el.value = max;
+    if (!isNaN(v) && v > max) el.value = String(max);
     if (!isNaN(v) && v < 0) el.value = 0;
   });
 });
@@ -295,7 +336,22 @@ if (kneaderInput) {
     render();
   });
 }
+if (helmetInput) {
+  helmetInput.addEventListener('input', function () {
+    applyLvMax();
+    render();
+  });
+}
+// パンドラの所持状態が変わると上限も変わる
+if (typeof OWPandora !== 'undefined' && typeof OWPandora.onChange === 'function') {
+  OWPandora.onChange(function () {
+    applyPowderMax();
+    applyLvMax();
+    render();
+  });
+}
 applyPowderMax();
+applyLvMax();
 
 lvInput.addEventListener('input', render);
 sengiInput.addEventListener('input', render);

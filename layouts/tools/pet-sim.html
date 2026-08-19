@@ -17,8 +17,9 @@
   <section>
     <h2>レベル</h2>
     <div class="input-row">
-      <input type="number" id="lvInput" min="1" max="1200" value="1" placeholder="1〜1200" />
+      <input type="number" id="lvInput" min="1" value="1" />
     </div>
+    <p class="powder-note" id="lvMaxNote"></p>
   </section>
 
   <section>
@@ -29,11 +30,8 @@
   </section>
 
   <section>
-    <h2>ドラゴン印の手ごね機</h2>
-    <div class="input-row">
-      <input type="number" id="kneaderInput" min="0" max="1000" value="0" placeholder="0〜1000" />
-      <span class="kinoko-label">個（粉の使用上限が所持数分だけ増える）</span>
-    </div>
+    <h2>効果素材</h2>
+    <div data-material-slot="pet-sim:common"></div>
   </section>
 
   <section>
