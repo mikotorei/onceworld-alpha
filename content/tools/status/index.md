@@ -113,16 +113,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 </div>
 </div>
 
-<button class="ow-help-btn" id="owHelpBtn" aria-label="使い方を見る">❓</button>
-
-<div class="ow-help-overlay" id="owHelpOverlay" hidden></div>
-
-<div class="ow-help-drawer" id="owHelpDrawer" aria-hidden="true">
-<div class="ow-help-drawer-header">
-<span class="ow-help-drawer-title">ステータスシミュレーター 使い方</span>
-<button class="ow-help-drawer-close" id="owHelpClose">✕</button>
-</div>
-<div class="ow-help-drawer-body">
+{{< help-drawer title="ステータスシミュレーター 使い方" >}}
 <h3>基本操作</h3>
 <p>装備・アクセサリー・ペットを選択してステータスを確認できます。</p>
 <p>振り分けポイントを入力して最終ステータスを計算できます。</p>
@@ -134,8 +125,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <p>名前を付けてビルドを保存・呼び出しできます。</p>
 <h3>ビルドシミュ</h3>
 <p>設定した内容がビルドシミュの逆算・探索に自動反映されます。</p>
-</div>
-</div>
+{{< /help-drawer >}}
 
 <link rel="stylesheet" href="../../css/status-sim.css">
 
