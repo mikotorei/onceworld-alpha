@@ -40,7 +40,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <div data-material-slot="status:stat-point"></div>
 <div class="bs-point-limit-result">
 <span class="bs-point-limit-label">獲得振り分けポイント</span>
-<span id="bs-stat-point-display" class="bs-point-limit-total">4,980</span>
+<span id="ss-stat-point-display" class="bs-point-limit-total">4,980</span>
 <span class="bs-label-text">pt</span>
 </div>
 <div class="bs-point-limit-row" style="margin-top:4px">
@@ -62,7 +62,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 </div>
 <div class="bs-point-limit-result">
 <span class="bs-point-limit-label">計算された上限</span>
-<span id="bs-point-limit-display" class="bs-point-limit-total">10,000</span>
+<span id="ss-point-limit-display" class="bs-point-limit-total">10,000</span>
 <span class="bs-label-text">ポイント</span>
 </div>
 </div>

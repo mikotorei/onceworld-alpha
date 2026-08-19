@@ -433,9 +433,15 @@ function wirePetSearch(key) {
   });
 }
 
+// 振り分けポイント・上限の表示欄。
+// ビルドシミュは bs- / ステシミュは ss- の接頭辞を使う。
+// このファイルは両方のページで動くためどちらでも引けるようにする
+function $statPointDisplay() { return $("ss-stat-point-display") || $("bs-stat-point-display"); }
+function $pointLimitDisplay() { return $("ss-point-limit-display") || $("bs-point-limit-display"); }
+
 function collectState() {
-  // 振り分けポイント（所持）をbs-stat-point-displayから取得
-  const statPtEl = $("bs-stat-point-display");
+  // 振り分けポイント（所持）を表示欄から取得
+  const statPtEl = $statPointDisplay();
   const statPointTotal = statPtEl
     ? Math.max(0, parseInt(statPtEl.textContent.replace(/,/g, "") || "0", 10) || 0)
     : clamp0($("basePointTotal")?.value);
@@ -805,7 +811,7 @@ function ssUpdateStatPointDisplay() {
   const tenshoCount = Math.max(0, parseInt($("ss-tensho-count")?.value  || "0", 10) || 0);
   const scrollCount = Math.max(0, parseInt($("ss-scroll-count")?.value  || "0", 10) || 0);
   const pts = calcTotalStatPoints(lv, tenme, ssHasCosmoCube, penCount, altarCount, tenshoCount, scrollCount);
-  const el = $("bs-stat-point-display");
+  const el = $statPointDisplay();
   if (el) el.textContent = pts.toLocaleString("ja-JP");
 }
 
@@ -814,7 +820,7 @@ function ssUpdatePointLimitDisplay() {
   const forbiddenBook = Math.max(0, parseInt($("ss-forbidden-book")?.value || "0", 10) || 0);
   const tenmeCount    = Math.max(0, parseInt($("ss-sp-tenme-count")?.value || "0", 10) || 0);
   const limit = calcBasePointLimit(sageDrop, forbiddenBook, ssHasContract, tenmeCount);
-  const el = $("bs-point-limit-display");
+  const el = $pointLimitDisplay();
   if (el) el.textContent = limit.toLocaleString("ja-JP");
 }
 
@@ -835,7 +841,7 @@ document.querySelectorAll(".ss-cosmocube-btn").forEach(btn => {
 });
 
 $("ss-apply-stat-point-btn")?.addEventListener("click", () => {
-  const el = $("bs-stat-point-display");
+  const el = $statPointDisplay();
   const pts = el ? parseInt(el.textContent.replace(/,/g, ""), 10) || 0 : 0;
   if ($("basePointTotal")) {
     $("basePointTotal").value = String(pts);
@@ -979,13 +985,13 @@ document.querySelectorAll(".base-max-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const stat = btn.getAttribute("data-stat");
     const BASE_STATS_ALL = ["vit","spd","atk","int","def","mdef","luk"];
-    // 振り分け可能ポイント（bs-stat-point-display）
-    const statPtEl = $("bs-stat-point-display");
+    // 振り分け可能ポイント
+    const statPtEl = $statPointDisplay();
     const ownedPt = statPtEl && statPtEl.textContent.trim() !== ""
       ? Math.max(0, parseInt(statPtEl.textContent.replace(/,/g, ""), 10) || 0)
       : Math.max(0, parseInt($("basePointTotal")?.value || "0", 10) || 0);
-    // 振り分け上限（bs-point-limit-display）
-    const limitEl = $("bs-point-limit-display");
+    // 振り分け上限
+    const limitEl = $pointLimitDisplay();
     const upperLimit = limitEl
       ? Math.max(0, parseInt(limitEl.textContent.replace(/,/g, "") || "0", 10) || 0)
       : 0;
