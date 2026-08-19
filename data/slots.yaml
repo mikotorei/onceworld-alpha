@@ -1,0 +1,27 @@
+# 装備・ペットのスロット定義（HTML生成用）
+#
+# key   IDの接尾辞（select_weapon / level_weapon など）
+# label 画面に出すスロット名
+#
+# JS側の対応する定義は static/js/common/game-data.js の
+# ARMOR_SLOTS_DEF / ACCESSORY_SLOTS_DEF / PET_SLOTS_DEF。
+# 片方だけ変更しないこと。
+
+armor:
+  - { key: weapon, label: 武器 }
+  - { key: head,   label: 頭 }
+  - { key: body,   label: 体 }
+  - { key: hands,  label: 手 }
+  - { key: feet,   label: 脚 }
+  - { key: shield, label: 盾 }
+
+accessory:
+  - { key: accessory1, label: アクセ1 }
+  - { key: accessory2, label: アクセ2 }
+  - { key: accessory3, label: アクセ3 }
+  - { key: accessory4, label: アクセ4 }
+
+pet:
+  - { key: pet1, label: ペット1 }
+  - { key: pet2, label: ペット2 }
+  - { key: pet3, label: ペット3 }

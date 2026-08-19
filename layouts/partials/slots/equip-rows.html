@@ -1,0 +1,43 @@
+{{- /*
+  武器・防具の装備行を生成する。スロット定義は data/slots.yaml の armor。
+
+  引数:
+    indent 各行の先頭に付ける空白
+    gap    行と行の間に空行を入れるか（省略時 true）
+
+  行の前後に改行は付けない。先頭・末尾の空行は呼び出し側で制御する。
+
+  gap は見た目に影響しない。build-sim.html（レイアウト）は行間に空行があり、
+  status/index.md（Markdown）は Goldmark が空行を落とすため無い。
+  従来の出力をバイト単位で保つためだけの切り替え。
+
+  改行はLFで出す。リポジトリはLFで管理されており、
+  GitHub Actions のビルドもLFのまま行われるため。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $gap := true -}}
+{{- if isset . "gap" }}{{ $gap = .gap }}{{ end -}}
+{{- $rows := slice -}}
+{{- range $s := site.Data.slots.armor -}}
+{{- $lines := slice
+    `<div class="equip-row">`
+    (printf `  <div class="slot">%s</div>` $s.label)
+    `  <div class="main">`
+    `    <div class="equip-search-wrap">`
+    (printf `      <input id="equip_search_%s" type="search" placeholder="名前で検索して選択" autocomplete="off">` $s.key)
+    (printf `      <div id="equip_suggest_%s" class="equip-suggest" hidden></div>` $s.key)
+    (printf `      <select id="select_%s" hidden></select>` $s.key)
+    `    </div>`
+    `  </div>`
+    `  <div class="lv-row">`
+    `    <span class="lvtag">+</span>`
+    (printf `    <div class="lvbox"><input id="level_%s" type="number" min="0" max="1100" value="0" data-equip-limit="enhance"></div>` $s.key)
+    `    <span class="lvtag">G</span>`
+    (printf `    <div class="lvbox"><input id="glevel_%s" type="number" min="0" max="300" value="0" data-equip-limit="glevel"></div>` $s.key)
+    `  </div>`
+    `</div>`
+-}}
+{{- $rows = $rows | append (delimit $lines "\n") -}}
+{{- end -}}
+{{- $body := delimit $rows (cond $gap "\n\n" "\n") -}}
+{{- $body | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
