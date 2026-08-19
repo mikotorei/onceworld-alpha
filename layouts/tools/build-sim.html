@@ -76,17 +76,7 @@
 {{ partial "sim/base-stat-grid.html" (dict "indent" "      ") }}
 
       <h2>結果</h2>
-      <table class="stats-table">
-        <thead>
-          <tr>
-            <th>ステ</th>
-            <th>基礎＋プロテイン</th>
-            <th>装備</th>
-            <th>合計</th>
-          </tr>
-        </thead>
-        <tbody id="statsTbody"></tbody>
-      </table>
+{{ partial "sim/stats-table.html" (dict "indent" "      ") }}
 
       <div class="row buttons">
         <button id="recalcBtn" type="button">再計算</button>
@@ -119,38 +109,14 @@
          <div class="bs-point-limit-grid" data-material-slot="build-sim:equip" data-pandora-toggle="off"></div>
         <div class="equip-grid">
 {{ partial "slots/equip-rows.html" (dict "indent" "          ") }}
-          <div class="stat-filter-row">
-            <span class="stat-filter-label">ステ絞り込み</span>
-            <div class="chip-group">
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="int" aria-pressed="false">INT</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="def" aria-pressed="false">DEF</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="mdef" aria-pressed="false">MDEF</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
-            </div>
-          </div>
+{{ partial "sim/stat-filter-row.html" (dict "indent" "          ") }}
 {{ partial "slots/accessory-rows.html" (dict "indent" "          ") }}
         </div>
       </details>
 
       <details class="fold" id="foldPet" open>
         <summary>ペットスキル</summary>
-          <div class="stat-filter-row">
-            <span class="stat-filter-label">ステ絞り込み</span>
-            <div class="chip-group">
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="int" aria-pressed="false">INT</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="def" aria-pressed="false">DEF</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="mdef" aria-pressed="false">MDEF</button>
-              <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
-            </div>
-          </div>
+{{ partial "sim/stat-filter-row.html" (dict "indent" "          ") }}
         <div class="equip-grid">
 {{ partial "slots/pet-rows.html" (dict "indent" "          ") }}
         </div>

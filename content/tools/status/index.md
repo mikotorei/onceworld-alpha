@@ -79,17 +79,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 
 <h2>結果</h2>
 
-<table class="stats-table">
-  <thead>
-    <tr>
-      <th>ステ</th>
-      <th>基礎＋プロテイン</th>
-      <th>装備</th>
-      <th>合計</th>
-    </tr>
-  </thead>
-  <tbody id="statsTbody"></tbody>
-</table>
+{{< stats-table >}}
 
 <div class="row buttons">
   <button id="recalcBtn" type="button">再計算</button>
@@ -126,38 +116,14 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <div class="bs-point-limit-grid" data-material-slot="status:equip" data-pandora-toggle="off"></div>
   <div class="equip-grid">
 {{< equip-rows indent="  " >}}
-  <div class="stat-filter-row">
-  <span class="stat-filter-label">ステ絞り込み</span>
-  <div class="chip-group">
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="int" aria-pressed="false">INT</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="def" aria-pressed="false">DEF</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="mdef" aria-pressed="false">MDEF</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
-  </div>
-  </div>
+{{< stat-filter-row indent="  " >}}
 {{< accessory-rows indent="  " >}}
   </div>
 </details>
 
 <details class="fold" id="foldPet" open>
   <summary>ペットスキル</summary>
-  <div class="stat-filter-row">
-  <span class="stat-filter-label">ステ絞り込み</span>
-  <div class="chip-group">
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="vit" aria-pressed="false">VIT</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="spd" aria-pressed="false">SPD</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="atk" aria-pressed="false">ATK</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="int" aria-pressed="false">INT</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="def" aria-pressed="false">DEF</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="mdef" aria-pressed="false">MDEF</button>
-  <button type="button" class="chip-btn stat-filter-btn" data-stat="luk" aria-pressed="false">LUK</button>
-  </div>
-  </div>
+{{< stat-filter-row indent="  " >}}
   <div class="equip-grid">
 {{< pet-rows indent="  " >}}
   </div>

@@ -1,0 +1,20 @@
+{{- /*
+  装備・ペットの一覧を絞り込むボタン列。
+  引数: indent 各行の先頭に付ける空白
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $lines := slice
+    `<div class="stat-filter-row">`
+    `  <span class="stat-filter-label">ステ絞り込み</span>`
+    `  <div class="chip-group">`
+    `    <button type="button" class="chip-btn stat-filter-btn" data-stat="all" aria-pressed="true">クリア</button>`
+-}}
+{{- range $k := partial "sim/base-stats.html" . -}}
+{{- $lines = $lines | append (printf `    <button type="button" class="chip-btn stat-filter-btn" data-stat="%s" aria-pressed="false">%s</button>` $k (upper $k)) -}}
+{{- end -}}
+{{- $lines = $lines | append
+    `  </div>`
+    `</div>`
+-}}
+{{- delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) | replaceRE "\r\n" "\n" | safeHTML -}}
