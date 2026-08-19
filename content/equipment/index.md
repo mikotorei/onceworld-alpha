@@ -16,6 +16,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
   <button class="enhance-tab" data-enhance="plus1100" data-equip-limit-label="plus">+1100</button>
   <button class="enhance-tab" data-enhance="genhance">G強化</button>
 </div>
+<div class="bs-point-limit-grid" data-material-slot="equipment:equip"></div>
 <div id="gEnhanceControl" style="display:none;">
   <label>G強化値：+<input id="gLevelInput" type="number" min="0" max="300" value="0" data-equip-limit="glevel"><span id="gLevelDisplay">0</span></label>
   <input id="gLevelSlider" type="range" min="0" max="300" value="0" data-equip-limit="glevel">
@@ -105,6 +106,7 @@ description = "武器・防具・アクセサリーの装備データ一覧"
 <script src="../js/common/storage-manager.js"></script>
 <script src="../js/common/game-data.js"></script>
 <script src="../js/common/pandora.js"></script>
+<script src="../js/common/material-ui.js"></script>
 <script src="../js/common/calc-logic.js"></script>
 <script src="../js/equipment-db.js"></script>
 <script src="../js/common/help-drawer.js"></script>

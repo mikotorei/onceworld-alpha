@@ -250,6 +250,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     refreshTables();
   }
 
+  // 禁域のロック（強化上限が変わるので +N タブの値を引き直す）
+  const lockInput = document.querySelector('[data-material="forbidden_lock"] input');
+  if (lockInput) {
+    ["input", "change"].forEach(ev => lockInput.addEventListener(ev, refreshTables));
+  }
+
   if (gInput) {
     gInput.addEventListener("change", () => {
       applyGLevel(parseInt(gInput.value, 10));

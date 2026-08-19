@@ -761,6 +761,7 @@ function saveSsCalc() {
       hasCosmoCube:  ssHasCosmoCube,
       sageDrop:      $("ss-sage-drop")?.value        || "0",
       forbiddenBook: $("ss-forbidden-book")?.value   || "0",
+      forbiddenLock: $("ss-forbidden-lock")?.value   || "0",
       hasContract:   ssHasContract,
   });
 }
@@ -777,6 +778,7 @@ function loadSsCalc() {
     if ($("ss-scroll-count"))   $("ss-scroll-count").value    = sc.scrollCount   || "0";
     if ($("ss-sage-drop"))      $("ss-sage-drop").value       = sc.sageDrop      || "0";
     if ($("ss-forbidden-book")) $("ss-forbidden-book").value  = sc.forbiddenBook || "0";
+    if ($("ss-forbidden-lock")) $("ss-forbidden-lock").value  = sc.forbiddenLock || "0";
 
     ssHasCosmoCube = !!sc.hasCosmoCube;
     ssHasContract  = !!sc.hasContract;
@@ -847,6 +849,9 @@ $("ss-apply-stat-point-btn")?.addEventListener("click", () => {
   $(id)?.addEventListener("blur",  () => { ssUpdatePointLimitDisplay(); saveSsCalc(); });
 });
 
+// 禁域のロック（再計算は全number入力共通のリスナーが行う）
+["input", "blur"].forEach(ev => $("ss-forbidden-lock")?.addEventListener(ev, saveSsCalc));
+
 document.querySelectorAll(".ss-contract-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     ssHasContract = btn.getAttribute("data-val") === "1";
@@ -912,6 +917,8 @@ if ($("ss-chara-lv")) {
   ssUpdateStatPointDisplay();
   ssUpdatePointLimitDisplay();
 }
+// 保存値の復元で禁域のロックの所持数が変わるため、強化値の上限を引き直す
+if (typeof applyEquipLimits === "function") applyEquipLimits(document);
 recalc();
 // 初期状態でmaxLvボタンを更新
 ["accessory1","accessory2","accessory3","accessory4"].forEach(k => updateAccessoryMaxLvBtn(k));

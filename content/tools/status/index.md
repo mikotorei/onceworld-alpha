@@ -198,6 +198,7 @@ description = "主人公の装備・ペット・ステータスを確認でき�
   <div class="series-select-row">
   <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>
   </div>
+  <div class="bs-point-limit-grid" data-material-slot="status:equip"></div>
 
   <div class="equip-row">
     <div class="slot">武器</div>

@@ -15,6 +15,7 @@ const BS_PERSIST_INPUTS = [
   { id: "bs-crystal-count",          key: "crystalCount",         kind: "int",    def: 0   },
   { id: "bs-toushou-count",          key: "toushouCount",         kind: "int",    def: 0   },
   { id: "bs-devil-eye",              key: "devilEye",             kind: "int",    def: 0   },
+  { id: "bs-forbidden-lock",         key: "forbiddenLock",        kind: "int",    def: 0   },
   { id: "bs-npan-limit",             key: "npanLimit",            kind: "int",    def: 3   },
   { id: "bs-tenku-floor",            key: "tenkuFloor",           kind: "digits", def: ""  },
   { id: "bs-reverse-lv",             key: "reverseLv",            kind: "digits", def: "0" },
@@ -1254,6 +1255,8 @@ function tenkuFloorToLv(floor) {
 
 // --- 初期化 ---
 loadSimState();
+// 保存値の復元で禁域のロックの所持数が変わるため、強化値の上限を引き直す
+if (typeof applyEquipLimits === "function") applyEquipLimits(document);
 applyModeUI();
 switchTab("reverse");
 loadEquipItems();

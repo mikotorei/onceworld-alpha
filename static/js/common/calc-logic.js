@@ -20,10 +20,17 @@ function materialCap(materialId, fallback) {
 // 上限の定義は game-data.js の LIMITS。所持数はパンドラを加味してクランプする
 function equipMaterialCounts() {
   const cap = materialCap("forbidden_lock", 1000);
-  const el = (typeof document !== "undefined")
-    ? document.getElementById("forbidden-lock-count") : null;
+  const el = forbiddenLockInput();
   const raw = el ? Math.floor(Number(String(el.value ?? "").replace(/,/g, "")) || 0) : 0;
   return { forbidden_lock: Math.max(0, Math.min(cap, raw)) };
+}
+
+// 禁域のロックの入力欄。material-ui.js が data-material="forbidden_lock" の
+// 行を生成し、その中に入力欄を置く。ページに無ければ null
+function forbiddenLockInput(root) {
+  if (typeof document === "undefined") return null;
+  const r = root || document;
+  return r.querySelector('[data-material="forbidden_lock"] input');
 }
 
 // 装備の通常強化の上限（既定1100 + 禁域のロック所持数）
@@ -88,7 +95,22 @@ function applyEquipLimits(root) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => applyEquipLimits(document));
+  document.addEventListener("DOMContentLoaded", () => {
+    applyEquipLimits(document);
+    // 禁域のロックを増減したら強化値の上限を追随させる。
+    // 再計算は各ツール側の入力リスナーが行う
+    const lock = forbiddenLockInput();
+    if (lock) {
+      ["input", "change"].forEach(ev =>
+        lock.addEventListener(ev, () => applyEquipLimits(document)));
+    }
+  });
+}
+
+// パンドラの箱を外すと禁域のロックの所持数も切り詰められるため、
+// material-ui.js が入力値を直した後に強化値の上限も引き直す
+if (typeof OWPandora !== "undefined" && typeof OWPandora.onChange === "function") {
+  OWPandora.onChange(() => applyEquipLimits(document));
 }
 
 // 0以上・上限以下の整数に丸める
