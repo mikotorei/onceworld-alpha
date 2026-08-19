@@ -95,39 +95,10 @@ description = "主人公の装備・ペット・ステータスを確認でき�
 <hr>
 
 {{< protein-section >}}
-<details class="fold" id="foldEquip" open>
-  <summary>装備</summary>
-  <div class="series-select-row">
-  <span class="series-select-label">シリーズ一括</span>
-  <div class="chip-group">
-  <button class="chip-btn" type="button" data-series="demon">悪魔</button>
-  <button class="chip-btn" type="button" data-series="dragon">ドラゴン</button>
-  <button class="chip-btn" type="button" data-series="inferno">獄炎</button>
-  <button class="chip-btn" type="button" data-series="leather">皮</button>
-  <button class="chip-btn" type="button" data-series="mage">魔道士</button>
-  <button class="chip-btn" type="button" data-series="metal">鉄</button>
-  <button class="chip-btn" type="button" data-series="platinum">白金</button>
-  <button class="chip-btn" type="button" data-series="tyrant">暴君</button>
-  </div>
-  </div>
-  <div class="series-select-row">
-  <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>
-  </div>
-  <div class="bs-point-limit-grid" data-material-slot="status:equip" data-pandora-toggle="off"></div>
-  <div class="equip-grid">
-{{< equip-rows indent="  " >}}
-{{< stat-filter-row indent="  " >}}
-{{< accessory-rows indent="  " >}}
-  </div>
-</details>
 
-<details class="fold" id="foldPet" open>
-  <summary>ペットスキル</summary>
-{{< stat-filter-row indent="  " >}}
-  <div class="equip-grid">
-{{< pet-rows indent="  " >}}
-  </div>
-</details>
+{{< equip-section tool="status" >}}
+
+{{< pet-section >}}
 
 </div>
 

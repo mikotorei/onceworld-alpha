@@ -1,0 +1,40 @@
+{{- /*
+  装備の折りたたみセクション（シリーズ一括・一括強化・素材欄・装備行・
+  ステ絞り込み・アクセサリ行）。
+
+  引数:
+    indent 各行の先頭に付ける空白
+    tool   素材スロットのツール名（build-sim / status）
+
+  行の前後に改行は付けない。
+*/ -}}
+{{- $indent := .indent | default "" -}}
+{{- $tool := .tool -}}
+{{- $inner := printf "%s    " $indent -}}
+{{- $lines := slice
+    `<details class="fold" id="foldEquip" open>`
+    `  <summary>装備</summary>`
+    `  <div class="series-select-row">`
+    `    <span class="series-select-label">シリーズ一括</span>`
+    `    <div class="chip-group">`
+-}}
+{{- range $s := site.Data.slots.series -}}
+{{- $lines = $lines | append (printf `      <button class="chip-btn" type="button" data-series="%s">%s</button>` $s.key $s.label) -}}
+{{- end -}}
+{{- $lines = $lines | append
+    `    </div>`
+    `  </div>`
+    `  <div class="series-select-row">`
+    `    <button id="enhance1100AllBtn" type="button" class="chip-btn" data-equip-limit-label="all">武器・防具すべて+1100</button>`
+    `  </div>`
+    (printf `  <div class="bs-point-limit-grid" data-material-slot="%s:equip" data-pandora-toggle="off"></div>` $tool)
+    `  <div class="equip-grid">`
+-}}
+{{- $body := delimit $lines "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) -}}
+{{- $tail := delimit (slice `  </div>` `</details>`) "\n" | replaceRE `(?m)^(.)` (printf "%s$1" $indent) -}}
+{{- $out := slice $body
+    (partial "slots/equip-rows.html" (dict "indent" $inner))
+    (partial "sim/stat-filter-row.html" (dict "indent" $inner))
+    (partial "slots/accessory-rows.html" (dict "indent" $inner))
+    $tail -}}
+{{- delimit $out "\n" | replaceRE "\r\n" "\n" | safeHTML -}}

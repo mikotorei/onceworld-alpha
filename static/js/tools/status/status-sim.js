@@ -240,11 +240,6 @@ const SERIES_ARMOR_MAP = {
   tyrant:   { head:"tyrant_helm",     body:"tyrant_jacket", hands:"tyrant_arm",      feet:"tyrant_shoes",   shield:"tyrant_shield"   },
 };
 
-const SERIES_LABEL = {
-  demon:"悪魔", dragon:"ドラゴン", inferno:"獄炎", leather:"皮",
-  mage:"魔道士", metal:"鉄", platinum:"白金", tyrant:"暴君"
-};
-
 function applySeriesArmor(seriesKey) {
   const map = SERIES_ARMOR_MAP[seriesKey];
   if (!map) return;

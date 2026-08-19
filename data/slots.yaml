@@ -25,3 +25,14 @@ pet:
   - { key: pet1, label: ペット1 }
   - { key: pet2, label: ペット2 }
   - { key: pet3, label: ペット3 }
+
+# 装備のシリーズ一括選択ボタン
+series:
+  - { key: demon,    label: 悪魔 }
+  - { key: dragon,   label: ドラゴン }
+  - { key: inferno,  label: 獄炎 }
+  - { key: leather,  label: 皮 }
+  - { key: mage,     label: 魔道士 }
+  - { key: metal,    label: 鉄 }
+  - { key: platinum, label: 白金 }
+  - { key: tyrant,   label: 暴君 }
