@@ -36,3 +36,4 @@ series:
   - { key: metal,    label: 鉄 }
   - { key: platinum, label: 白金 }
   - { key: tyrant,   label: 暴君 }
+  - { key: hero,     label: 勇者 }

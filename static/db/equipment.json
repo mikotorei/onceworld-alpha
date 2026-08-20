@@ -590,9 +590,9 @@
       "series": "",
       "no_enhance": true,
       "base_add": {
-        "vit": 0,
+        "vit": 100,
         "spd": 0,
-        "atk": 100,
+        "atk": 0,
         "int": 0,
         "def": 0,
         "mdef": 0,
@@ -615,6 +615,42 @@
         "def": 0,
         "mdef": 0,
         "luk": 3999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "nishiki_blade",
+      "name": "妖刀ニシキ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": -9999999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "condemnation_sword",
+      "name": "断罪ソード",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 103756400,
+        "int": 0,
+        "def": -99999999,
+        "mdef": -99999999,
+        "luk": 0,
         "mov": 0
       },
       "base_rate": {}
@@ -782,6 +818,24 @@
       "base_rate": {}
     },
     {
+      "id": "hero_helm",
+      "name": "勇者ヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 9999,
+        "atk": 9999,
+        "int": 9999,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
       "id": "cloth_clothes",
       "name": "布の服",
       "category": "armor",
@@ -920,7 +974,8 @@
         "int": 400,
         "def": 950,
         "mdef": 0,
-        "luk": 0
+        "luk": 0,
+        "mov": 0
       },
       "base_rate": {}
     },
@@ -938,6 +993,24 @@
         "def": 955,
         "mdef": 0,
         "luk": 955,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_armor",
+      "name": "勇者の鎧",
+      "category": "armor",
+      "slot": "body",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 9999,
+        "mdef": 9999,
+        "luk": 9999,
         "mov": 0
       },
       "base_rate": {}
@@ -1105,6 +1178,24 @@
       "base_rate": {}
     },
     {
+      "id": "hero_shield",
+      "name": "勇者の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "hero",
+      "base_add": {
+        "vit": 0,
+        "spd": 9999,
+        "atk": 9999,
+        "int": 9999,
+        "def": 9999,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
       "id": "no_gloves",
       "name": "未装備",
       "category": "armor",
@@ -1260,8 +1351,26 @@
         "atk": 0,
         "int": 2555,
         "def": 0,
-        "mdef": 1655,
+        "mdef": 16556,
         "luk": 4655,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_gauntlets",
+      "name": "勇者の小手",
+      "category": "armor",
+      "slot": "hands",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 9999,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 9999,
+        "luk": 9999,
         "mov": 0
       },
       "base_rate": {}
@@ -1425,6 +1534,24 @@
         "mdef": 0,
         "luk": 0,
         "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_boots",
+      "name": "勇者ブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "hero",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 9999,
+        "mdef": 9999,
+        "luk": 9999,
+        "mov": 7
       },
       "base_rate": {}
     },

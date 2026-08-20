@@ -222,10 +222,19 @@ function getArmorSetSeries(equipState) {
   return series || "";
 }
 
-function applyArmorSetBonus(sumStats, enabled) {
-  if (!enabled) return { ...sumStats };
+// 防具5部位を同じシリーズで揃えたときの倍率。
+// 効果が判明していないシリーズはここに書かない（揃えてもボーナスは発動しない）
+const SERIES_SET_BONUS = {
+  demon: 1.1, dragon: 1.1, inferno: 1.1, leather: 1.1,
+  mage: 1.1, metal: 1.1, platinum: 1.1, tyrant: 1.1,
+  // hero: 効果が未判明のため未設定
+};
+
+function applyArmorSetBonus(sumStats, series) {
+  const mul = SERIES_SET_BONUS[String(series || "")];
+  if (!mul) return { ...sumStats };
   const o = zeroStats();
-  STATS.forEach(k => { o[k] = k==="mov" ? sumStats?.[k]||0 : floorSafe((sumStats?.[k]||0)*1.1); });
+  STATS.forEach(k => { o[k] = k==="mov" ? sumStats?.[k]||0 : floorSafe((sumStats?.[k]||0)*mul); });
   return o;
 }
 
@@ -240,6 +249,7 @@ const SERIES_ARMOR_MAP = {
   metal:    { head:"metal_helm",      body:"iron_armor",    hands:"iron_gauntlets",  feet:"iron_boots",     shield:"iron_shield"     },
   platinum: { head:"platinum_helm",   body:"platinum_armor",hands:"platinum_arm",    feet:"platinum_boots", shield:"platinum_shield" },
   tyrant:   { head:"tyrant_helm",     body:"tyrant_jacket", hands:"tyrant_arm",      feet:"tyrant_shoes",   shield:"tyrant_shield"   },
+  hero:     { head:"hero_helm",       body:"hero_armor",    hands:"hero_gauntlets",  feet:"hero_boots",     shield:"hero_shield"     },
 };
 
 function applySeriesArmor(seriesKey) {
@@ -620,7 +630,7 @@ function recalc() {
   });
   const armorSetSeries = getArmorSetSeries(state.equip);
   const sumBeforeSet   = addStats(basePlusProtein, weaponArmorSum);
-  const sumAfterSet    = applyArmorSetBonus(sumBeforeSet, !!armorSetSeries);
+  const sumAfterSet    = applyArmorSetBonus(sumBeforeSet, armorSetSeries);
   let accessoryFlat = zeroStats();
   let accessoryRate = zeroStats();
   ACCESSORY_KEYS.forEach(key => {
