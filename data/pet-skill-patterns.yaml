@@ -1,0 +1,9 @@
+# ペットスキルの各段階が解放されるペットレベル
+#
+# モンスター側の pet_skill_pattern（early / late）でどちらを使うか決める。
+# 配列の要素数がペットスキルの段階数そのもので、
+# layouts/partials/slots/pet-rows.html の段階セレクトはここから生成する。
+# JS側の段階数は status-sim.js の PET_SKILL_STAGES。値を変えたら揃えること。
+
+early: [31, 71, 121, 181, 2200]
+late:  [200, 500, 800, 1200, 2200]

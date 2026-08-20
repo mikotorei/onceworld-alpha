@@ -21,7 +21,7 @@
     `    <div class="lvbox">`
     (printf `      <select id="stage_%s">` $s.key)
 -}}
-{{- range $n := seq 0 4 -}}
+{{- range $n := seq 0 (len (index site.Data "pet-skill-patterns").early) -}}
 {{- $lines = $lines | append (printf `        <option value="%d">%d</option>` $n $n) -}}
 {{- end -}}
 {{- $lines = $lines | append

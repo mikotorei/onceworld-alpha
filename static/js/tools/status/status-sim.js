@@ -4,6 +4,8 @@ const BASE_STATS = ["vit", "spd", "atk", "int", "def", "mdef", "luk"];
 const EQUIP_KEYS = slotKeys(ARMOR_SLOTS_DEF).concat(slotKeys(ACCESSORY_SLOTS_DEF));
 const ACCESSORY_KEYS = slotKeys(ACCESSORY_SLOTS_DEF);
 const PET_KEYS = slotKeys(PET_SLOTS_DEF);
+// ペットスキルの段階数。data/pet-skill-patterns.yaml の各パターンの要素数と揃える
+const PET_SKILL_STAGES = 5;
 const AUTO_STORAGE_KEY  = OWStorage.KEYS.STATUS_INLINE;
 const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
 const SLOT_LABEL = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
@@ -49,7 +51,7 @@ function n(v, fb = 0) { const x = Number(v); return Number.isFinite(x) ? x : fb;
 function clamp0(v)     { return Math.max(0, n(v, 0)); }
 function clampLv(v)    { return Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(n(v, 0)))); }
 function clamp1(v)     { return Math.max(1, n(v, 1)); }
-function clampStage(v) { return Math.max(0, Math.min(4, n(v, 0))); }
+function clampStage(v) { return Math.max(0, Math.min(PET_SKILL_STAGES, n(v, 0))); }
 function clampG(v)     { return Math.max(0, Math.min(getEquipGLevelMax(), Math.floor(Number(v) || 0))); }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
 function floorStats(s) { const o = zeroStats(); STATS.forEach(k => { o[k] = k === "mov" ? (s?.[k]||0) : floorSafe(s?.[k]||0); }); return o; }

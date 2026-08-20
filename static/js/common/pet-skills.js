@@ -1,5 +1,5 @@
 (() => {
-  const LEVELS = ["一段階", "二段階", "三段階", "四段階"];
+  const LEVELS = ["一段階", "二段階", "三段階", "四段階", "五段階"];
   const LABEL = {
     vit: "VIT",
     spd: "SPD",
@@ -75,7 +75,7 @@
       const data = await res.json();
       const skillsArr = data[monsterId];
       if (!skillsArr) {
-        list.innerHTML = buildRows([{}, {}, {}, {}]);
+        list.innerHTML = buildRows([]);
         return;
       }
       list.innerHTML = buildRows(skillsArr);
