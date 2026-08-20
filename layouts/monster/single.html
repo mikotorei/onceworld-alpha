@@ -71,23 +71,35 @@
     <div class="d-row"><dt>獲得経験値</dt><dd class="n" id="exp-value" data-base="{{ .Params.exp }}">{{ .Params.exp }}</dd></div>
     <div class="d-row"><dt>獲得ゴールド</dt><dd class="n">{{ .Params.gold }}</dd></div>
     <div class="d-row"><dt>捕獲率</dt><dd>{{ .Params.capture_rate }}%</dd></div>
+    {{ with .Params.drop_rate }}<div class="d-row"><dt>ドロップ率</dt><dd>{{ . }}%</dd></div>{{ end }}
   </dl>
 </section>
 
-{{ with .Params.drops }}
+{{ if or .Params.drops .Params.drop_ex }}
 <section class="d-block">
   <h2 class="d-h2">ドロップ</h2>
+  {{ with .Params.drops }}
   <p>
     {{ range $i, $v := . }}
       {{ if $i }}, {{ end }}
       <a href="{{ (printf "item/%s/" ($v | urlize)) | relURL }}">{{ $v }}</a>
     {{ end }}
   </p>
+  {{ end }}
+  {{ with .Params.drop_ex }}
+  <p class="d-drop-ex">オーバーキル時:
+    <a href="{{ (printf "item/%s/" (. | urlize)) | relURL }}">{{ . }}</a>
+  </p>
+  {{ end }}
 </section>
 {{ end }}
 
+{{- $patterns := index site.Data "pet-skill-patterns" -}}
+{{- $levels := "" -}}
+{{- with .Params.pet_skill_pattern }}{{ with index $patterns . }}{{ $levels = delimit . "," }}{{ end }}{{ end -}}
 <section class="d-block" id="pet-skill-section"
   data-monster-id="{{ .Params.id }}"
+  data-unlock-levels="{{ $levels }}"
   data-json-url="{{ "db/pet-skills.json" | relURL }}">
   <h2 class="d-h2">ペットスキル</h2>
   <dl class="d-list" id="pet-skill-list">
