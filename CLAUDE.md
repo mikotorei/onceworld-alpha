@@ -99,7 +99,7 @@ static/css/
 ### コンテンツ
 ```
 content/
-├── monster/                      # モンスターデータ（約300件）
+├── monster/                      # モンスターデータ（141件）
 ├── item/                         # 素材データ
 ├── map/                          # マップデータ
 ├── equipment/                    # 装備DB
@@ -111,7 +111,11 @@ content/
 ### データ
 ```
 static/db/equipment.json          # 装備データ
+static/db/pet-skills.json         # ペットスキル（モンスターIDがキー・141件）
+data/slots.yaml                   # 装備・ペット・シリーズのスロット定義
+data/pet-skill-patterns.yaml      # ペットスキルの解放レベル（early / late）
 layouts/index.MonsterData.js      # モンスターデータをJSに出力するテンプレート
+layouts/index.SlotsData.js        # slots.yaml をJSに出力するテンプレート
 ```
 
 ---
@@ -392,8 +396,60 @@ JSONで保存するキーは**封筒形式**で保存される。
   - 混同して上書きした事故が過去にあるため要注意
 
 ### モンスターデータ
-- スキル欄が3段階のみのモンスターは3エントリ、4段階目は自動で「—」表示
-- `level_shortcuts` は `[[level_shortcuts]]` のTOMLテーブル配列形式
+
+`content/monster/NNN.md` が141件。IDは3桁ゼロ埋めで、欠番がある（001〜254）。
+
+フロントマターのフィールド:
+
+| フィールド | 内容 |
+|---|---|
+| `id` / `title` / `image` | IDはファイル名と一致。画像は `img/monster/NNN.png` |
+| `element` / `attack_type` / `attack_range` | 火水木光闇 / 物理・魔法 / 近距離・遠距離 |
+| `exp` / `gold` / `capture_rate` / `drop_rate` | 捕獲率とドロップ率は% |
+| `drops` | 通常ドロップの配列 |
+| `drop_ex` | オーバーキル時に確率でドロップする素材（単数・無ければ書かない） |
+| `locations` | 出現場所 |
+| `pet_skill_pattern` | `early` / `late`。ペットスキルの解放レベル |
+| `level_shortcuts` | `[[level_shortcuts]]` のTOMLテーブル配列。**無くても `= []` を必ず書く** |
+| `[status]` / `[fixed_status]` | 7ステ / mov |
+
+- **`[[level_shortcuts]]` は必ず閉じ `+++` より前に書く。**
+  外に出るとTOMLとして解釈されず、エラーにもならず静かに消える（過去に2件発生）
+- モンスターを追加するときは `content/monster/NNN.md` と
+  `static/db/pet-skills.json` の**両方**にIDを足す。
+  片方だけでもビルドは通るが、ペット欄に出ない
+
+### ペットスキル
+
+実体は `static/db/pet-skills.json`。モンスターIDをキーに、段階を配列で持つ。
+
+```json
+"001": [
+  {"add": {"vit": 140}},
+  ...
+  {"final_mul": {"vit": 350}}
+]
+```
+
+- 最大5段階。末尾の未設定段階は配列に入れない。
+  途中の空欄は `{}` を置く（表示は「—」）
+- 効果は `add`（加算）/ `mul`（倍率）/ `final_mul`（最終倍率）の3種
+- **倍率は百分率で保存する**（`{"mul":{"atk":5}}` = +5%）
+- ただし `sp`（SP回復）は割合ではなく実数。`pet-skills.js` の
+  `FLAT_STATS` に入っており、`mul` でも % を付けずに表示する
+- ステシミュは `vit,spd,atk,int,def,mdef,luk,mov` しか合算しない。
+  `exp` / `capture` / `drop` / `heal` / `sp` は詳細ページの表示専用
+
+解放レベルは `data/pet-skill-patterns.yaml` に2パターン。
+
+```yaml
+early: [31, 71, 121, 181, 2200]
+late:  [200, 500, 800, 1200, 2200]
+```
+
+- 配列の要素数がそのまま段階数になり、段階セレクトの選択肢もここから生成する
+- JS側の段階数は `status-sim.js` の `PET_SKILL_STAGES`。値を変えたら揃えること
+- `monsters-data.js` には解決済みの `pet_skill_levels` が出力される
 
 ### 数値入力
 - `attachCommaInputBehavior`（`static/js/common/calc-utils.js`）がサイト標準
