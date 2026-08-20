@@ -141,14 +141,20 @@ function scaleEquipBaseAddG(baseAdd, glv, canUpgrade) {
   });
   return o;
 }
-function scaleAccessoryBaseAdd(baseAdd, lv) {
-  const mul = 1 + (clamp1(lv)-1) * 0.1;
+// アクセサリのLv補正。1レベルごとの上昇量は装備ごとに違うため
+// base_add_step / base_rate_step があればそれを使う（無ければ既定値）
+const ACC_ADD_STEP  = 0.1;
+const ACC_RATE_STEP = 0.01;
+function accStep(v, def) { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : def; }
+
+function scaleAccessoryBaseAdd(baseAdd, lv, step) {
+  const mul = 1 + (clamp1(lv)-1) * accStep(step, ACC_ADD_STEP);
   const o = zeroStats();
   STATS.forEach(k => { o[k] = (baseAdd?.[k]||0)*mul; });
   return o;
 }
-function scaleAccessoryBaseRate(baseRate, lv) {
-  const mul = 1 + (clamp1(lv)-1) * 0.01;
+function scaleAccessoryBaseRate(baseRate, lv, step) {
+  const mul = 1 + (clamp1(lv)-1) * accStep(step, ACC_RATE_STEP);
   const o = zeroStats();
   STATS.forEach(k => { o[k] = (baseRate?.[k]||0)*mul; });
   return o;
@@ -156,8 +162,8 @@ function scaleAccessoryBaseRate(baseRate, lv) {
 
 function buildAccessoryEffectPreview(item, lv) {
   if (!item) return "-";
-  const addN  = scaleAccessoryBaseAdd(item.base_add   || {}, lv);
-  const rateN = scaleAccessoryBaseRate(item.base_rate || {}, lv);
+  const addN  = scaleAccessoryBaseAdd(item.base_add   || {}, lv, item.base_add_step);
+  const rateN = scaleAccessoryBaseRate(item.base_rate || {}, lv, item.base_rate_step);
   const parts = [];
   STATS.forEach(k => {
     const add  = addN[k]  || 0;
@@ -638,8 +644,8 @@ function recalc() {
     if (!picked?.id) return;
     const item = equipmentMap.get(String(picked.id));
     if (!item) return;
-    accessoryFlat = addStats(accessoryFlat, scaleAccessoryBaseAdd(item.base_add   ||{}, picked.lv));
-    accessoryRate = addStats(accessoryRate, scaleAccessoryBaseRate(item.base_rate ||{}, picked.lv));
+    accessoryFlat = addStats(accessoryFlat, scaleAccessoryBaseAdd(item.base_add   ||{}, picked.lv, item.base_add_step));
+    accessoryRate = addStats(accessoryRate, scaleAccessoryBaseRate(item.base_rate ||{}, picked.lv, item.base_rate_step));
   });
   let petAdd=zeroStats(), petMul=zeroStats(), petFinal=zeroStats();
   PET_KEYS.forEach(key => {
@@ -901,7 +907,7 @@ window.statusSimGetEffectiveMul = function(stat) {
     if (!picked?.id) return;
     const item = equipmentMap.get(String(picked.id));
     if (!item) return;
-    const s = scaleAccessoryBaseRate(item.base_rate || {}, picked.lv);
+    const s = scaleAccessoryBaseRate(item.base_rate || {}, picked.lv, item.base_rate_step);
     totalAccRate += s?.[stat] || 0;
   });
 

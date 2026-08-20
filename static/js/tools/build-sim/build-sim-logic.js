@@ -215,11 +215,14 @@ function calcWeaponArmorStatG(item, stat, glv) {
   return Math.floor(base * atG0 + (base * 25 + 10000) * g);
 }
 
+// 1レベルごとの上昇量は装備ごとに違う。
+// base_add_step / base_rate_step があればそれを使う（無ければ既定値）
 function calcAccessoryStat(item, stat, lv) {
   if (!item) return { add: 0, rate: 0 };
   const useLv = Math.max(1, Number((lv !== undefined) ? lv : (item.max_level || 1)));
-  const add  = Number(item.base_add?.[stat]  || 0) * (1 + (useLv - 1) * 0.1);
-  const rate = Number(item.base_rate?.[stat] || 0) * (1 + (useLv - 1) * 0.01);
+  const step = (v, def) => { const n = Number(v); return Number.isFinite(n) && n > 0 ? n : def; };
+  const add  = Number(item.base_add?.[stat]  || 0) * (1 + (useLv - 1) * step(item.base_add_step,  0.1));
+  const rate = Number(item.base_rate?.[stat] || 0) * (1 + (useLv - 1) * step(item.base_rate_step, 0.01));
   return { add, rate };
 }
 
