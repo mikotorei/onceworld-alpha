@@ -6,6 +6,8 @@ const ACCESSORY_KEYS = slotKeys(ACCESSORY_SLOTS_DEF);
 const PET_KEYS = slotKeys(PET_SLOTS_DEF);
 // ペットスキルの段階数。data/pet-skill-patterns.yaml の各パターンの要素数と揃える
 const PET_SKILL_STAGES = 5;
+// 段階ラベル。モンスター詳細ページ（common/pet-skills.js の LEVELS）と同じ表記に揃える
+const PET_STAGE_NAMES = ["一段階", "二段階", "三段階", "四段階", "五段階"];
 const AUTO_STORAGE_KEY  = OWStorage.KEYS.STATUS_INLINE;
 const BUILD_STORAGE_KEY = OWStorage.KEYS.BUILD_SLOTS;
 const SLOT_LABEL = slotLabelMap(ARMOR_SLOTS_DEF, ACCESSORY_SLOTS_DEF);
@@ -19,6 +21,10 @@ const PET_NAMES_URL  = base + "/pet-names/index.json";
 const equipmentMap = new Map();
 const petSkillMap  = new Map();
 const petNameMap   = new Map();
+// ペットid -> 各段階の解放レベル配列（pet-names/index.json の pet_skill_levels）
+const petLevelsMap = new Map();
+// 段階セレクトに反映済みのペットid。ラベルの無駄な書き換えを避ける
+const stageLabelCache = new Map();
 
 // ステータス絞り込みフィルタ（複数選択可・OR条件）
 const statFilter = new Set(); // 空=全て表示
@@ -383,6 +389,27 @@ function wireEquipSearch(key) {
   });
 }
 
+// 段階セレクトのラベルに、選択中ペットの解放レベルを付ける
+// 例: 「一段階（Lv31〜）」。モンスター詳細ページと同じ表記
+// 解放レベルは early / late でペットごとに違うため、静的HTMLでは出せずここで書き換える
+function refreshStageOptions(key) {
+  const select = $("stage_" + key);
+  if (!select) return;
+  const id = String($("select_" + key)?.value || "");
+  if (stageLabelCache.get(key) === id) return;
+  stageLabelCache.set(key, id);
+
+  const levels = petLevelsMap.get(id) || [];
+  Array.from(select.options).forEach(opt => {
+    const stage = parseInt(opt.value, 10);
+    if (!Number.isFinite(stage) || stage <= 0) { opt.textContent = "なし"; return; }
+    const name = PET_STAGE_NAMES[stage - 1] || (stage + "段階");
+    const lv   = levels[stage - 1];
+    opt.textContent = Number.isFinite(lv) ? `${name}（Lv${lv}〜）` : name;
+  });
+}
+function refreshAllStageOptions() { PET_KEYS.forEach(key => refreshStageOptions(key)); }
+
 function petInputId(key)   { return "pet_search_" + key; }
 function petSuggestId(key) { return "pet_suggest_" + key; }
 function closePetSuggest(key) { const s=$(petSuggestId(key)); if(!s)return; s.hidden=true; s.innerHTML=""; }
@@ -614,6 +641,9 @@ function deleteNamedBuild() {
 }
 
 function recalc() {
+  // ペットの選択が変わっていれば段階ラベルを追従させる。
+  // ペット選択・検索欄クリア・ビルド復元のいずれもここを通る
+  refreshAllStageOptions();
   const err   = [];
   const state = collectState();
   const baseStats = zeroStats();
@@ -756,7 +786,14 @@ try {
   } catch(e) {}
   petItemsCache = petItems;
   petItems.forEach(item => petNameMap.set(String(item.id), item.name));
+  // 段階セレクトのラベルに使う解放レベル
+  nameItems.forEach(item => {
+    if (Array.isArray(item.pet_skill_levels)) petLevelsMap.set(String(item.id), item.pet_skill_levels);
+  });
   PET_KEYS.forEach(k => { fillSelect($("select_"+k), petItems); wirePetSearch(k); });
+  // 読み込み前にrecalcが走っている場合があるので、キャッシュを捨てて貼り直す
+  stageLabelCache.clear();
+  refreshAllStageOptions();
 } catch(e) { console.error("pet 読み込み失敗", e); }
 
 // fetch完了フラグを立ててから自動復元・初期化完了イベント発火

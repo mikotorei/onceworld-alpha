@@ -1,11 +1,19 @@
+{{- /*
+  ステータスシミュ・ビルドシミュのペット選択で使う一覧。
+  pet_skill_levels は data/pet-skill-patterns.yaml を
+  モンスターの pet_skill_pattern で引いた解決済みの配列。
+  段階セレクトのラベル（一段階（Lv31〜）など）に使う。
+*/ -}}
 {{- $pages := where site.RegularPages "Section" "monster" -}}
+{{- $patterns := index site.Data "pet-skill-patterns" -}}
 {
   "items": [
     {{- range $i, $p := $pages.ByParam "id" -}}
       {{- if $i }},{{ end }}
       {
         "id": {{ $p.Params.id | jsonify }},
-        "title": {{ $p.Title | jsonify }}
+        "title": {{ $p.Title | jsonify }},
+        "pet_skill_levels": {{ with $p.Params.pet_skill_pattern }}{{ with index $patterns . }}{{ . | jsonify }}{{ else }}[]{{ end }}{{ else }}[]{{ end }}
       }
     {{- end -}}
   ]

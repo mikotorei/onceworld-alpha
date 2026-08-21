@@ -477,7 +477,12 @@ late:  [200, 500, 800, 1200, 2200]
 
 - 配列の要素数がそのまま段階数になり、段階セレクトの選択肢もここから生成する
 - JS側の段階数は `status-sim.js` の `PET_SKILL_STAGES`。値を変えたら揃えること
-- `monsters-data.js` には解決済みの `pet_skill_levels` が出力される
+- `monsters-data.js` と `pet-names/index.json` の両方に解決済みの
+  `pet_skill_levels` が出力される。ステシミュは `monsters-data.js` を
+  読み込まないため、シミュ側の段階ラベルは `pet-names/index.json` を使う
+- 段階ラベルは「一段階（Lv31〜）」。モンスター詳細は `common/pet-skills.js` の
+  `LEVELS`、シミュは `status-sim.js` の `PET_STAGE_NAMES` と
+  `layouts/partials/slots/pet-rows.html` の `$stageNames`。表記を変えたら3箇所揃えること
 
 ### 数値入力
 - `attachCommaInputBehavior`（`static/js/common/calc-utils.js`）がサイト標準

@@ -1,7 +1,10 @@
 {{- /*
   ペット行を生成する。スロット定義は data/slots.yaml の pet。
   引数・改行の扱いは slots/equip-rows.html と同じ。
-  段階の選択肢は 0〜4 の固定5件。
+  段階の選択肢は data/pet-skill-patterns.yaml の要素数から生成する。
+  ラベルはモンスター詳細ページ（pet-skills.js）と同じ「一段階」「二段階」…。
+  解放レベル「（Lv31〜）」はペットごとに違うため、
+  ペット選択後に status-sim.js が付け足す。
 */ -}}
 {{- $indent := .indent | default "" -}}
 {{- $rows := slice -}}
@@ -21,8 +24,14 @@
     `    <div class="lvbox">`
     (printf `      <select id="stage_%s">` $s.key)
 -}}
+{{- $stageNames := slice "一段階" "二段階" "三段階" "四段階" "五段階" -}}
 {{- range $n := seq 0 (len (index site.Data "pet-skill-patterns").early) -}}
-{{- $lines = $lines | append (printf `        <option value="%d">%d</option>` $n $n) -}}
+{{- $label := "なし" -}}
+{{- if gt $n 0 -}}
+{{- $label = printf "%d段階" $n -}}
+{{- if le $n (len $stageNames) }}{{ $label = index $stageNames (sub $n 1) }}{{ end -}}
+{{- end -}}
+{{- $lines = $lines | append (printf `        <option value="%d">%s</option>` $n $label) -}}
 {{- end -}}
 {{- $lines = $lines | append
     `      </select>`
