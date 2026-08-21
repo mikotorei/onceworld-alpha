@@ -11,30 +11,51 @@
  *   B = 天空像～冒険者～ 所持数（上限はパンドラの箱に連動: 1000 / 2000）
  *
  * Bは100の倍数のみ探索する。
- * 1サイクル（100 + B + 100×A）が必ず100の倍数になり、SGが出現し続ける。
+ * 通常サイクル（100 + B + 100×A）が必ず100の倍数になり、SGが出現し続ける。
  *
  * ── スタート地点 ──
- *   1F        : 冒険者像2個を一時的に外して片側撃破
- *               初回到達 = 1 + 1 + (B-2) = B F（Bは2以上）
- *   ワープ①   : 任意の1万の倍数F（最高到達-10万F）
- *               すでに100の倍数でSGが出現するため2個置き不要
- *               初回到達 = start
- *   ワープ②   : 100万F固定。麒麟討伐後の移動は通常移動なので
- *               1,000,001 + B に進み100の倍数から外れる。
- *               1Fスタートと同じく2個置きで調整する
- *               初回到達 = 1,000,000 + 2B F（Bは2以上）
+ *   1Fスタート : 冒険者像2個を一時的に外して片側撃破
+ *                初回到達 = 1 + 1 + (B-2) = B F（Bは2以上）
+ *   指定ワープ : 任意の1万の倍数F（最高到達-10万F）
+ *                すでに100の倍数でSGが出現するため2個置き不要
+ *                初回到達 = start
+ *   麒麟ワープ : 100万F固定。麒麟討伐後の移動は通常移動なので
+ *                1,000,001 + B に進み100の倍数から外れる。
+ *                1Fスタートと同じく2個置きで調整する
+ *                初回到達 = 1,000,000 + 2B F（Bは2以上）
  *
- * ── 1サイクルの進行 ──
- *   片側撃破 : +1F
- *   冒険者B個: +B F
- *   SG撃破   : +99F（100の倍数Fで発生）
- *   悪魔A個  : +100×A F
- *   ─────────────────────────
- *   1サイクル: 100 + B + 100×A F
+ * ── 1回の移動 ──
+ *   移動は2種類あり、現在地がボスフロアかどうかで切り替わる。
  *
- * ── ボスフロア回避 ──
- *   1万・10万・100万・1000万の倍数は中間通過点で踏まない
- *   （目標F自体・スタート地点は除外判定）
+ *   通常サイクル（現在地がボスフロア以外）:
+ *     片側撃破  : +1F
+ *     冒険者B個 : +B F
+ *     SG撃破    : +99F（100の倍数Fで発生）
+ *     悪魔A個   : +100×A F
+ *     ─────────────────────────
+ *     計        : 100 + B + 100×A F
+ *
+ *   ボスサイクル（現在地が1万・10万・100万・1000万の倍数）:
+ *     ボス討伐後の移動は通常移動でSGが出ないため、悪魔像の効果が乗らない。
+ *     100の倍数から外れるので1Fスタートと同じく2個置きで調整する。
+ *     ボス討伐後 : +1 + B F
+ *     2個置き    : +1 + (B-2) F
+ *     ─────────────────────────
+ *     計         : 2B F
+ *
+ *   初回到達地点はボスフロア判定の対象外とする。
+ *   ワープで降り立ったボスフロアは通常エリア扱いのため。
+ *   （1Fスタートの初回到達 B と麒麟ワープの初回到達 1,000,000 + 2B は
+ *     2B < 10,000 なのでそもそもボスフロアにならない）
+ *
+ *   ボスフロアの間隔は1万Fで、ボスサイクルの 2B は1万F未満のため、
+ *   ボスサイクルが2回続くことはない。
+ *   B = 0 のときボスサイクルは0Fで進めないため、その場で不成立とする。
+ *
+ * ── 判定方法 ──
+ *   初回到達地点から1回ずつ進めるシミュレートで判定する。
+ *   目標にちょうど乗れば成立、飛び越えたら不成立。
+ *   打ち切り回数は (A,B) ごとの移動回数の理論上限から求める（boundMoves）。
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -52,6 +73,14 @@ document.addEventListener("DOMContentLoaded", function () {
       ? OWPandora.materialCap("sky_statue_devil", 1000) : 1000;
   }
   const BOSS_FLOORS = [10000, 100000, 1000000, 10000000];
+  const BOSS_SPAN   = 10000;  // ボスフロアの最小間隔
+
+  // シミュレートの打ち切り。
+  // 実質の上限は (A,B) ごとの理論上限 boundMoves() で決まるため、
+  // この2つは非現実的な目標階層を入力されたときの保険として働く
+  const MAX_MOVES      = 100000;    // 1組み合わせあたりの移動回数の上限
+  const MAX_TOTAL_ITER = 30000000;  // 探索全体のループ回数の上限
+  const MAX_ROWS       = 200;       // 全組み合わせ一覧モードの表示件数
 
   /* ── DOM 参照 ── */
   const inputTarget   = document.getElementById("targetFloor");
@@ -60,6 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const titleEl       = document.getElementById("floorResultTitle");
   const bodyEl        = document.getElementById("floorResultBody");
   const noResultEl    = document.getElementById("floorNoResult");
+  const noteEl        = document.getElementById("floorResultNote");
   const tableWrapEl   = document.querySelector(".floor-tool__table-wrap");
 
   const startTypeBtns = document.querySelectorAll("[data-start-type]");
@@ -71,7 +101,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputOwnedB   = document.getElementById("ownedAdventurer");
   const inputOwnedA   = document.getElementById("ownedDevil");
 
-  const maxABtns      = document.querySelectorAll("[data-max-a]");
   const maxARow       = document.getElementById("maxARow");
 
   if (!btnCalc || !inputTarget) return;
@@ -159,34 +188,67 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * 中間通過点にボスフロアが含まれないかチェック
-   * @param {number} start    - スタート到達点
-   * @param {number} perCycle - 1サイクルの進行F
-   * @param {number} cycles   - 総サイクル数
-   * @returns {boolean} true = 安全
+   * 移動回数の理論上限
+   * 「通常サイクルだけで進んだ場合の回数」＋「ボスフロアの最大通過数」＋端数の余裕。
+   * ボスサイクルは連続しないため、通過数は distance / BOSS_SPAN で抑えられる。
+   * この回数まで進めて目標に届かなければ、それ以上進めても成立しない。
+   * @param {number} distance   - 初回到達地点から目標までの距離
+   * @param {number} normalStep - 通常サイクル1回の進行F
+   * @returns {number} 打ち切ってよい移動回数
    */
-  function isSafe(start, perCycle, cycles, isWarpStart) {
-    // 1Fスタート時のみ、初回到達点のボスフロア判定を行う
-    // （ワープの場合はボスフロアに降りても通常エリア扱いのため除外）
-    if (!isWarpStart && cycles > 0 && isBossFloor(start)) return false;
-    // 中間通過点: start + k×perCycle (k=1〜cycles-1)
-    for (var k = 1; k < cycles; k++) {
-      var f = start + k * perCycle;
-      if (isBossFloor(f)) return false;
+  function boundMoves(distance, normalStep) {
+    return Math.ceil(distance / normalStep) + Math.ceil(distance / BOSS_SPAN) + 2;
+  }
+
+  /**
+   * 初回到達地点から1回ずつ進めて、目標にちょうど乗るか調べる
+   * @param {number} firstReach - 初回到達地点
+   * @param {number} target     - 目標階層
+   * @param {number} b          - 冒険者像の所持数
+   * @param {number} a          - 悪魔像の所持数
+   * @param {number} cap        - 打ち切る移動回数
+   * @param {object} counter    - ループ回数の積算用 { iter: number }
+   * @returns {number|null} 成立なら総移動回数、不成立なら null
+   */
+  function simulate(firstReach, target, b, a, cap, counter) {
+    var normalStep = 100 + b + 100 * a;
+    var bossStep   = 2 * b;
+    var cur        = firstReach;
+    var moves      = 0;
+
+    while (cur < target) {
+      // moves === 0 の初回到達地点はボスフロア判定の対象外
+      if (moves > 0 && isBossFloor(cur)) {
+        if (bossStep === 0) { counter.iter += moves; return null; }  // B=0 では進めない
+        cur += bossStep;
+      } else {
+        cur += normalStep;
+      }
+      moves++;
+      if (moves > cap) { counter.iter += moves; return null; }
     }
-    return true;
+
+    counter.iter += moves;
+    return (cur === target) ? moves : null;
   }
 
   /**
    * 到達可能な組み合わせを列挙
+   * @returns {{results: Array, truncated: boolean}}
+   *   truncated = 探索量の上限に達して一部を調べていない
    */
   function findCombinations(target, startFloor, limitA, limitB) {
     var results = [];
+    var counter = { iter: 0 };
+    var skipped = 0;
+    var aborted = false;
 
     // Bは100の倍数のみ探索する。
-    // 1サイクル（100 + B + 100×A）が100の倍数になり、SGが出現し続ける。
+    // 通常サイクル（100 + B + 100×A）が100の倍数になり、SGが出現し続ける。
     // 100の倍数から外れるとSGを踏めず、そこでサイクルが破綻する
     for (var b = 0; b <= limitB; b += 100) {
+      if (aborted) break;
+
       var firstReach;
       if (startType === "normal") {
         // 1Fスタート: 冒険者像2個を一時的に外して片側撃破
@@ -194,42 +256,45 @@ document.addEventListener("DOMContentLoaded", function () {
         if (b < 2) continue;
         firstReach = b;
       } else if (startType === "warp2") {
-        // ワープ②: 麒麟討伐後は通常移動なので 1,000,001 + B に進み、
+        // 麒麟ワープ: 麒麟討伐後は通常移動なので 1,000,001 + B に進み、
         // 100の倍数から外れる。1Fスタートと同じく2個置きで調整する
         //   1,000,000 → 1,000,001 + B → 2個置き → 1,000,000 + 2B
         if (b < 2) continue;
         firstReach = startFloor + 2 * b;
       } else {
-        // ワープ①: 開始地点が1万の倍数のためすでに100の倍数。そのまま通常サイクル
+        // 指定ワープ: 開始地点が1万の倍数のためすでに100の倍数。2個置き不要
         firstReach = startFloor;
       }
 
-      var remaining = target - firstReach;
+      if (firstReach > target) continue;
 
-      // 初回だけでちょうど到達
-      if (remaining === 0) {
-        results.push({ a: 0, b: b, cycles: 0, perCycle: 0, firstReach: firstReach });
+      var distance = target - firstReach;
+
+      // 初回到達だけでちょうど到達
+      if (distance === 0) {
+        results.push({ a: 0, b: b, moves: 0, firstReach: firstReach });
         continue;
       }
-      if (remaining < 0) continue;
 
       for (var a = 0; a <= limitA; a++) {
-        var perCycle = 100 + b + 100 * a;
-        if (perCycle <= 0) continue;
-        if (remaining % perCycle !== 0) continue;
+        if (counter.iter > MAX_TOTAL_ITER) { aborted = true; break; }
 
-        var cycles = remaining / perCycle;
-        if (!isSafe(firstReach, perCycle, cycles, startType !== "normal")) continue;
+        // 理論上限が保険の上限を超える (A,B) は、進めずにスキップする
+        var bound = boundMoves(distance, 100 + b + 100 * a);
+        if (bound > MAX_MOVES) { skipped++; continue; }
 
-        results.push({ a: a, b: b, cycles: cycles, perCycle: perCycle, firstReach: firstReach });
+        var moves = simulate(firstReach, target, b, a, bound, counter);
+        if (moves === null) continue;
+
+        results.push({ a: a, b: b, moves: moves, firstReach: firstReach });
       }
     }
 
-    return results;
+    return { results: results, truncated: (skipped > 0 || aborted) };
   }
 
   /* ── 表示 ── */
-  function showResult(target, combinations, isOwnedMode) {
+  function showResult(target, combinations, isOwnedMode, truncated) {
     resultEl.hidden = false;
 
     var startLabel = "";
@@ -242,30 +307,38 @@ document.addEventListener("DOMContentLoaded", function () {
       " に到達できる組み合わせ（" + startLabel + "）";
 
     bodyEl.innerHTML = "";
+    if (noteEl) { noteEl.hidden = true; noteEl.textContent = ""; }
+
+    // ヘッダーの調整。0件で早期returnしても前回モードの見出しが残らないよう先に行う
+    var thead = document.querySelector("#floorResultTable thead tr");
+    if (thead) {
+      thead.innerHTML = (isOwnedMode ? "<th>評価</th>" : "") +
+        "<th>冒険者像（個）</th><th>悪魔像（個）</th><th>総移動回数</th>";
+    }
 
     if (combinations.length === 0) {
       noResultEl.hidden         = false;
       tableWrapEl.style.display = "none";
+      if (noteEl && truncated) {
+        noteEl.hidden      = false;
+        noteEl.textContent = "探索量の上限に達したため、一部の組み合わせは調べていません。";
+      }
       return;
     }
 
     noResultEl.hidden         = true;
     tableWrapEl.style.display = "";
 
-    var show = combinations;
-    if (isOwnedMode) {
-      // サイクル数が少ない順 → 上位3件
-      show = combinations.slice().sort(function (x, y) {
-        if (x.cycles !== y.cycles) return x.cycles - y.cycles;
-        return (x.a + x.b) - (y.a + y.b);
-      }).slice(0, 3);
-    } else {
-      // 悪魔像の多い順
-      show = combinations.slice().sort(function (x, y) {
-        if (y.a !== x.a) return y.a - x.a;
-        return x.b - y.b;
-      });
-    }
+    // 総移動回数の少ない順。同数なら素材の合計が少ない順、さらに同数なら冒険者像の少ない順
+    var sorted = combinations.slice().sort(function (x, y) {
+      if (x.moves !== y.moves) return x.moves - y.moves;
+      var sx = x.a + x.b, sy = y.a + y.b;
+      if (sx !== sy) return sx - sy;
+      return x.b - y.b;
+    });
+
+    var total = sorted.length;
+    var show  = isOwnedMode ? sorted.slice(0, 3) : sorted.slice(0, MAX_ROWS);
 
     var rank = ["最適", "準適切", "準々適切"];
 
@@ -279,34 +352,36 @@ document.addEventListener("DOMContentLoaded", function () {
         tr.appendChild(tdRank);
       }
 
-      var tdB      = document.createElement("td");
-      var tdA      = document.createElement("td");
-      var tdCycles = document.createElement("td");
-      var tdPer    = document.createElement("td");
+      var tdB     = document.createElement("td");
+      var tdA     = document.createElement("td");
+      var tdMoves = document.createElement("td");
 
       tdB.textContent = combo.b.toLocaleString() + " 個";
       tdA.textContent = combo.a.toLocaleString() + " 個";
-
-      if (combo.cycles === 0) {
-        tdCycles.textContent = "初回のみ";
-        tdPer.textContent    = "—";
-      } else {
-        tdCycles.textContent = combo.cycles.toLocaleString() + " 回";
-        tdPer.textContent    = combo.perCycle.toLocaleString() + " F/サイクル";
-      }
+      tdMoves.textContent = (combo.moves === 0)
+        ? "0 回（初回到達のみ）"
+        : combo.moves.toLocaleString() + " 回";
 
       tr.appendChild(tdB);
       tr.appendChild(tdA);
-      tr.appendChild(tdCycles);
-      tr.appendChild(tdPer);
+      tr.appendChild(tdMoves);
       bodyEl.appendChild(tr);
     });
 
-    // ヘッダーの調整
-    var thead = document.querySelector("#floorResultTable thead tr");
-    if (thead) {
-      thead.innerHTML = (isOwnedMode ? "<th>評価</th>" : "") +
-        "<th>冒険者像（個）</th><th>悪魔像（個）</th><th>サイクル数</th><th>1サイクルの進行</th>";
+    // 表示を絞った場合と、探索を打ち切った場合は明示する
+    if (noteEl) {
+      var notes = [];
+      if (show.length < total) {
+        notes.push("全 " + total.toLocaleString() + " 件中、総移動回数の少ない " +
+                   show.length.toLocaleString() + " 件を表示しています。");
+      }
+      if (truncated) {
+        notes.push("探索量の上限に達したため、一部の組み合わせは調べていません。");
+      }
+      if (notes.length) {
+        noteEl.hidden      = false;
+        noteEl.textContent = notes.join(" ");
+      }
     }
   }
 
@@ -316,6 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
     bodyEl.innerHTML          = "";
     noResultEl.hidden         = true;
     tableWrapEl.style.display = "none";
+    if (noteEl) { noteEl.hidden = true; noteEl.textContent = ""; }
   }
 
   /* ── メイン処理 ── */
@@ -357,8 +433,8 @@ document.addEventListener("DOMContentLoaded", function () {
       limitA = Math.min(maxDevil,      Math.max(0, getInt(inputOwnedA, 0)));
     }
 
-    var combinations = findCombinations(target, startFloor, limitA, limitB);
-    showResult(target, combinations, isOwnedMode);
+    var found = findCombinations(target, startFloor, limitA, limitB);
+    showResult(target, found.results, isOwnedMode, found.truncated);
   }
 
   btnCalc.addEventListener("click", onCalc);

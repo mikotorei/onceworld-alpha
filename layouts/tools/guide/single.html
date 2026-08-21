@@ -26,7 +26,8 @@
       <p class="guide-tool__desc">
         目標階層にちょうど到達できる天空像の所持数の組み合わせを表示します。<br>
         ※ 1Fスタートの場合、初回は冒険者像を2個一時的に置いて片側撃破した後2個拾って次に進みます。<br>
-        ※ ボスフロア（1万・10万・100万・1000万F）を中間で踏まない組み合わせのみ表示します。
+        ※ ボスフロア（1万・10万・100万・1000万F）は討伐後の移動にSGが出ないため、悪魔像が乗らず 2×冒険者像 だけ進みます。<br>
+        ※ 表示するのは通常サイクルとボスサイクルの合計移動回数です。
       </p>
 
       <div class="floor-tool">
@@ -103,8 +104,7 @@
                 <tr>
                   <th>冒険者像（個）</th>
                   <th>悪魔像（個）</th>
-                  <th>サイクル数</th>
-                  <th>1サイクルの進行</th>
+                  <th>総移動回数</th>
                 </tr>
               </thead>
               <tbody id="floorResultBody"></tbody>
@@ -113,6 +113,7 @@
           <p class="floor-tool__no-result" id="floorNoResult" hidden>
             その階層にちょうど到達できる組み合わせはありません。
           </p>
+          <p class="floor-tool__note" id="floorResultNote" hidden></p>
         </div>
 
       </div>{{/* /.floor-tool */}}
