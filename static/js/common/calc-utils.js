@@ -28,14 +28,23 @@ function formatIntString(value) {
   return n.toLocaleString("ja-JP");
 }
 
+// 空欄は空のまま保つ。fallback を書き込むと placeholder が出せなくなるため。
+// 読み取り側（parseFormattedInt / normalizeFormattedNonNegIntValue / getInt）は
+// いずれも空文字に fallback を当てるので、空のままでも計算値は変わらない
+function isBlankNumericValue(el) {
+  return normalizeDigitsOnly(el.value) === "";
+}
+
 function applyCommaFormatting(el, fallback = 0) {
   if (!el) return;
+  if (isBlankNumericValue(el)) { el.value = ""; return; }
   const normalized = normalizeFormattedNonNegIntValue(el.value, fallback);
   el.value = formatIntString(normalized);
 }
 
 function removeCommaFormatting(el, fallback = 0) {
   if (!el) return;
+  if (isBlankNumericValue(el)) { el.value = ""; return; }
   el.value = normalizeFormattedNonNegIntValue(el.value, fallback);
 }
 

@@ -487,6 +487,12 @@ late:  [200, 500, 800, 1200, 2200]
 ### 数値入力
 - `attachCommaInputBehavior`（`static/js/common/calc-utils.js`）がサイト標準
 - 使用条件: `type="text" inputmode="numeric"` が必要
+- **空欄には fallback を書き込まず空のまま保つ**（`placeholder` を出すため）。
+  初期値を入れたい欄はHTML側に `value="0"` を書くこと
+- 読み取りは `parseFormattedInt(el, fallback)` /
+  `normalizeFormattedNonNegIntValue(raw, fallback)` を使う。
+  どちらも空文字に fallback を当てるので、空欄のままでも計算値は変わらない。
+  `el.value` を直接 `parseInt` しないこと
 
 ### 素材一覧の並び順
 - `weight` の昇順で表示
