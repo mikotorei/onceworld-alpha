@@ -165,7 +165,7 @@ function slotLabelMap(...defsList) {
 // 所持数は呼び出し側が渡す（getLimit を game-data.js 内で完結させ、
 // pandora.js / DOM に依存させないため）。
 const LIMITS = {
-  equipEnhance: { base: 1100, boostedBy: "forbidden_lock" },             // 装備の通常強化
+  equipEnhance: { base: 100,  boostedBy: "forbidden_lock" },             // 装備の通常強化
   equipGLevel:  { base: 300,  boostedBy: null },                          // 装備のG強化
   petPowder:    { base: 100,  boostedBy: "dragon_brand_kneader" },        // ペットの粉使用上限
   petLevel:     { base: 1200, boostedBy: "hades_helmet", hardCap: 2200 }  // ペットの最大レベル

@@ -61,6 +61,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ========== 強化計算 ==========
 
+  // 通常強化タブの強化値。禁域のロックの所持数には連動させず固定で並べる
+  //   plus1100 … ロック1000個時
+  //   plus2100 … ロック2000個時（パンドラの箱 所持）
+  const ENHANCE_TAB_LV = { plus1100: 1100, plus2100: 2100 };
+
   function calcStat(baseVal, stat, mode, gLv, isFixed) {
     if (baseVal === 0) return 0;
     if (stat === "mov") return baseVal;
@@ -68,8 +73,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (mode === "base") {
       return baseVal;
-    } else if (mode === "plus1100") {
-      return baseVal * getEquipMaxEnhanceMultiplier();
+    } else if (ENHANCE_TAB_LV[mode] !== undefined) {
+      return baseVal * (1 + ENHANCE_TAB_LV[mode] * 0.1);
     } else if (mode === "genhance") {
       const atG0 = baseVal * EQUIP_G_BASE_MULTIPLIER;
       if (gLv === 0) return atG0;
@@ -248,12 +253,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (gSlider) gSlider.value = v;
     if (gDisplay) gDisplay.textContent = v;
     refreshTables();
-  }
-
-  // 禁域のロック（強化上限が変わるので +N タブの値を引き直す）
-  const lockInput = document.querySelector('[data-material="forbidden_lock"] input');
-  if (lockInput) {
-    ["input", "change"].forEach(ev => lockInput.addEventListener(ev, refreshTables));
   }
 
   if (gInput) {

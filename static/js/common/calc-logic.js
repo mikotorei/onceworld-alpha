@@ -33,11 +33,12 @@ function forbiddenLockInput(root) {
   return r.querySelector('[data-material="forbidden_lock"] input');
 }
 
-// 装備の通常強化の上限（既定1100 + 禁域のロック所持数）
+// 装備の通常強化の上限（既定100 + 禁域のロック所持数）
+// ロック0個→100 / 1000個→1100 / 2000個（パンドラ所持）→2100
 function getEquipEnhanceMax() {
-  if (typeof getLimit !== "function") return 1100;
+  if (typeof getLimit !== "function") return 100;
   const v = getLimit("equipEnhance", equipMaterialCounts());
-  return (v === null || v === undefined) ? 1100 : v;
+  return (v === null || v === undefined) ? 100 : v;
 }
 
 // 装備のG強化の上限（素材による変動なし）
@@ -47,17 +48,12 @@ function getEquipGLevelMax() {
   return (v === null || v === undefined) ? 300 : v;
 }
 
-// 通常強化を上限まで行ったときのステータス倍率。
-// 通常強化の表示・計算にのみ使う（上限が伸びれば一緒に伸びる）
-function getEquipMaxEnhanceMultiplier() {
-  return 1 + getEquipEnhanceMax() * 0.1;
-}
-
-// G強化の解禁しきい値。強化上限が伸びても +1100 のまま連動しない
+// G強化の解禁しきい値。通常強化の上限（100〜2100）とは連動せず +1100 固定。
+// ロックを1000個以上持たないと解禁できない
 const EQUIP_G_UNLOCK_LV = 1100;
 
 // G強化の基準値となるステータス倍率。1 + 1100 × 0.1 の畳み込みで、
-// 強化上限が伸びても +1100 固定のまま連動しない
+// 通常強化の上限が変わっても +1100 固定のまま連動しない
 const EQUIP_G_BASE_MULTIPLIER = 111;
 
 // HTML側の入力欄・ラベルを現在の上限に合わせる。

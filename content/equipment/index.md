@@ -13,10 +13,10 @@ description = "武器・防具・アクセサリーの装備データ一覧"
 </div>
 <div class="enhance-tabs" id="enhanceTabs">
   <button class="enhance-tab active" data-enhance="base">基礎値</button>
-  <button class="enhance-tab" data-enhance="plus1100" data-equip-limit-label="plus">+1100</button>
+  <button class="enhance-tab" data-enhance="plus1100">+1100</button>
+  <button class="enhance-tab" data-enhance="plus2100">+2100</button>
   <button class="enhance-tab" data-enhance="genhance">G強化</button>
 </div>
-<div class="bs-point-limit-grid" data-material-slot="equipment:equip"></div>
 <div id="gEnhanceControl" style="display:none;">
   <label>G強化値：+<input id="gLevelInput" type="number" min="0" max="300" value="0" data-equip-limit="glevel"><span id="gLevelDisplay">0</span></label>
   <input id="gLevelSlider" type="range" min="0" max="300" value="0" data-equip-limit="glevel">
@@ -86,6 +86,8 @@ description = "武器・防具・アクセサリーの装備データ一覧"
 <p>上部のタブで「武器」「防具」「アクセサリー」を切り替えます。</p>
 <h3>ソート機能</h3>
 <p>表のヘッダー（名前・各ステータスなど）をタップすると昇順/降順でソートできます。もう一度タップすると逆順、3回目でソート解除されます。</p>
+<h3>強化タブ</h3>
+<p>「+1100」は禁域のロックを1000個持っているとき、「+2100」はパンドラの箱を持って2000個まで揃えたときの強化値です。通常強化の上限は 100 + 禁域のロック所持数 です。</p>
 <h3>G強化タブ</h3>
 <p>G強化値を設定するとステータス増加後の値と必要Gが表示されます。スライダーで直感的に操作できます。</p>
 <h3>アクセサリー</h3>
@@ -95,8 +97,6 @@ description = "武器・防具・アクセサリーの装備データ一覧"
 <link rel="stylesheet" href="../css/equipment.css">
 <script src="../js/common/storage-manager.js"></script>
 <script src="../js/common/game-data.js"></script>
-<script src="../js/common/pandora.js"></script>
-<script src="../js/common/material-ui.js"></script>
 <script src="../js/common/calc-logic.js"></script>
 <script src="../js/equipment-db.js"></script>
 <script src="../js/common/help-drawer.js"></script>
