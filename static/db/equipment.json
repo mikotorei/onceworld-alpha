@@ -625,6 +625,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {
         "vit": 0,
         "spd": 0,
@@ -643,6 +644,7 @@
       "category": "weapon",
       "slot": "weapon",
       "series": "",
+      "no_enhance": true,
       "base_add": {
         "vit": 0,
         "spd": 0,
