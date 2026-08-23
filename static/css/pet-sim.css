@@ -113,22 +113,6 @@
   box-sizing:border-box;
 }
 
-/* チップボタン共通 */
-.chip-btn{
-  padding:10px 12px;
-  border:1px solid #000;
-  background:#fff;
-  border-radius:12px;
-  font-size:14px;
-  line-height:1.2;
-  cursor:pointer;
-}
-
-.chip-btn[aria-pressed="true"]{
-  background:rgba(0,0,0,0.08);
-  box-shadow:0 0 0 2px #000 inset;
-}
-
 /* ステータスグリッド */
 .stats-grid{
   display:grid;

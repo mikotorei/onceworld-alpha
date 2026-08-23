@@ -83,26 +83,6 @@
   white-space:nowrap;
 }
 
-.chip-group{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.chip-btn{
-  padding:10px 12px;
-  border:1px solid #000;
-  background:#fff;
-  border-radius:12px;
-  font-size:14px;
-  line-height:1.2;
-}
-
-.chip-btn[aria-pressed="true"]{
-  background:rgba(0,0,0,0.08);
-  box-shadow:0 0 0 2px #000 inset;
-}
-
 .hero-grid{
   display:grid;
   grid-template-columns:1fr;

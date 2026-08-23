@@ -394,6 +394,67 @@ input:disabled {
 }
 
 /* ============================================================
+   チップボタン（選択状態を持つトグル）※サイト標準
+   ------------------------------------------------------------
+   全ページ共通。aria-pressed="true" で「背景 + 内側の枠線」になる。
+   .spell-* の色付きボタンは同詳細度なので、必ずこのブロックより
+   後ろで上書きすること（下の「魔法ボタンカラー」参照）。
+   ============================================================ */
+.chip-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.chip-btn{
+  padding:10px 12px;
+  border:1px solid #000;
+  background:#fff;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.2;
+  cursor:pointer;
+}
+
+.chip-btn[aria-pressed="true"]{
+  background:rgba(0,0,0,0.08);
+  box-shadow:0 0 0 2px #000 inset;
+}
+
+/* ---- パンドラの箱など material-ui.js が生成するトグル行 ---- */
+.bs-point-limit-grid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+
+.bs-point-limit-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.bs-point-limit-label{
+  min-width:120px;
+  font-size:14px;
+  color:#555;
+  flex-shrink:0;
+}
+
+.bs-label-text{
+  font-size:13px;
+  color:#777;
+}
+
+.material-pandora-row{
+  border-bottom:1px dashed rgba(0,0,0,0.25);
+  padding-bottom:8px;
+  margin-bottom:8px;
+}
+
+/* ============================================================
    魔法ボタンカラー
    ============================================================ */
 .spell-fire    { background: #fff0f0; border-color: #e55; color: #c00; }

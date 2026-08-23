@@ -464,28 +464,6 @@ label.pill:has(#basePointTotal) {
   flex: 1;
 }
 
-/* ---- chip-btn（振り分けポイント計算セクション用）---- */
-.chip-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip-btn {
-  padding: 10px 12px;
-  border: 1px solid #000;
-  background: #fff;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.2;
-  cursor: pointer;
-}
-
-.chip-btn[aria-pressed="true"] {
-  background: rgba(0,0,0,0.08);
-  box-shadow: 0 0 0 2px #000 inset;
-}
-
 /* ---- bs-point-limit（振り分けポイント計算セクション用）---- */
 .bs-point-calc-wrap {
   padding: 10px 0;
@@ -502,27 +480,6 @@ label.pill:has(#basePointTotal) {
   color: #555;
 }
 
-.bs-point-limit-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.bs-point-limit-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.bs-point-limit-label {
-  min-width: 120px;
-  font-size: 14px;
-  color: #555;
-  flex-shrink: 0;
-}
-
 .bs-point-limit-result {
   display: flex;
   align-items: center;
@@ -537,11 +494,6 @@ label.pill:has(#basePointTotal) {
   font-weight: 700;
   color: #1a5fa8;
   font-variant-numeric: tabular-nums;
-}
-
-.bs-label-text {
-  font-size: 13px;
-  color: #777;
 }
 
 .lv-input {

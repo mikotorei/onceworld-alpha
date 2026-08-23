@@ -93,12 +93,12 @@ static/js/
 ```
 static/css/
 ├── common/
-│   ├── style.css                 # 全体共通（ヘルプボタン・魔法カラー等）
+│   ├── style.css                 # 全体共通（chip-btn・ヘルプボタン・魔法カラー等）
 │   ├── guide.css                 # ガイドページ
 │   ├── monster.css               # モンスター詳細
 │   ├── home.css / map.css / tenku.css
 ├── tools/
-│   ├── integrated-tool.css       # 統合・詳細計算機（chip-btn等の共通スタイル）
+│   ├── integrated-tool.css       # 統合・詳細計算機
 │   ├── build-sim/build-sim.css
 │   └── exp-calc/exp-calc.css
 ├── status-sim.css                # ステシミュ + ビルドカード
