@@ -334,6 +334,14 @@ G強化後のステータス = 基礎値 × 111 + (基礎値 × 25 + 10000) × G
 - 装備DBの強化タブは +1100 / +2100 の**固定値**で、禁域のロックの所持数には
   連動しない（`equipment-db.js` の `ENHANCE_TAB_LV`）
 - 上限を下回った入力値はパンドラと同じ方式で切り詰める
+- **通常強化が1100未満のスロットはG強化を計算に乗せない。** 解禁チェックの実装は
+  - `status/status-sim.js` … `isGUnlocked()`。G入力欄は `refreshGInputStates()` が
+    Lv1100未満の間 disabled にする（値は0にせず保持し、解禁で復活する）。
+    無効になっているG値がある間は errBox に理由を出す
+  - `build-sim/build-sim-logic.js` … `gCapable`（装備としてG強化できるか）と
+    `canEnhance`（現時点で解禁されているか）を分ける。`perG` / `maxGStatVal` は
+    `gCapable` 側で持ち、素材強化で1100に届くスロットは `canEnhanceAfterMat` で解禁する
+  - `common/build-card.js` … 計算に乗らないG値はビルドカードにも出さない
 
 ### 暗殺者のカギ爪（equipment id: `assassin_claw`）
 - 物理攻撃時：DEF=0で計算、最終ダメージ×0.1
@@ -610,5 +618,4 @@ late:  [200, 500, 800, 1200, 2200]
 
 ## 保留中の判断
 
-- status-sim.js のG強化解禁チェックが `glv > 0` のみで、
-  通常強化1100未満でもG強化が反映される（現状維持と判断済み）
+- 現在なし
