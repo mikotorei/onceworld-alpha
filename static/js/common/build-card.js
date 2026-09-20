@@ -61,9 +61,11 @@ function buildCardHTML() {
     if (!isPet && id) {
       const lv  = parseInt($("level_" +key)?.value  || "0", 10) || 0;
       const glv = parseInt($("glevel_"+key)?.value || "0", 10) || 0;
+      // G強化は通常強化+1100で解禁される。計算に乗らないG値はカードにも出さない
+      const gUnlockLv = (typeof EQUIP_G_UNLOCK_LV === "number") ? EQUIP_G_UNLOCK_LV : 1100;
       var parts = [];
       if (lv  > 0) parts.push("+" + lv);
-      if (glv > 0) parts.push("G" + glv);
+      if (glv > 0 && lv >= gUnlockLv) parts.push("G" + glv);
       if (parts.length > 0) enhance = ' <span class="bc-enhance">' + parts.join(" ") + '</span>';
     }
     return '<div class="bc-row" style="white-space:nowrap"><span class="bc-label">' + label + '</span><span class="bc-val">' + name + enhance + '</span></div>';

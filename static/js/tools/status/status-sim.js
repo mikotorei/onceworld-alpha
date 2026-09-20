@@ -59,6 +59,8 @@ function clampLv(v)    { return Math.max(0, Math.min(getEquipEnhanceMax(), Math.
 function clamp1(v)     { return Math.max(1, n(v, 1)); }
 function clampStage(v) { return Math.max(0, Math.min(PET_SKILL_STAGES, n(v, 0))); }
 function clampG(v)     { return Math.max(0, Math.min(getEquipGLevelMax(), Math.floor(Number(v) || 0))); }
+// G強化の解禁は通常強化+1100固定。強化上限（100 + 禁域のロック）とは連動しない
+function isGUnlocked(lv) { return clampLv(lv) >= EQUIP_G_UNLOCK_LV; }
 function floorSafe(x)  { return Math.floor((Number(x) || 0) + 1e-6); }
 function floorStats(s) { const o = zeroStats(); STATS.forEach(k => { o[k] = k === "mov" ? (s?.[k]||0) : floorSafe(s?.[k]||0); }); return o; }
 function roundSafe(x)  { return Math.round((Number(x) || 0) + 1e-6); }
@@ -410,6 +412,24 @@ function refreshStageOptions(key) {
 }
 function refreshAllStageOptions() { PET_KEYS.forEach(key => refreshStageOptions(key)); }
 
+// 通常強化が+1100に達するまでG強化欄を操作できないようにする。
+// 入力済みの値は消さずに残し、解禁されたらそのまま使えるようにする。
+// no_enhance装備の無効化（値も0にする）は装備選択・ビルド復元側で行う
+function refreshGInputStates() {
+  slotKeys(ARMOR_SLOTS_DEF).forEach(key => {
+    const glvInput = $("glevel_" + key);
+    if (!glvInput) return;
+    const id   = $("select_" + key)?.value || "";
+    const item = id ? equipmentMap.get(String(id)) : null;
+    const noEnhance = !!(item?.no_enhance);
+    const gLocked   = !isGUnlocked($("level_" + key)?.value);
+    glvInput.disabled = noEnhance || gLocked;
+    glvInput.title = (!noEnhance && gLocked)
+      ? `通常強化+${EQUIP_G_UNLOCK_LV}でG強化が解禁されます`
+      : "";
+  });
+}
+
 function petInputId(key)   { return "pet_search_" + key; }
 function petSuggestId(key) { return "pet_suggest_" + key; }
 function closePetSuggest(key) { const s=$(petSuggestId(key)); if(!s)return; s.hidden=true; s.innerHTML=""; }
@@ -644,6 +664,8 @@ function recalc() {
   // ペットの選択が変わっていれば段階ラベルを追従させる。
   // ペット選択・検索欄クリア・ビルド復元のいずれもここを通る
   refreshAllStageOptions();
+  // 通常強化のLvに応じてG強化欄の有効・無効を合わせる
+  refreshGInputStates();
   const err   = [];
   const state = collectState();
   const baseStats = zeroStats();
@@ -654,6 +676,7 @@ function recalc() {
   const proteinApplied  = floorStats(mulStats(proteinRaw, 1 + state.shaker * 0.01));
   const basePlusProtein = addStats(baseStats, proteinApplied);
   let weaponArmorSum = zeroStats();
+  const gLockedSlots = [];
   ["weapon","head","body","hands","feet","shield"].forEach(key => {
     const picked = state.equip[key];
     if (!picked?.id) return;
@@ -661,8 +684,11 @@ function recalc() {
     if (!item) return;
     const canUpgrade = !item.no_upgrade;
     const glv = picked.glv ?? 0;
-    if (glv > 0 && canUpgrade) weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAddG(item.base_add||{}, glv, canUpgrade));
-    else                       weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAdd(item.base_add||{}, picked.lv));
+    // 通常強化が+1100に達していないスロットはG強化が解禁されていないため反映しない
+    const gUnlocked = isGUnlocked(picked.lv);
+    if (glv > 0 && !gUnlocked) gLockedSlots.push(SLOT_LABEL[key] || key);
+    if (glv > 0 && canUpgrade && gUnlocked) weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAddG(item.base_add||{}, glv, canUpgrade));
+    else                                    weaponArmorSum = addStats(weaponArmorSum, scaleEquipBaseAdd(item.base_add||{}, picked.lv));
   });
   const armorSetSeries = getArmorSetSeries(state.equip);
   const sumBeforeSet   = addStats(basePlusProtein, weaponArmorSum);
@@ -698,6 +724,9 @@ function recalc() {
       : `使用 ${fmtSafe(used)} / 残り ${fmtSafe(remain)}`;
   }
   if (remain < 0) err.push(`ポイント超過：残り ${remain}`);
+  if (gLockedSlots.length > 0) {
+    err.push(`${gLockedSlots.join("・")}：通常強化+${EQUIP_G_UNLOCK_LV}未満のためG強化は無効`);
+  }
   updateAccessoryEffectDisplays();
   renderTable(basePlusProtein, equipDisplay, finalTotal);
   setErr(err.join("\n"));
