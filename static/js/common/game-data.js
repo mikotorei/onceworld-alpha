@@ -106,7 +106,8 @@ const MATERIALS = [
     ] } },
   { id: "hades_helmet",            name: "ハデスの兜",       baseMax: 1000, effect: "ペットの最大レベル +1/個（上限Lv2200）",
     ui: { kind: "count", unit: "個", showMax: true, slots: [
-      { tool: "pet-sim", section: "common", inputId: "helmetInput" }
+      { tool: "pet-sim",  section: "common", inputId: "helmetInput" },
+      { tool: "exp-calc", section: "pet",    inputId: "petHelmet" }
     ] } },
   { id: "ancient_tilaphis_statue", name: "古のティラピス像", baseMax: 1000, effect: "天命輪廻倍率 -0.00005/個",
     ui: { kind: "count", unit: "個", showMax: false, slots: [

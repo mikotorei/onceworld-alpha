@@ -282,6 +282,74 @@ function showResult(result, isHero) {
 }
 
 // ============================================================
+// ペットの最大レベル
+// ============================================================
+// 定義は game-data.js の LIMITS.petLevel（基本1200 + ハデスの兜1個につき+1 / 上限2200）。
+// ハデスの兜の所持上限はパンドラの箱で 1000 -> 2000 に変わる
+
+function petHelmetCap() {
+  if (typeof OWPandora !== "undefined" && typeof OWPandora.materialCap === "function") {
+    return OWPandora.materialCap("hades_helmet", 1000);
+  }
+  if (typeof getMaterialMax === "function") {
+    var m = getMaterialMax("hades_helmet", false);
+    if (m !== null && m !== undefined) return m;
+  }
+  return 1000;
+}
+
+function petHelmetCount() {
+  var cap = petHelmetCap();
+  var v = parseInt($("petHelmet")?.value || "0", 10);
+  if (isNaN(v) || v < 0) return 0;
+  return v > cap ? cap : v;
+}
+
+function petLvMax() {
+  var v = (typeof getLimit === "function")
+    ? getLimit("petLevel", { hades_helmet: petHelmetCount() })
+    : null;
+  return (v === null || v === undefined) ? 1200 : v;
+}
+
+// Lv入力欄の max と注記を現在の上限に合わせ、超過している値だけ切り詰める
+function applyPetLvMax() {
+  var cap    = petHelmetCap();
+  var helmet = petHelmetCount();
+  var max    = petLvMax();
+
+  var h = $("petHelmet");
+  if (h) {
+    h.max = String(cap);
+    var hv = parseInt(h.value, 10);
+    if (!isNaN(hv) && hv > cap) h.value = String(cap);
+  }
+  var label = $("petHelmetLabel");
+  if (label) label.textContent = "ハデスの兜（上限" + cap + "）";
+
+  ["petFromLv", "petToLv"].forEach(function(id) {
+    var el = $(id);
+    if (!el) return;
+    el.max = String(max);
+    var v = parseInt(el.value, 10);
+    if (!isNaN(v) && v > max) el.value = String(max);
+  });
+
+  var note = $("petLvMaxNote");
+  if (note) {
+    note.textContent = "最大レベル: " + max
+      + "（基本1200 + ハデスの兜" + helmet + "個 / 上限2200）";
+  }
+}
+
+$("petHelmet")?.addEventListener("input", applyPetLvMax);
+// パンドラの箱を別ページで切り替えた場合も所持上限を引き直す
+if (typeof OWPandora !== "undefined" && typeof OWPandora.onChange === "function") {
+  OWPandora.onChange(applyPetLvMax);
+}
+applyPetLvMax();
+
+// ============================================================
 // 計算実行
 // ============================================================
 $("expCalcBtn")?.addEventListener("click", function() {
@@ -319,8 +387,9 @@ $("expCalcBtn")?.addEventListener("click", function() {
     var tenme  = parseInt($("petTenme")?.value||"0", 10);
     var til    = parseInt($("petTilapia")?.value||"0", 10);
 
-    fromLv = Math.min(1200, Math.max(1, fromLv));
-    toLv   = Math.min(1200, Math.max(2, toLv));
+    var lvMax = petLvMax();
+    fromLv = Math.min(lvMax, Math.max(1, fromLv));
+    toLv   = Math.min(lvMax, Math.max(2, toLv));
     tenme  = Math.min(30,   Math.max(0, tenme));
     til    = Math.min(1000, Math.max(0, til));
     if ($("petFromLv"))  $("petFromLv").value  = fromLv;
