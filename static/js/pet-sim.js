@@ -84,20 +84,31 @@ houseBtn.addEventListener('click', function () {
 });
 
 // 入力値取得
-// ハデスの兜の所持数（0〜baseMax）
-function getHelmet() {
-  if (!helmetInput) return 0;
-  var max = 1000;
-  if (typeof getMaterialMax === 'function') {
-    max = getMaterialMax('hades_helmet', false) || 1000;
-  }
+// 素材の現在の所持上限。効果素材は通常1000 / パンドラの箱所持で2000
+function materialCapOf(id) {
   if (typeof OWPandora !== 'undefined' && typeof OWPandora.materialCap === 'function') {
-    max = OWPandora.materialCap('hades_helmet', 1000);
+    return OWPandora.materialCap(id, 1000);
   }
-  var v = parseInt(helmetInput.value, 10);
+  if (typeof getMaterialMax === 'function') {
+    var m = getMaterialMax(id, false);
+    if (m !== null && m !== undefined) return m;
+  }
+  return 1000;
+}
+
+// 入力欄の所持数を 0〜所持上限 に収めて返す
+function ownedCount(input, id) {
+  if (!input) return 0;
+  var max = materialCapOf(id);
+  var v = parseInt(input.value, 10);
   if (isNaN(v) || v < 0) return 0;
   if (v > max)           return max;
   return v;
+}
+
+// ハデスの兜の所持数
+function getHelmet() {
+  return ownedCount(helmetInput, 'hades_helmet');
 }
 
 // 上限計算に渡す素材の所持数
@@ -153,17 +164,9 @@ function getPowder(s) {
   return v;
 }
 
-// ドラゴン印の手ごね機の所持数（0〜baseMax）
+// ドラゴン印の手ごね機の所持数
 function getKneader() {
-  if (!kneaderInput) return 0;
-  var max = 1000;
-  if (typeof getMaterialMax === 'function') {
-    max = getMaterialMax('dragon_brand_kneader', false) || 1000;
-  }
-  var v = parseInt(kneaderInput.value, 10);
-  if (isNaN(v) || v < 0) return 0;
-  if (v > max)           return max;
-  return v;
+  return ownedCount(kneaderInput, 'dragon_brand_kneader');
 }
 
 // 粉の使用上限。定義は game-data.js の LIMITS.petPowder
@@ -195,16 +198,9 @@ function applyPowderMax() {
   }
 }
 
-// キノコの所持上限。効果素材なので通常1000 / パンドラの箱所持で2000
+// キノコの所持上限
 function getKinokoMax() {
-  if (typeof OWPandora !== 'undefined' && typeof OWPandora.materialCap === 'function') {
-    return OWPandora.materialCap('element_mushroom', 1000);
-  }
-  if (typeof getMaterialMax === 'function') {
-    var m = getMaterialMax('element_mushroom', false);
-    if (m !== null && m !== undefined) return m;
-  }
-  return 1000;
+  return materialCapOf('element_mushroom');
 }
 
 function getKinoko() {
