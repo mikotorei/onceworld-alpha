@@ -136,7 +136,7 @@ layouts/
 │   └── calc-detail.html          # 詳細計算機のUI
 ├── tools/
 │   ├── build-sim.html            # ビルドシミュレーター
-│   ├── calc.html / calc-wrapper.html
+│   ├── calc-wrapper.html         # 統合計算機
 │   ├── exp-calc.html             # 必要経験値計算機
 │   ├── monster-base-stats.html   # モンスター基礎ステ表
 │   ├── pet-sim.html              # ペットステシミュ
