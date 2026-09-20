@@ -50,6 +50,7 @@
       <input type="number" id="kinokoInput" min="0" max="1000" value="0" placeholder="0〜1000" />
       <button type="button" id="houseBtn" class="chip-btn" aria-pressed="false">キノコハウス OFF</button>
     </div>
+    <p class="powder-note" id="kinokoMaxNote"></p>
   </section>
 
   <section class="result-section">
@@ -66,7 +67,7 @@
 <h3>粉使用数</h3>
 <p>各ステータスに個別に粉の使用数を入力できます。使用上限は「基本100 + ドラゴン印の手ごね機の所持数」で変わり、各行のボタンでその上限を、「全部MAX」で全ステータスを一括で上限にできます。</p>
 <h3>キノコ</h3>
-<p>粉込みの計算後に最も高いステータス1つにキノコ補正が加算されます。キノコハウスONで補正値が100倍になります。</p>`) }}
+<p>粉込みの計算後に最も高いステータス1つにキノコ補正が加算されます。キノコハウスONで補正値が100倍になります。所持上限は1000個（パンドラの箱を持っていると2000個）です。</p>`) }}
 
 <script src="{{ "monsters-data.js" | relURL }}"></script>
 <script src="{{ "js/common/storage-manager.js" | relURL }}"></script>

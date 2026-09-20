@@ -33,6 +33,7 @@ var kneaderInput = document.getElementById('kneaderInput');
 var helmetInput  = document.getElementById('helmetInput');
 var lvMaxNote    = document.getElementById('lvMaxNote');
 var powderMaxNote = document.getElementById('powderMaxNote');
+var kinokoMaxNote = document.getElementById('kinokoMaxNote');
 var powderMaxAllBtn = document.getElementById('powderMaxAllBtn');
 var houseBtn    = document.getElementById('houseBtn');
 var result      = document.getElementById('result');
@@ -194,11 +195,39 @@ function applyPowderMax() {
   }
 }
 
+// キノコの所持上限。効果素材なので通常1000 / パンドラの箱所持で2000
+function getKinokoMax() {
+  if (typeof OWPandora !== 'undefined' && typeof OWPandora.materialCap === 'function') {
+    return OWPandora.materialCap('element_mushroom', 1000);
+  }
+  if (typeof getMaterialMax === 'function') {
+    var m = getMaterialMax('element_mushroom', false);
+    if (m !== null && m !== undefined) return m;
+  }
+  return 1000;
+}
+
 function getKinoko() {
+  var max = getKinokoMax();
   var v = parseInt(kinokoInput.value, 10);
   if (isNaN(v) || v < 0) return 0;
-  if (v > 1000)          return 1000;
+  if (v > max)           return max;
   return v;
+}
+
+// キノコ入力欄の max / placeholder を現在の上限に合わせ、超過分は切り詰める
+function applyKinokoMax() {
+  var max = getKinokoMax();
+  if (kinokoInput) {
+    kinokoInput.max = String(max);
+    kinokoInput.placeholder = '0〜' + max;
+    var v = parseInt(kinokoInput.value, 10);
+    if (!isNaN(v) && v > max) kinokoInput.value = String(max);
+  }
+  if (kinokoMaxNote) {
+    kinokoMaxNote.textContent = 'キノコの所持上限: ' + max
+      + '（パンドラの箱' + (max > 1000 ? 'あり' : 'なし') + '）';
+  }
 }
 
 // 計算式
@@ -373,11 +402,13 @@ if (typeof OWPandora !== 'undefined' && typeof OWPandora.onChange === 'function'
   OWPandora.onChange(function () {
     applyPowderMax();
     applyLvMax();
+    applyKinokoMax();
     render();
   });
 }
 applyPowderMax();
 applyLvMax();
+applyKinokoMax();
 
 lvInput.addEventListener('input', render);
 sengiInput.addEventListener('input', render);

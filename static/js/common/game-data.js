@@ -109,6 +109,10 @@ const MATERIALS = [
       { tool: "pet-sim",  section: "common", inputId: "helmetInput" },
       { tool: "exp-calc", section: "pet",    inputId: "petHelmet" }
     ] } },
+  // 青/赤/緑/光/闇キノコをまとめた1件。所持上限は全素材共通なので属性ごとに分けていない。
+  // ペットステシミュの入力欄は手書きのため ui.slots は持たせない（二重生成になる）
+  { id: "element_mushroom",        name: "属性キノコ",       baseMax: 1000, effect: "属性が一致するペットの最も高いステータス +1/個",
+    ui: { kind: "count", unit: "個", showMax: true, slots: [] } },
   { id: "ancient_tilaphis_statue", name: "古のティラピス像", baseMax: 1000, effect: "天命輪廻倍率 -0.00005/個",
     ui: { kind: "count", unit: "個", showMax: false, slots: [
       { tool: "exp-calc", section: "hero", inputId: "heroTilapia" },
