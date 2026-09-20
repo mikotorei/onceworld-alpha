@@ -363,7 +363,11 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
     const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
     const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
-    const canEnhance = !!(item && !item.no_enhance && base > 0);
+    // 装備としてG強化できるか。perG / maxGStatVal の算出に使う
+    const gCapable   = !!(item && !item.no_enhance && base > 0);
+    // 現時点でG強化が解禁されているか。解禁は通常強化+1100固定で、強化上限とは連動しない。
+    // 素材強化で1100に届くスロットは canEnhanceAfterMat で後から解禁される
+    const canEnhance = gCapable && currentLv >= EQUIP_G_UNLOCK_LV;
 
     let currentStatVal = 0;
     if (item) {
@@ -372,8 +376,8 @@ function analyzeGlvNeeded(equipState, equipItemsMap, stat, neededTotal, currentF
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
-    const perG = canEnhance ? (base * 25 + 10000) : 0;
+    const maxGStatVal = gCapable ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
+    const perG = gCapable ? (base * 25 + 10000) : 0;
 
     return {
       slot, label: SLOT_LABEL[slot], item,
@@ -536,7 +540,11 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
     const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
     const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
-    const canEnhance = !!(item && !item.no_enhance && base > 0);
+    // 装備としてG強化できるか。perG / maxGStatVal の算出に使う
+    const gCapable   = !!(item && !item.no_enhance && base > 0);
+    // 現時点でG強化が解禁されているか。解禁は通常強化+1100固定で、強化上限とは連動しない。
+    // 素材強化で1100に届くスロットは canEnhanceAfterMat で後から解禁される
+    const canEnhance = gCapable && currentLv >= EQUIP_G_UNLOCK_LV;
 
     let currentStatVal = 0;
     if (item) {
@@ -545,8 +553,8 @@ function analyzeLukNeeded(equipState, equipItemsMap, neededLuk, currentFinalLuk,
         : calcWeaponArmorStat(item, stat, currentLv);
     }
 
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
-    const perG = canEnhance ? (base * 25 + 10000) : 0;
+    const maxGStatVal = gCapable ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
+    const perG = gCapable ? (base * 25 + 10000) : 0;
 
     return {
       slot, label: SLOT_LABEL[slot], item,
@@ -637,15 +645,19 @@ function analyzeAtkAndLukNeeded(
     const currentLv  = Math.max(0, Math.min(getEquipEnhanceMax(), Math.floor(Number(picked?.lv  || 0))));
     const currentGlv = Math.max(0, Math.min(getEquipGLevelMax(),  Math.floor(Number(picked?.glv || 0))));
     const base = Number(item?.base_add?.[stat] || 0);
-    const canEnhance = !!(item && !item.no_enhance && base > 0);
+    // 装備としてG強化できるか。perG / maxGStatVal の算出に使う
+    const gCapable   = !!(item && !item.no_enhance && base > 0);
+    // 現時点でG強化が解禁されているか。解禁は通常強化+1100固定で、強化上限とは連動しない。
+    // 素材強化で1100に届くスロットは canEnhanceAfterMat で後から解禁される
+    const canEnhance = gCapable && currentLv >= EQUIP_G_UNLOCK_LV;
     let currentStatVal = 0;
     if (item) {
       currentStatVal = (currentGlv > 0 && canEnhance)
         ? calcWeaponArmorStatG(item, stat, currentGlv)
         : calcWeaponArmorStat(item, stat, currentLv);
     }
-    const maxGStatVal = canEnhance ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
-    const perG = canEnhance ? (base * 25 + 10000) : 0;
+    const maxGStatVal = gCapable ? calcWeaponArmorStatG(item, stat, getEquipGLevelMax()) : currentStatVal;
+    const perG = gCapable ? (base * 25 + 10000) : 0;
     return {
       slot, label: SLOT_LABEL[slot], item,
       currentLv, currentGlv, base, canEnhance,
