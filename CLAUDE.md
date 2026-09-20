@@ -151,10 +151,16 @@ layouts/
 ```
 static/js/
 ├── common/
+│   ├── game-data.js              # ゲームデータ定義（魔法・素材・上限・属性相性）
 │   ├── calc-logic.js             # 計算式の中核（ダメージ・命中・無効化）
 │   ├── calc-utils.js             # UI補助（attachCommaInputBehavior等）
+│   ├── storage-manager.js        # localStorage の共通ラッパー（OWStorage・封筒形式）
+│   ├── pandora.js                # パンドラの箱の所持状態を全ツールで共有（OWPandora）
+│   ├── material-ui.js            # MATERIALS から素材入力欄を自動生成
+│   ├── number-format.js          # ページ上の数値に3桁区切りを当てる（formatNumbers）
 │   ├── help-drawer.js            # ❓ヘルプドロワー（全ページ共通）
 │   ├── build-card.js             # ビルド画像生成（html2canvas）
+│   ├── pet-skills.js             # モンスター詳細のペットスキル表示
 │   └── monster-level.js
 ├── tools/
 │   ├── build-sim/
@@ -195,7 +201,11 @@ content/
 ├── map/                          # マップデータ
 ├── equipment/                    # 装備DB
 └── tools/                        # 各ツールページ
-    ├── build-sim/ status/ calc/ exp-calc/ tenku/ pet-sim/
+    ├── build-sim/ status/ exp-calc/ tenku/
+    ├── monster-base-stats/       # モンスター基礎ステ表
+    ├── calc.md                   # 統合計算機（layout = calc-wrapper）
+    ├── pet-sim.md                # ペットステシミュ
+    ├── equipment-test.md         # equipment.json の読み込みテスト用
     └── guide/tenku-corridor/     # 天空回廊のノウハウ
 ```
 
