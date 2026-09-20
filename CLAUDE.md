@@ -501,21 +501,36 @@ JSONで保存するキーは**封筒形式**で保存される。
 失うと復元できない。旧形式を最初に読み書きした時点で
 `status_sim_build_slots_v1__pre_v1_backup` へ原本をバイト単位で退避する（一度だけ）。
 
-### game-data.js の二重読み込み
+### 共通JSの二重読み込み
 
-`static/js/common/game-data.js` はトップレベルに `const` 宣言（`SPELLS` / `MATERIALS` /
-`ELEMENT_CHART` / `ELEMENT_ALIASES`）を持つため、**同一ページで二重読み込みすると
-`SyntaxError: Identifier 'SPELLS' has already been declared` になり、
+`static/js/common/game-data.js` と `static/js/common/calc-logic.js` はトップレベルに
+`const` 宣言を持つため、**同一ページで二重読み込みすると `SyntaxError` になり、
 2回目のスクリプトが丸ごと実行されない**。読み込み箇所を増やす際は重複しないか確認すること。
 
-現在の読み込み箇所:
+| ファイル | トップレベルの `const` | 二重読み込み時のエラー |
+|---|---|---|
+| `game-data.js` | `SPELLS` / `MATERIALS` / `LIMITS` / `ELEMENT_CHART` / `ELEMENT_ALIASES` | `Identifier 'SPELLS' has already been declared` |
+| `calc-logic.js` | `EQUIP_G_UNLOCK_LV` / `EQUIP_G_BASE_MULTIPLIER` | `Identifier 'EQUIP_G_UNLOCK_LV' has already been declared` |
+
+現在の読み込み箇所（`game-data.js`）:
 - `layouts/tools/build-sim.html`
-- `layouts/tools/calc.html`
 - `layouts/tools/calc-wrapper.html`
+- `layouts/tools/exp-calc.html`
+- `layouts/tools/guide/single.html`
+- `layouts/tools/pet-sim.html`
 - `layouts/tools/tenku/single.html`
+- `content/equipment/index.md`
 - `content/tools/status/index.md`
 
-なお `calc-logic.js` はトップレベルが `function` 宣言のみなので二重読み込みでもエラーにならない。
+現在の読み込み箇所（`calc-logic.js`）:
+- `layouts/tools/build-sim.html`
+- `layouts/tools/calc-wrapper.html`
+- `layouts/tools/tenku/single.html`
+- `content/equipment/index.md`
+- `content/tools/status/index.md`
+
+`storage-manager.js` / `pandora.js` / `material-ui.js` は IIFE + window 公開の形なので
+二重読み込みしても `SyntaxError` にはならない。
 
 ### ファイルの区別
 - `calc-integrated.html`（統合計算機）と `calc-detail.html`（詳細計算機）は**別物**
