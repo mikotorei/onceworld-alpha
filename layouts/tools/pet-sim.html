@@ -37,6 +37,9 @@
   <section>
     <h2>粉使用数</h2>
     <div class="powder-grid" id="powderGrid"></div>
+    <div class="powder-actions">
+      <button type="button" id="powderMaxAllBtn" class="chip-btn">全部MAX</button>
+    </div>
     <p class="powder-note" id="powderMaxNote"></p>
   </section>
 
@@ -61,7 +64,7 @@
 {{ partial "help-drawer.html" (dict "title" "ペットステシミュレーター 使い方" "body" `<h3>基本操作</h3>
 <p>モンスターを選択してレベル・殲儀回数・粉使用数・キノコ数を入力するとステータスが表示されます。</p>
 <h3>粉使用数</h3>
-<p>各ステータスに個別に粉の使用数（0〜100）を入力できます。「全部MAX」で全ステータスを一括で100に設定できます。</p>
+<p>各ステータスに個別に粉の使用数を入力できます。使用上限は「基本100 + ドラゴン印の手ごね機の所持数」で変わり、各行のボタンでその上限を、「全部MAX」で全ステータスを一括で上限にできます。</p>
 <h3>キノコ</h3>
 <p>粉込みの計算後に最も高いステータス1つにキノコ補正が加算されます。キノコハウスONで補正値が100倍になります。</p>`) }}
 

@@ -33,6 +33,7 @@ var kneaderInput = document.getElementById('kneaderInput');
 var helmetInput  = document.getElementById('helmetInput');
 var lvMaxNote    = document.getElementById('lvMaxNote');
 var powderMaxNote = document.getElementById('powderMaxNote');
+var powderMaxAllBtn = document.getElementById('powderMaxAllBtn');
 var houseBtn    = document.getElementById('houseBtn');
 var result      = document.getElementById('result');
 
@@ -61,9 +62,9 @@ STAT_KEYS.forEach(function (s) {
   var btn = document.createElement('button');
   btn.type        = 'button';
   btn.className   = 'chip-btn powder-max-btn';
-  btn.textContent = '100';
+  btn.textContent = String(getPowderMax());
   btn.addEventListener('click', function () {
-    input.value = 100;
+    input.value = getPowderMax();
     render();
   });
 
@@ -181,6 +182,12 @@ function applyPowderMax() {
     var v = parseInt(el.value, 10);
     if (!isNaN(v) && v > max) el.value = String(max);
   });
+  // 各行のMAXボタンの文言も現在の上限に合わせる
+  if (powderGrid) {
+    powderGrid.querySelectorAll('.powder-max-btn').forEach(function (b) {
+      b.textContent = String(max);
+    });
+  }
   if (powderMaxNote) {
     powderMaxNote.textContent = '粉の使用上限: ' + max
       + '（基本100 + 手ごね機' + getKneader() + '個）';
@@ -349,6 +356,18 @@ if (helmetInput) {
     render();
   });
 }
+// 粉を全ステータス一括で上限にする
+if (powderMaxAllBtn) {
+  powderMaxAllBtn.addEventListener('click', function () {
+    var max = getPowderMax();
+    STAT_KEYS.forEach(function (s) {
+      var el = document.getElementById('powder-' + s);
+      if (el) el.value = String(max);
+    });
+    render();
+  });
+}
+
 // パンドラの所持状態が変わると上限も変わる
 if (typeof OWPandora !== 'undefined' && typeof OWPandora.onChange === 'function') {
   OWPandora.onChange(function () {

@@ -91,6 +91,10 @@
   flex-shrink:0;
 }
 
+.powder-actions{
+  margin-top:10px;
+}
+
 /* キノコ行 */
 .kinoko-row{
   display:flex;
