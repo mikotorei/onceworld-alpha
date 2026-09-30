@@ -3,3 +3,8 @@
 .DS_Store
 Thumbs.db
 _reports/
+
+# 担当（Claude Code）の作業ファイルと Python の生成物
+.worker/
+__pycache__/
+.pytest_cache/
