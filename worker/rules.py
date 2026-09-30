@@ -21,7 +21,9 @@ WORKING = "作業中"
 REVIEW = "承認待ち"
 DONE = "完了"
 
-DAILY_LIMIT = 3  # 1日（日本時間）に着手する件数の上限
+DEFAULT_DAILY_LIMIT = 20  # 1日（日本時間）に着手する件数の上限の既定値。最後の保険
+DAILY_LIMIT_VARIABLE = "WORKER_DAILY_LIMIT"  # 上限を変えるリポジトリの設定値（Actions の Variables）の名前
+MAX_ATTEMPTS = 2  # 1つの Issue につき、持ち主が「着手可」を付けてから自動で挑戦する回数の上限
 MONTHLY_MINUTES = 900  # 1か月（日本時間の暦月）に担当が使う Actions の分の上限。非公開リポジトリだけ（公開は実行時間が無料）
 WORK_MINUTES = 40  # 1回の作業時間の上限（ワークフローの手順の timeout-minutes と同じ値に保つ）
 BOT_LOGIN = "github-actions[bot]"  # ワークフローの標準のトークンでラベルを付けたときの名前
@@ -51,14 +53,19 @@ def today(now: datetime) -> str:
     return now.astimezone(JST).strftime("%Y-%m-%d")
 
 
-def ready_labeled_at(events: Iterable[dict], owner_id: int) -> Optional[datetime]:
-    """Issue のイベント履歴から、最後に「着手可」を付けたのが持ち主なら、その日時を返す。
+def labeled_by_bot(event: dict) -> bool:
+    return (event.get("actor") or {}).get("login") == BOT_LOGIN
 
-    持ち主以外が最後に付けた・一度も付いていないなら None（着手しない）。
+
+def ready_labeled_at(events: Iterable[dict], owner_id: int) -> Optional[datetime]:
+    """Issue のイベント履歴から、人が最後に「着手可」を付けたのが持ち主なら、その日時を返す。
+
+    担当（ボット）がもう一度挑戦するために付け直した「着手可」は数えない。
+    持ち主以外の人が最後に付けた・一度も付いていないなら None（着手しない）。
     """
     last = None
     for event in events:
-        if event.get("event") == "labeled" and (event.get("label") or {}).get("name") == READY:
+        if event.get("event") == "labeled" and (event.get("label") or {}).get("name") == READY and not labeled_by_bot(event):
             if last is None or parse_time(event["created_at"]) >= parse_time(last["created_at"]):
                 last = event
     if last is None or (last.get("actor") or {}).get("id") != owner_id:
@@ -87,11 +94,27 @@ def issue_file(issue: dict) -> str:
     return f"# {issue['title']}\n\n{issue.get('body') or ''}\n"
 
 
+def attempts_since(events: Iterable[dict], ready_at: datetime) -> int:
+    """持ち主が「着手可」を付けた時（ready_at）より後に、担当が「作業中」を付けた回数（＝自動の挑戦の回数）。
+
+    持ち主が「着手可」を付け直すと ready_at が新しくなり、数え直しになる。
+    """
+    return sum(
+        1
+        for event in events
+        if event.get("event") == "labeled"
+        and (event.get("label") or {}).get("name") == WORKING
+        and labeled_by_bot(event)
+        and parse_time(event["created_at"]) >= ready_at
+    )
+
+
 @dataclass(frozen=True)
 class Candidate:
     number: int
     title: str
     labeled_at: datetime
+    attempts: int = 0  # これまでの自動の挑戦の回数
 
 
 def order_queue(candidates: Iterable[Candidate]) -> list[Candidate]:
@@ -129,16 +152,47 @@ def monthly_limit(private: bool) -> Optional[int]:
     return MONTHLY_MINUTES if private else None
 
 
-def limit_reason(started_today: int, minutes_this_month: Optional[int], monthly: Optional[int] = MONTHLY_MINUTES) -> Optional[str]:
+def daily_limit(raw: Optional[str]) -> tuple[int, Optional[str]]:
+    """一日の上限を、リポジトリの設定値（WORKER_DAILY_LIMIT）の文字列から決める。(上限, 注意書き) を返す。
+
+    無い・空欄なら既定値（20）。0 以上の整数ならその値（0 は「着手しない」＝止めるスイッチ）。
+    数字以外やマイナスは書き間違いとみなし、既定値で動かして注意書きを返す。
+    """
+    text = (raw or "").strip()
+    if not text:
+        return DEFAULT_DAILY_LIMIT, None
+    try:
+        value = int(text)
+    except ValueError:
+        value = -1
+    if value < 0:
+        return DEFAULT_DAILY_LIMIT, (
+            f"設定値 {DAILY_LIMIT_VARIABLE} の値「{shorten(text, 20)}」は0以上の整数ではないため、"
+            f"既定の{DEFAULT_DAILY_LIMIT}件で動かします。"
+        )
+    return value, None
+
+
+def limit_reason(
+    started_today: int,
+    minutes_this_month: Optional[int],
+    monthly: Optional[int] = MONTHLY_MINUTES,
+    daily: int = DEFAULT_DAILY_LIMIT,
+) -> Optional[str]:
     """上限に達していれば、その理由の文。達していなければ None。monthly が None なら月の上限は見ない。"""
     if monthly is not None and minutes_this_month is not None and minutes_this_month >= monthly:
         return (
             f"今月の担当の使用時間が上限（{monthly}分）に達しました（{minutes_this_month}分）。"
             "非公開リポジトリの Actions の無料枠（アカウント全体で共有）を見張りのために残すため、今月はもう着手しません。来月以降に、もう一度「着手可」を付けてください。"
         )
-    if started_today >= DAILY_LIMIT:
+    if daily == 0:
         return (
-            f"今日（日本時間）の着手の上限（{DAILY_LIMIT}件）に達しました。"
+            f"リポジトリの設定値 {DAILY_LIMIT_VARIABLE} が 0 のため、着手しません（止めるスイッチ）。"
+            "再開する時は、設定値を1以上にするか消してから、もう一度「着手可」を付けてください。"
+        )
+    if started_today >= daily:
+        return (
+            f"今日（日本時間）の着手の上限（{daily}件）に達しました。"
             "明日以降に、もう一度「着手可」を付けてください。"
         )
     return None
@@ -177,6 +231,49 @@ def failure_reason(
     if claude_outcome == "failure":
         return "担当の実行が途中で失敗しました（トークンの期限切れ・利用枠の不足なども含む）。実行ページで確かめてください。"
     return "作業が途中で止まりました。実行ページで確かめてください。"
+
+
+def failure_kind(
+    *,
+    finish_reason: Optional[str],
+    cannot_complete: Optional[str],
+    claude_outcome: str,
+    elapsed_seconds: Optional[float],
+) -> str:
+    """失敗の種類。"cannot"（担当が完了できないと判断）・"timeout"（40分の時間切れ）・"other"（それ以外）。
+
+    cannot と timeout は、同じ指示書でやり直しても同じ結果になりやすいので、もう一度は挑戦しない。
+    """
+    if cannot_complete and cannot_complete.strip():
+        return "cannot"
+    if (
+        not finish_reason
+        and claude_outcome in ("failure", "cancelled")
+        and elapsed_seconds is not None
+        and elapsed_seconds >= (WORK_MINUTES - 1) * 60
+    ):
+        return "timeout"
+    return "other"
+
+
+def retry_after_failure(kind: str, attempts: int) -> bool:
+    """失敗の後、もう一度自動で挑戦するか。attempts は今回を含めた挑戦の回数。"""
+    return kind == "other" and attempts < MAX_ATTEMPTS
+
+
+def retry_comment(reason: str, attempts: int, run_url: str) -> str:
+    return (
+        f"{attempts}回目の挑戦が失敗したので、もう一度挑戦します（自動の挑戦は{MAX_ATTEMPTS}回まで）。"
+        f"\n\n理由：{reason}\n\n実行ページ：{run_url}"
+    )
+
+
+def gave_up_comment(reason: str, run_url: str) -> str:
+    return (
+        f"{MAX_ATTEMPTS}回失敗したので止めました。「案」に戻しました。"
+        "指示書を直して「着手可」を付け直すと、数え直してもう一度挑戦します。"
+        f"\n\n理由：{reason}\n\n実行ページ：{run_url}"
+    )
 
 
 def shorten(text: str, limit: int = 1000) -> str:

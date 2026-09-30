@@ -55,6 +55,63 @@ def test_最後に付けた人で決める():
     assert rules.ready_labeled_at(events, OWNER) is None
 
 
+def test_担当が付け直した着手可は持ち主の判定に数えない():
+    events = [
+        labeled("着手可", "2026-10-01T01:00:00Z", {"id": OWNER, "login": "mikotorei"}),
+        labeled("作業中", "2026-10-01T01:01:00Z", BOT),
+        labeled("着手可", "2026-10-01T01:10:00Z", BOT),  # 1回目の失敗の後、担当がもう一度挑戦するため
+    ]
+    assert rules.ready_labeled_at(events, OWNER) == utc("2026-10-01T01:00:00")
+    # 持ち主以外の人が最後に付けたなら、担当の付け直しがあっても着手しない
+    events.append(labeled("着手可", "2026-10-01T01:20:00Z", {"id": 999, "login": "someone"}))
+    assert rules.ready_labeled_at(events, OWNER) is None
+    # 担当が付けただけで、持ち主が一度も付けていなければ着手しない
+    assert rules.ready_labeled_at([labeled("着手可", "2026-10-01T01:00:00Z", BOT)], OWNER) is None
+
+
+def test_挑戦の回数は持ち主が付けてから担当が作業中を付けた回数():
+    owner = {"id": OWNER, "login": "mikotorei"}
+    events = [
+        labeled("着手可", "2026-10-01T00:00:00Z", owner),
+        labeled("作業中", "2026-10-01T00:01:00Z", BOT),
+        labeled("着手可", "2026-10-01T00:10:00Z", BOT),
+        labeled("作業中", "2026-10-01T00:11:00Z", BOT),
+        labeled("作業中", "2026-10-01T00:12:00Z", owner),  # 手で付けたものは数えない
+    ]
+    ready = rules.ready_labeled_at(events, OWNER)
+    assert rules.attempts_since(events, ready) == 2
+    # 持ち主が付け直すと数え直し
+    events.append(labeled("着手可", "2026-10-01T02:00:00Z", owner))
+    ready = rules.ready_labeled_at(events, OWNER)
+    assert rules.attempts_since(events, ready) == 0
+    events.append(labeled("作業中", "2026-10-01T02:01:00Z", BOT))
+    assert rules.attempts_since(events, ready) == 1
+
+
+def test_失敗の種類と_もう一度挑戦するか():
+    base = dict(finish_reason=None, cannot_complete=None, claude_outcome="success", elapsed_seconds=60)
+    assert rules.failure_kind(**{**base, "cannot_complete": "指示が曖昧"}) == "cannot"
+    assert rules.failure_kind(**{**base, "finish_reason": "担当が完了できないと判断しました：x", "cannot_complete": "x"}) == "cannot"
+    assert rules.failure_kind(**{**base, "claude_outcome": "failure", "elapsed_seconds": 39 * 60 + 5}) == "timeout"
+    assert rules.failure_kind(**{**base, "claude_outcome": "failure"}) == "other"
+    assert rules.failure_kind(**{**base, "finish_reason": "作業日誌（journal/<日付>.md）がありませんでした。"}) == "other"
+    assert rules.failure_kind(**{**base, "cannot_complete": "  \n"}) == "other"
+    # 1回目の other だけもう一度挑戦する。完了できない判断と時間切れは、1回目でも止める
+    assert rules.retry_after_failure("other", 1)
+    assert not rules.retry_after_failure("other", 2)
+    assert not rules.retry_after_failure("cannot", 1)
+    assert not rules.retry_after_failure("timeout", 1)
+
+
+def test_再挑戦と停止のコメント():
+    retry = rules.retry_comment("理由の文", 1, "https://example.com/run")
+    assert retry.startswith("1回目の挑戦が失敗したので、もう一度挑戦します") and "2回まで" in retry
+    assert "理由：理由の文" in retry and "https://example.com/run" in retry
+    stop = rules.gave_up_comment("理由の文", "https://example.com/run")
+    assert stop.startswith("2回失敗したので止めました。「案」に戻しました。")
+    assert "付け直すと、数え直して" in stop and "理由：理由の文" in stop
+
+
 def test_ほかのラベルや着手可が無ければ着手しない():
     assert rules.ready_labeled_at([labeled("案", "2026-09-29T01:00:00Z", {"id": OWNER})], OWNER) is None
     assert rules.ready_labeled_at([], OWNER) is None
@@ -105,10 +162,31 @@ def test_ジョブの時間は分単位で切り上げ_終わっていないも�
 
 
 def test_上限の判定():
-    assert rules.limit_reason(2, 899) is None
-    assert "上限（3件）" in rules.limit_reason(3, 0)
+    assert rules.limit_reason(19, 899) is None  # 既定は1日20件
+    assert "上限（20件）" in rules.limit_reason(20, 0)
     assert "上限（900分）" in rules.limit_reason(0, 900)
-    assert "900分" in rules.limit_reason(3, 950)  # 両方なら月の上限を先に伝える
+    assert "900分" in rules.limit_reason(20, 950)  # 両方なら月の上限を先に伝える
+    assert rules.limit_reason(4, 0, daily=5) is None
+    assert "上限（5件）" in rules.limit_reason(5, 0, daily=5)
+
+
+def test_設定値が0なら着手しない_止めるスイッチ():
+    reason = rules.limit_reason(0, 0, daily=0)
+    assert "0 のため、着手しません" in reason and "止めるスイッチ" in reason
+    assert "WORKER_DAILY_LIMIT" in reason
+
+
+def test_一日の上限はリポジトリの設定値から読む():
+    assert rules.DAILY_LIMIT_VARIABLE == "WORKER_DAILY_LIMIT"
+    assert rules.daily_limit(None) == (20, None)  # 設定が無い
+    assert rules.daily_limit("") == (20, None)
+    assert rules.daily_limit("  ") == (20, None)
+    assert rules.daily_limit("5") == (5, None)
+    assert rules.daily_limit(" 30 ") == (30, None)
+    assert rules.daily_limit("0") == (0, None)  # 止めるスイッチ
+    for bad in ("abc", "-1", "2.5", "１０件"):
+        value, notice = rules.daily_limit(bad)
+        assert value == 20 and "0以上の整数ではない" in notice
 
 
 def test_月の上限は非公開リポジトリだけ():
@@ -116,7 +194,7 @@ def test_月の上限は非公開リポジトリだけ():
     assert rules.monthly_limit(private=False) is None
     assert rules.limit_reason(0, None, None) is None
     assert rules.limit_reason(2, 5000, None) is None
-    assert "上限（3件）" in rules.limit_reason(3, None, None)  # 1日の上限は公開でも効く
+    assert "上限（20件）" in rules.limit_reason(20, None, None)  # 1日の上限は公開でも効く
 
 
 # 提案を出せるか
@@ -275,3 +353,8 @@ def test_完了のワークフローは既定の枝のプログラムで動く()
     assert checkout["with"]["ref"] == "${{ github.event.repository.default_branch }}"
     assert checkout["with"]["persist-credentials"] is False
     assert any(s.get("run") == "python -m worker pr-closed" for s in job["steps"])
+
+
+def test_一日の上限の設定値をpickに渡す():
+    step = next(s for s in workflow()["jobs"]["pick"]["steps"] if s.get("run") == "python -m worker pick")
+    assert step["env"][rules.DAILY_LIMIT_VARIABLE] == "${{ vars.WORKER_DAILY_LIMIT }}"
