@@ -1,11 +1,14 @@
-"""担当のワークフロー（.github/workflows/worker.yml）から呼ぶ手順。
+"""担当のワークフロー（.github/workflows/worker.yml・worker-done.yml）から呼ぶ手順。
 
     python -m worker pick                       待ち行列から1件選び「作業中」にする（上限なら「案」に戻す）
     python -m worker finish --issue N ...       担当の変更を作業用の枝に push し、提案を出して「承認待ち」にする
     python -m worker fail --issue N ...         「案」に戻し、理由をコメントする
     python -m worker next                       待ちが残っていれば、次の実行を起動する
+    python -m worker pr-closed                  担当の提案が閉じた時：反映なら Issue を閉じて「完了」、反映なしなら「案」に戻す
 
 環境変数：GITHUB_TOKEN・GITHUB_REPOSITORY・GITHUB_SERVER_URL・GITHUB_RUN_ID（Actions が入れる）、GITHUB_OUTPUT。
+pr-closed は GITHUB_EVENT_PATH（pull_request_target の closed のイベント）を読む。
+
 担当（Claude Code）とのやりとりは .worker/ のファイルで行う（.gitignore 済み。提案には入らない）。
 担当は書き込みのトークンを持たない別のジョブで動き、変更は .worker/changes.patch として受け取る。
 worker/ は miko-hub と、担当を配ったリポジトリ（onceworld-alpha）で同じ中身に保つ。依存は worker/requirements.txt。
@@ -15,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import json
 import os
 import subprocess
 import sys
@@ -202,6 +206,35 @@ def next_run(gh: GitHub) -> int:
     return 0
 
 
+def pr_closed(gh: GitHub, event: dict) -> int:
+    """担当の提案が閉じた時。本文の「Closes #番号」が効かなくても、枝の名前から Issue を決めて片づける。
+
+    反映された：Issue が開いていれば「完了」の扱いで閉じ、「承認待ち」→「完了」。
+    反映されずに閉じた：「承認待ち」→「案」に戻し、その旨をコメントする。
+    「承認待ち」が付いていない Issue（手で片づけ済み・本文の「Closes」で閉じて付け替え済み）には触らない。
+    """
+    repository = event["repository"]
+    proposal = rules.closed_proposal(event["pull_request"], repository["full_name"], repository["default_branch"])
+    if proposal is None:
+        print("担当の提案ではないため、何もしません")
+        return 0
+    issue = gh.issue(proposal.issue)
+    labels = {label["name"] for label in issue["labels"]}
+    if rules.REVIEW not in labels:
+        print(f"#{proposal.issue} に「{rules.REVIEW}」が無いため、何もしません")
+        return 0
+    if proposal.merged:
+        if issue["state"] == "open":
+            gh.close_issue(proposal.issue)
+        gh.relabel(proposal.issue, remove=[rules.REVIEW], add=[rules.DONE])
+        print(f"提案 #{proposal.pull} が反映されたため、#{proposal.issue} を閉じて「{rules.DONE}」にしました")
+    else:
+        gh.relabel(proposal.issue, remove=[rules.REVIEW], add=[rules.IDEA])
+        gh.comment(proposal.issue, rules.not_merged_comment(proposal.pull, proposal.url))
+        print(f"提案 #{proposal.pull} が反映されずに閉じられたため、#{proposal.issue} を「{rules.IDEA}」に戻しました")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -218,6 +251,7 @@ def main(argv: list[str] | None = None) -> int:
     p_fail.add_argument("--claude-outcome", default="")
     p_fail.add_argument("--started-at", default="")
     sub.add_parser("next")
+    sub.add_parser("pr-closed")
     args = parser.parse_args(argv)
 
     gh = GitHub(env("GITHUB_REPOSITORY"), env("GITHUB_TOKEN"))
@@ -228,6 +262,9 @@ def main(argv: list[str] | None = None) -> int:
             return finish(gh, args.issue, args.branch, args.base)
         if args.command == "fail":
             return fail(gh, args.issue, args.claude_outcome, args.started_at)
+        if args.command == "pr-closed":
+            with open(env("GITHUB_EVENT_PATH"), encoding="utf-8") as f:
+                return pr_closed(gh, json.load(f))
         return next_run(gh)
     except RuntimeError as e:
         if args.command == "finish":

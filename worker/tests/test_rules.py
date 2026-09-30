@@ -222,3 +222,56 @@ def test_担当には指示書のファイルだけを読ませ_GitHubの読み�
     args = step["with"]["claude_args"]
     assert "mcp__github" not in args and "Bash(gh" not in args
     assert "WebFetch" in args.split("--disallowedTools", 1)[1]
+
+
+# 提案が閉じた時
+
+def pull(ref="claude/issue-2-36729498995", repo="mikotorei/example", base="main", merged=True):
+    return {
+        "number": 3,
+        "html_url": "https://github.com/mikotorei/example/pull/3",
+        "merged": merged,
+        "head": {"ref": ref, "repo": {"full_name": repo}},
+        "base": {"ref": base},
+    }
+
+
+def test_枝の名前からIssue番号を取る():
+    assert rules.issue_from_branch("claude/issue-2-36729498995") == 2
+    assert rules.issue_from_branch(rules.branch_name(15, "7")) == 15
+    for ref in ("main", "claude/issue-x-1", "claude/issue-2", "feature/claude/issue-2-1", "claude/issue-2-1/extra", ""):
+        assert rules.issue_from_branch(ref) is None
+
+
+def test_担当の提案だけを片づける():
+    got = rules.closed_proposal(pull(), "mikotorei/example", "main")
+    assert got == rules.ClosedProposal(2, 3, "https://github.com/mikotorei/example/pull/3", True)
+    assert rules.closed_proposal(pull(merged=False), "mikotorei/example", "main").merged is False
+    assert rules.closed_proposal(pull(repo="someone/fork"), "mikotorei/example", "main") is None  # よそのリポジトリから
+    assert rules.closed_proposal(pull(base="dev"), "mikotorei/example", "main") is None  # 既定の枝以外へ
+    assert rules.closed_proposal(pull(ref="ccr-abc"), "mikotorei/example", "main") is None  # 担当の枝ではない
+    assert rules.closed_proposal({"number": 1, "head": {"ref": "claude/issue-2-1", "repo": None}, "base": {"ref": "main"}}, "mikotorei/example", "main") is None
+
+
+def test_反映されずに閉じた時のコメント():
+    text = rules.not_merged_comment(3, "https://github.com/mikotorei/example/pull/3")
+    assert "提案 #3 が反映されずに閉じられた" in text and "「案」に戻しました" in text
+    assert "https://github.com/mikotorei/example/pull/3" in text
+
+
+def done_workflow():
+    return yaml.safe_load((ROOT / ".github/workflows/worker-done.yml").read_text(encoding="utf-8"))
+
+
+def test_完了のワークフローは既定の枝のプログラムで動く():
+    wf = done_workflow()
+    on = wf.get("on", wf.get(True))  # YAML 1.1 では on が True になる
+    assert on["pull_request_target"]["types"] == ["closed"]
+    assert "pull_request" not in on  # 提案の枝のワークフローで動かさない
+    job = wf["jobs"]["proposal"]
+    assert job["permissions"] == {"contents": "read", "issues": "write"}
+    assert "head.repo.full_name == github.repository" in job["if"]
+    checkout = job["steps"][0]
+    assert checkout["with"]["ref"] == "${{ github.event.repository.default_branch }}"
+    assert checkout["with"]["persist-credentials"] is False
+    assert any(s.get("run") == "python -m worker pr-closed" for s in job["steps"])
