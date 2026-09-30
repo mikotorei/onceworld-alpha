@@ -7,6 +7,7 @@ API を呼ぶのは `github.py`、組み立ては `__main__.py`。ここは入�
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Iterable, Optional
@@ -200,3 +201,48 @@ def pr_body(claude_body: Optional[str], issue_number: int, run_url: str) -> str:
     """提案の本文。担当が書いた説明に、Issue を閉じる記述と実行ページを添える。"""
     body = (claude_body or "").strip() or "（担当が説明を書きませんでした。変更と作業日誌を見てください）"
     return f"{body}\n\nCloses #{issue_number}\n\n---\n担当（Claude Code）が作成。実行ページ：{run_url}"
+
+
+# 提案が閉じた時（worker-done.yml の pull_request_target から）
+
+WORK_BRANCH_PATTERN = re.compile(r"^claude/issue-(\d+)-\d+$")
+
+
+def issue_from_branch(branch: str) -> Optional[int]:
+    """作業用の枝の名前（claude/issue-<番号>-<実行番号>）から Issue 番号を取る。形が違えば None。
+
+    提案の本文の「Closes #番号」は、公開リポジトリでは GitHub に閉じる指示として扱われないことがあるため、
+    担当のワークフローが付けた枝の名前を当てにする。
+    """
+    match = WORK_BRANCH_PATTERN.match(branch or "")
+    return int(match.group(1)) if match else None
+
+
+@dataclass(frozen=True)
+class ClosedProposal:
+    issue: int
+    pull: int
+    url: str
+    merged: bool
+
+
+def closed_proposal(pull: dict, repo: str, default_branch: str) -> Optional[ClosedProposal]:
+    """閉じた提案（プルリクエスト）が担当の提案なら、その中身。担当の提案でなければ None。
+
+    担当の提案＝同じリポジトリの作業用の枝から、既定の枝へ出したもの。
+    """
+    head = pull.get("head") or {}
+    base = pull.get("base") or {}
+    if (head.get("repo") or {}).get("full_name") != repo or base.get("ref") != default_branch:
+        return None
+    issue = issue_from_branch(head.get("ref", ""))
+    if issue is None:
+        return None
+    return ClosedProposal(issue, pull["number"], pull.get("html_url", ""), bool(pull.get("merged")))
+
+
+def not_merged_comment(pull_number: int, pull_url: str) -> str:
+    return (
+        f"提案 #{pull_number} が反映されずに閉じられたため、「案」に戻しました。"
+        f"作り直す時は、指示書を直してからもう一度「着手可」を付けてください。\n\n提案：{pull_url}"
+    )

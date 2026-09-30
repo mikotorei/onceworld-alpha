@@ -88,3 +88,105 @@ def test_pickは持ち主以外が書いたものを案に戻し_タイトルと
     assert (1, ("着手可",), ("作業中",)) in gh.relabeled
     assert (tmp_path / ".worker/issue.md").read_text(encoding="utf-8") == "# 題1\n\n本文\n"
     assert "issue=1\n" in (tmp_path / "out").read_text(encoding="utf-8")
+
+
+# 提案が閉じた時（worker pr-closed）
+
+class FakeIssues:
+    def __init__(self, labels, state="open"):
+        self.state = state
+        self.labels = set(labels)
+        self.closed = 0
+        self.comments = []
+
+    def issue(self, number):
+        return {"state": self.state, "labels": [{"name": n} for n in self.labels]}
+
+    def close_issue(self, number):
+        self.state = "closed"
+        self.closed += 1
+
+    def relabel(self, number, remove, add):
+        self.labels -= set(remove)
+        self.labels |= set(add)
+
+    def comment(self, number, body):
+        self.comments.append((number, body))
+
+
+def event(merged, ref="claude/issue-2-36729498995", repo="mikotorei/example"):
+    return {
+        "repository": {"full_name": "mikotorei/example", "default_branch": "main"},
+        "pull_request": {
+            "number": 3,
+            "html_url": "https://github.com/mikotorei/example/pull/3",
+            "merged": merged,
+            "head": {"ref": ref, "repo": {"full_name": repo}},
+            "base": {"ref": "main"},
+        },
+    }
+
+
+def test_反映されたらIssueを閉じて完了にする():
+    gh = FakeIssues({"承認待ち"})
+    main.pr_closed(gh, event(merged=True))
+    assert gh.state == "closed" and gh.closed == 1
+    assert gh.labels == {"完了"}
+    assert gh.comments == []
+
+
+def test_本文のClosesで閉じていても完了にする_二重には閉じない():
+    gh = FakeIssues({"承認待ち"}, state="closed")
+    main.pr_closed(gh, event(merged=True))
+    assert gh.closed == 0 and gh.labels == {"完了"}
+
+
+def test_反映されずに閉じたら案に戻してコメントする():
+    gh = FakeIssues({"承認待ち"})
+    main.pr_closed(gh, event(merged=False))
+    assert gh.state == "open" and gh.closed == 0
+    assert gh.labels == {"案"}
+    assert len(gh.comments) == 1 and "反映されずに閉じられた" in gh.comments[0][1]
+
+
+def test_承認待ちが無いIssueや担当以外の提案には触らない():
+    for gh, ev in (
+        (FakeIssues({"完了"}, state="closed"), event(merged=True)),  # 手で片づけ済み
+        (FakeIssues({"案"}), event(merged=False)),
+        (FakeIssues({"承認待ち"}), event(merged=True, ref="ccr-abc")),
+        (FakeIssues({"承認待ち"}), event(merged=True, repo="someone/fork")),
+    ):
+        before = set(gh.labels)
+        main.pr_closed(gh, ev)
+        assert gh.labels == before and gh.closed == 0 and gh.comments == []
+
+
+def test_ラベルを外す時に別の実行が先に外していても失敗しない():
+    from worker.github import GitHub
+
+    class Res:
+        def __init__(self, status, data=None):
+            self.status_code = status
+            self._data = data
+            self.content = b"x" if data is not None else b""
+
+        def json(self):
+            return self._data
+
+    calls = []
+
+    class Session:
+        headers = {}
+
+        def request(self, method, url, **kwargs):
+            calls.append(method)
+            if method == "GET":
+                return Res(200, {"labels": [{"name": "承認待ち"}]})
+            if method == "DELETE":
+                return Res(404, {"message": "Label does not exist"})
+            return Res(200, [])
+
+    gh = GitHub("mikotorei/example", "t")
+    gh.session = Session()
+    gh.relabel(2, remove=["承認待ち"], add=["完了"])
+    assert calls == ["GET", "DELETE", "POST"]

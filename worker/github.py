@@ -32,8 +32,10 @@ class GitHub:
             }
         )
 
-    def _call(self, method: str, path: str, **kwargs):
+    def _call(self, method: str, path: str, ok: tuple[int, ...] = (), **kwargs):
         res = self.session.request(method, API_BASE + path, timeout=TIMEOUT, **kwargs)
+        if res.status_code in ok:
+            return None
         if res.status_code >= 400:
             raise RuntimeError(f"GitHub API {method} {path.split('?')[0]} が HTTP {res.status_code} を返しました")
         return res.json() if res.content else None
@@ -85,9 +87,14 @@ class GitHub:
         current = {label["name"] for label in self.issue(number)["labels"]}
         for name in remove:
             if name in current:
-                self._call("DELETE", f"/repos/{self.repo}/issues/{number}/labels/{quote(name)}")
+                # 同じ時に別の実行が外していれば 404 になる（完了の付け替えは2つの起点から動きうる）
+                self._call("DELETE", f"/repos/{self.repo}/issues/{number}/labels/{quote(name)}", ok=(404,))
         if add:
             self._call("POST", f"/repos/{self.repo}/issues/{number}/labels", json={"labels": add})
+
+    def close_issue(self, number: int) -> None:
+        """Issue を「完了」の扱いで閉じる。"""
+        self._call("PATCH", f"/repos/{self.repo}/issues/{number}", json={"state": "closed", "state_reason": "completed"})
 
     def comment(self, number: int, body: str) -> None:
         self._call("POST", f"/repos/{self.repo}/issues/{number}/comments", json={"body": body})
