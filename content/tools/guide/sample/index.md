@@ -1,4 +1,5 @@
 +++
+draft       = true
 title       = "サンプルダンジョン 攻略ガイド"
 subtitle    = "効率よく深層を目指すための完全解説"
 layout      = "guide"

@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "装備DBテスト"
 ---
 
