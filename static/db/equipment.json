@@ -820,6 +820,25 @@
       "base_rate": {}
     },
     {
+      "id": "aurum_helm",
+      "name": "アウルムヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "aurum",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 100000000,
+        "def": 0,
+        "mdef": 0,
+        "luk": 25000000,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
       "id": "hero_helm",
       "name": "勇者ヘルム",
       "category": "armor",
@@ -1013,6 +1032,25 @@
         "def": 9999,
         "mdef": 9999,
         "luk": 9999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "aurum_armor",
+      "name": "アウルムアーマー",
+      "category": "armor",
+      "slot": "body",
+      "series": "aurum",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 100000000,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 25000000,
+        "luk": 0,
         "mov": 0
       },
       "base_rate": {}
