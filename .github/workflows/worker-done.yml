@@ -1,0 +1,25 @@
+name: 担当（完了）
+
+# 担当の提案を反映すると、本文の「Closes #番号」で Issue が「完了」の扱いで閉じる。
+# その時、「承認待ち」を「完了」に替える。「対応しない」で閉じた Issue には触らない。
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  done:
+    if: github.event.issue.state_reason == 'completed' && contains(github.event.issue.labels.*.name, '承認待ち')
+    runs-on: ubuntu-latest
+    # 手順の timeout-minutes（2分）より長くする
+    timeout-minutes: 3
+    steps:
+      - name: 「承認待ち」を「完了」に替える
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: gh issue edit "$NUMBER" --remove-label 承認待ち --add-label 完了
