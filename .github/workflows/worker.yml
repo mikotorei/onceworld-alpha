@@ -63,6 +63,8 @@ jobs:
         timeout-minutes: 2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 一日の上限（Settings → Secrets and variables → Actions → Variables）。無ければ20件、0なら着手しない
+          WORKER_DAILY_LIMIT: ${{ vars.WORKER_DAILY_LIMIT }}
         run: python -m worker pick
 
       - name: 指示書を担当に渡す

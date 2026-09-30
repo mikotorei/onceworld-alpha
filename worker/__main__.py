@@ -63,17 +63,20 @@ def queue(gh: GitHub) -> tuple[list[rules.Candidate], list[int]]:
     """持ち主が書き、持ち主が「着手可」を付けた開いている Issue を、付いた順に並べる。
 
     持ち主が「着手可」を付けたが、書いたのが持ち主以外の Issue の番号は、2つ目の戻り値で返す（着手しない）。
+    担当がもう一度挑戦するために付け直した「着手可」の Issue も、持ち主が付けた時の順番のまま並ぶ。
     """
     owner_id = gh.info()["owner"]["id"]
     candidates, others = [], []
     for issue in gh.ready_issues():
-        labeled_at = rules.ready_labeled_at(gh.issue_events(issue["number"]), owner_id)
+        events = gh.issue_events(issue["number"])
+        labeled_at = rules.ready_labeled_at(events, owner_id)
         if labeled_at is None:
             continue
         if not rules.written_by_owner(issue, owner_id):
             others.append(issue["number"])
             continue
-        candidates.append(rules.Candidate(issue["number"], issue["title"], labeled_at))
+        attempts = rules.attempts_since(events, labeled_at)
+        candidates.append(rules.Candidate(issue["number"], issue["title"], labeled_at, attempts))
     return rules.order_queue(candidates), others
 
 
@@ -84,6 +87,15 @@ def pick(gh: GitHub) -> int:
         gh.relabel(number, remove=[rules.READY], add=[rules.IDEA])
         gh.comment(number, rules.revert_comment(rules.not_owner_comment(), run_url()))
         print(f"#{number} を「案」に戻しました（持ち主以外が書いた指示書）")
+    # 念のための安全網：既に上限まで挑戦した Issue は、作業せずに「案」に戻す
+    for candidate in [c for c in waiting if c.attempts >= rules.MAX_ATTEMPTS]:
+        gh.relabel(candidate.number, remove=[rules.READY], add=[rules.IDEA])
+        gh.comment(
+            candidate.number,
+            rules.gave_up_comment(f"この指示書には既に{candidate.attempts}回挑戦しています。", run_url()),
+        )
+        print(f"#{candidate.number} を「案」に戻しました（挑戦の上限）")
+    waiting = [c for c in waiting if c.attempts < rules.MAX_ATTEMPTS]
     if not waiting:
         print("着手可の指示書はありません")
         output(issue="")
@@ -93,7 +105,11 @@ def pick(gh: GitHub) -> int:
     monthly = rules.monthly_limit(gh.info()["private"])
     minutes = gh.worker_minutes_since(rules.month_start(now)) if monthly is not None else None
     print(f"今日の着手：{started}件／今月の使用：{'数えない（公開リポジトリ）' if minutes is None else f'{minutes}分'}")
-    reason = rules.limit_reason(started, minutes, monthly)
+    daily, notice = rules.daily_limit(os.environ.get(rules.DAILY_LIMIT_VARIABLE))
+    if notice:
+        print(f"::warning::{notice}")
+    print(f"一日の上限：{daily}件")
+    reason = rules.limit_reason(started, minutes, monthly, daily)
     if reason:
         for candidate in waiting:
             gh.relabel(candidate.number, remove=[rules.READY], add=[rules.IDEA])
@@ -106,7 +122,7 @@ def pick(gh: GitHub) -> int:
     gh.relabel(chosen.number, remove=[rules.READY], add=[rules.WORKING])
     WORK.mkdir(exist_ok=True)
     ISSUE_FILE.write_text(rules.issue_file(gh.issue(chosen.number)), encoding="utf-8")
-    print(f"#{chosen.number} に着手します（待ち {len(waiting) - 1}件）")
+    print(f"#{chosen.number} に着手します（{chosen.attempts + 1}回目の挑戦・待ち {len(waiting) - 1}件）")
     output(
         issue=chosen.number,
         branch=rules.branch_name(chosen.number, env("GITHUB_RUN_ID")),
@@ -184,15 +200,29 @@ def finish(gh: GitHub, number: int, branch: str, base: str) -> int:
 
 def fail(gh: GitHub, number: int, claude_outcome: str, started_at: str) -> int:
     elapsed = time.time() - int(started_at) if started_at.isdigit() else None
-    reason = rules.failure_reason(
+    facts = dict(
         finish_reason=REASON_FILE.read_text(encoding="utf-8") if REASON_FILE.exists() else None,
         cannot_complete=CANNOT_FILE.read_text(encoding="utf-8") if CANNOT_FILE.exists() else None,
         claude_outcome=claude_outcome,
         elapsed_seconds=elapsed,
     )
+    reason = rules.failure_reason(**facts)
+    kind = rules.failure_kind(**facts)
+    events = gh.issue_events(number)
+    ready_at = rules.ready_labeled_at(events, gh.info()["owner"]["id"])
+    attempts = rules.attempts_since(events, ready_at) if ready_at else rules.MAX_ATTEMPTS
+    if rules.retry_after_failure(kind, attempts):
+        # 担当が「着手可」を付け直す。持ち主の判定では数えないので、順番と挑戦の数え方は持ち主が付けた時のまま
+        gh.relabel(number, remove=[rules.WORKING], add=[rules.READY])
+        gh.comment(number, rules.retry_comment(reason, attempts, run_url()))
+        print(f"#{number} は{attempts}回目の挑戦が失敗したため、もう一度挑戦します：{reason}")
+        return 0
     gh.relabel(number, remove=[rules.WORKING, rules.READY], add=[rules.IDEA])
-    gh.comment(number, rules.revert_comment(reason, run_url()))
-    print(f"#{number} を「案」に戻しました：{reason}")
+    if attempts >= rules.MAX_ATTEMPTS:
+        gh.comment(number, rules.gave_up_comment(reason, run_url()))
+    else:
+        gh.comment(number, rules.revert_comment(reason, run_url()))
+    print(f"#{number} を「案」に戻しました（{attempts}回目・{kind}）：{reason}")
     return 0
 
 

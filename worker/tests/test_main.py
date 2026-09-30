@@ -190,3 +190,114 @@ def test_ラベルを外す時に別の実行が先に外していても失敗�
     gh.session = Session()
     gh.relabel(2, remove=["承認待ち"], add=["完了"])
     assert calls == ["GET", "DELETE", "POST"]
+
+
+# 挑戦の回数と一日の上限（worker pick・worker fail）
+
+OWNER_ACTOR = {"id": OWNER, "login": "mikotorei"}
+BOT_ACTOR = {"id": 41898282, "login": "github-actions[bot]"}
+
+
+def set_env(monkeypatch, tmp_path, daily=None):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("GITHUB_RUN_ID", "5")
+    monkeypatch.setenv("GITHUB_REPOSITORY", "mikotorei/example")
+    monkeypatch.setenv("GITHUB_SERVER_URL", "https://github.com")
+    monkeypatch.setenv("GITHUB_OUTPUT", str(tmp_path / "out"))
+    if daily is None:
+        monkeypatch.delenv("WORKER_DAILY_LIMIT", raising=False)
+    else:
+        monkeypatch.setenv("WORKER_DAILY_LIMIT", daily)
+
+
+class LabelGitHub(FakeGitHub):
+    """relabel でラベルの付け外しをイベントとして残す偽物（担当が付けた記録になる）。"""
+
+    def __init__(self, issues, events, started_today=0):
+        super().__init__(issues, events)
+        self.started_today = started_today
+
+    def relabel(self, number, remove, add):
+        super().relabel(number, remove, add)
+        for name in add:
+            self.events[number].append({"event": "labeled", "label": {"name": name}, "created_at": "2026-10-01T09:00:00Z", "actor": BOT_ACTOR})
+
+    def repo_events_since(self, since):
+        return [
+            {"event": "labeled", "label": {"name": "作業中"}, "created_at": "2099-01-01T00:00:00Z", "actor": BOT_ACTOR}
+        ] * self.started_today
+
+
+def test_既に2回挑戦したIssueは作業せずに案に戻す(tmp_path, monkeypatch):
+    set_env(monkeypatch, tmp_path)
+    gh = LabelGitHub(
+        issues=[issue(1, OWNER), issue(3, OWNER)],
+        events={
+            1: [
+                labeled("着手可", "2026-10-01T00:00:00Z", OWNER),
+                {"event": "labeled", "label": {"name": "作業中"}, "created_at": "2026-10-01T00:01:00Z", "actor": BOT_ACTOR},
+                {"event": "labeled", "label": {"name": "作業中"}, "created_at": "2026-10-01T00:11:00Z", "actor": BOT_ACTOR},
+            ],
+            3: [labeled("着手可", "2026-10-01T00:30:00Z", OWNER)],
+        },
+    )
+    main.pick(gh)
+    assert (1, ("着手可",), ("案",)) in gh.relabeled
+    assert any(n == 1 and "2回失敗したので止めました" in b for n, b in gh.comments)
+    assert (3, ("着手可",), ("作業中",)) in gh.relabeled  # 次の Issue に進む
+    assert "issue=3\n" in (tmp_path / "out").read_text(encoding="utf-8")
+
+
+def test_一日の上限は設定値で決まり_0なら着手しない(tmp_path, monkeypatch):
+    for daily, started, picked in (("0", 0, False), ("2", 2, False), ("2", 1, True), (None, 19, True), (None, 20, False)):
+        set_env(monkeypatch, tmp_path, daily)
+        gh = LabelGitHub(issues=[issue(1, OWNER)], events={1: [labeled("着手可", "2026-10-01T00:00:00Z", OWNER)]}, started_today=started)
+        main.pick(gh)
+        assert ((1, ("着手可",), ("作業中",)) in gh.relabeled) is picked, (daily, started)
+        if not picked:
+            assert (1, ("着手可",), ("案",)) in gh.relabeled
+        if daily == "0":
+            assert any("止めるスイッチ" in b for _, b in gh.comments)
+
+
+def fail_case(tmp_path, monkeypatch, attempts, cannot=None, outcome="failure", elapsed=60):
+    set_env(monkeypatch, tmp_path)
+    events = [labeled("着手可", "2026-10-01T00:00:00Z", OWNER)]
+    for i in range(attempts):
+        events.append({"event": "labeled", "label": {"name": "作業中"}, "created_at": f"2026-10-01T0{i + 1}:00:00Z", "actor": BOT_ACTOR})
+        if i + 1 < attempts:
+            events.append({"event": "labeled", "label": {"name": "着手可"}, "created_at": f"2026-10-01T0{i + 1}:30:00Z", "actor": BOT_ACTOR})
+    gh = LabelGitHub(issues=[issue(1, OWNER)], events={1: events})
+    work = tmp_path / ".worker"
+    work.mkdir(exist_ok=True)
+    for f in work.iterdir():
+        f.unlink()
+    if cannot:
+        (work / "cannot-complete.md").write_text(cannot, encoding="utf-8")
+    import time as _time
+
+    main.fail(gh, 1, outcome, str(int(_time.time() - elapsed)))
+    return gh
+
+
+def test_1回目の失敗はもう一度挑戦し_次の実行で拾われる(tmp_path, monkeypatch):
+    gh = fail_case(tmp_path, monkeypatch, attempts=1)
+    assert gh.relabeled[-1] == (1, ("作業中",), ("着手可",))
+    assert "1回目の挑戦が失敗したので、もう一度挑戦します" in gh.comments[-1][1]
+    waiting, _ = main.queue(gh)  # 担当が付け直した着手可でも、持ち主が付けた順番のまま待ちに入る
+    assert [(c.number, c.attempts) for c in waiting] == [(1, 1)]
+    assert waiting[0].labeled_at.isoformat().startswith("2026-10-01T00:00")
+
+
+def test_2回目の失敗は案に戻して止めた旨をコメントする(tmp_path, monkeypatch):
+    gh = fail_case(tmp_path, monkeypatch, attempts=2)
+    assert gh.relabeled[-1] == (1, ("作業中", "着手可"), ("案",))
+    assert gh.comments[-1][1].startswith("2回失敗したので止めました")
+
+
+def test_完了できない判断と時間切れは1回目でも止める(tmp_path, monkeypatch):
+    gh = fail_case(tmp_path, monkeypatch, attempts=1, cannot="指示が曖昧です")
+    assert gh.relabeled[-1][2] == ("案",)
+    assert gh.comments[-1][1].startswith("「案」に戻しました。") and "完了できないと判断" in gh.comments[-1][1]
+    gh = fail_case(tmp_path, monkeypatch, attempts=1, elapsed=40 * 60)
+    assert gh.relabeled[-1][2] == ("案",) and "作業時間の上限" in gh.comments[-1][1]
