@@ -32,9 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     dragon: "ドラゴン",
     tyrant: "暴君",
     demon: "悪魔",
+    hero: "勇者",
   };
 
-  const seriesOrder = ["cloth", "leather", "metal", "platinum", "mage", "inferno", "dragon", "tyrant", "demon"];
+  const seriesOrder = ["cloth", "leather", "metal", "platinum", "mage", "inferno", "dragon", "tyrant", "demon", "hero"];
 
   const statLabelMap = {
     vit: "VIT",
