@@ -1,0 +1,3348 @@
+{
+  "items": [
+    {
+      "id": "bare_hands",
+      "name": "素手",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 12,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "bronze_sword",
+      "name": "銅のつるぎ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 9,
+        "atk": 27,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "iron_sword",
+      "name": "鉄の剣",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 89,
+        "int": 0,
+        "def": 18,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "elf_rod",
+      "name": "エルフロッド",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 5,
+        "atk": 0,
+        "int": 85,
+        "def": 0,
+        "mdef": 12,
+        "luk": 12,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "holy_spear",
+      "name": "ホーリースピア",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 151,
+        "atk": 151,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dark_slasher",
+      "name": "ダークスラッシャー",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 20,
+        "atk": 5,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_axe",
+      "name": "魔人の斧",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 433,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "sun_staff",
+      "name": "太陽の杖",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 315,
+        "def": 0,
+        "mdef": 0,
+        "luk": 150,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "holy_knight_sword",
+      "name": "聖騎士ソード",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 250,
+        "atk": 360,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "cloud_god_staff",
+      "name": "雲神杖",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 211,
+        "int": 311,
+        "def": 0,
+        "mdef": 0,
+        "luk": 71,
+        "mov": 1
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "berserk_saber",
+      "name": "バーサクサーベル",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 150,
+        "spd": 150,
+        "atk": 250,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "stardust_blade",
+      "name": "星屑ブレード",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 990,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 490,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "odin_axe",
+      "name": "オーディンアックス",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 500,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 500,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "magic_sword_tartaros",
+      "name": "魔剣タルタロス",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 4900,
+        "def": 0,
+        "mdef": 1900,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "holy_sword_nike",
+      "name": "絶聖剣ニケ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 3000,
+        "atk": 3000,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 1
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "metsukai_souha",
+      "name": "滅界双刃",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 5555,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 2
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "nightmare_staff",
+      "name": "悪夢の杖",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 388,
+        "spd": 0,
+        "atk": 0,
+        "int": 688,
+        "def": 388,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "gear_seven",
+      "name": "神速剣ギアセブン",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 99,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 3
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "small_sword",
+      "name": "ちいさな剣",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 5,
+        "atk": 25,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 5,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "frozen_staff",
+      "name": "凍てついた杖",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 25,
+        "atk": 0,
+        "int": 142,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "metal_hammer",
+      "name": "メタルハンマー",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 55,
+        "spd": 0,
+        "atk": 4,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "crimson_spear",
+      "name": "紅蓮槍",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 190,
+        "atk": 180,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 110,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "azure_wand",
+      "name": "アズールワンド",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 323,
+        "def": 0,
+        "mdef": 223,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "magma_core_hammer",
+      "name": "マグマコア･ハンマー",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 255,
+        "spd": 0,
+        "atk": 55,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 55,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "nyoi_bo",
+      "name": "如意棒",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 519,
+        "atk": 519,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 219,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "magatsumi_staff",
+      "name": "邪悪杖マガツミ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 888,
+        "def": 333,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "trident",
+      "name": "トライデント",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 7777,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 77777,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "sacrifice_100",
+      "name": "生贄100",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 1000,
+        "spd": 0,
+        "atk": 0,
+        "int": 1000,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "amazing_hand",
+      "name": "すごいおてて",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "motsu_shomotsu",
+      "name": "持つ書物",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 999999,
+        "def": 0,
+        "mdef": 999999,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "sky_sword_sorasido",
+      "name": "天空剣ソラシド",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 6789000,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "assassin_claw",
+      "name": "暗殺者のカギ爪",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 1,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "negi_sword",
+      "name": "ネギソード",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 100,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "wataggashi",
+      "name": "ワタッガシ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 3999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "nishiki_blade",
+      "name": "妖刀ニシキ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": -9999999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "condemnation_sword",
+      "name": "断罪ソード",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 103756400,
+        "int": 0,
+        "def": -99999999,
+        "mdef": -99999999,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "no_helmet",
+      "name": "未装備",
+      "category": "armor",
+      "slot": "head",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "leather_cap",
+      "name": "皮の帽子",
+      "category": "armor",
+      "slot": "head",
+      "series": "leather",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 9,
+        "def": 0,
+        "mdef": 0,
+        "luk": 9,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "metal_helm",
+      "name": "メタルヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "metal",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 51,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "platinum_helm",
+      "name": "白金ヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "platinum",
+      "base_add": {
+        "vit": 0,
+        "spd": 31,
+        "atk": 0,
+        "int": 0,
+        "def": 78,
+        "mdef": 78,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "mage_hood",
+      "name": "魔道士フード",
+      "category": "armor",
+      "slot": "head",
+      "series": "mage",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 96,
+        "def": 0,
+        "mdef": 121,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "inferno_helm",
+      "name": "獄炎兜",
+      "category": "armor",
+      "slot": "head",
+      "series": "inferno",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 140,
+        "int": 140,
+        "def": 0,
+        "mdef": 0,
+        "luk": 100,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dragon_head",
+      "name": "ドラゴンヘッド",
+      "category": "armor",
+      "slot": "head",
+      "series": "dragon",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 1050,
+        "int": 550,
+        "def": 0,
+        "mdef": 0,
+        "luk": 350,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "tyrant_helm",
+      "name": "暴君ヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "tyrant",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 2900,
+        "int": 0,
+        "def": 600,
+        "mdef": 0,
+        "luk": 1200,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_helm",
+      "name": "悪魔ヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "demon",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 2555,
+        "int": 0,
+        "def": 1555,
+        "mdef": 3555,
+        "luk": 555,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_helm",
+      "name": "勇者ヘルム",
+      "category": "armor",
+      "slot": "head",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 9999,
+        "atk": 9999,
+        "int": 9999,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "cloth_clothes",
+      "name": "布の服",
+      "category": "armor",
+      "slot": "body",
+      "series": "cloth",
+      "base_add": {
+        "vit": 11,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 5,
+        "mdef": 3,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "leather_clothes",
+      "name": "皮の服",
+      "category": "armor",
+      "slot": "body",
+      "series": "leather",
+      "base_add": {
+        "vit": 21,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 8,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "iron_armor",
+      "name": "鉄の鎧",
+      "category": "armor",
+      "slot": "body",
+      "series": "metal",
+      "base_add": {
+        "vit": 40,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 38,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "platinum_armor",
+      "name": "プラチナアーマー",
+      "category": "armor",
+      "slot": "body",
+      "series": "platinum",
+      "base_add": {
+        "vit": 115,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 40,
+        "mdef": 88,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "mage_robe",
+      "name": "魔道士ローブ",
+      "category": "armor",
+      "slot": "body",
+      "series": "mage",
+      "base_add": {
+        "vit": 88,
+        "spd": 0,
+        "atk": 0,
+        "int": 65,
+        "def": 38,
+        "mdef": 38,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "inferno_armor",
+      "name": "獄炎の鎧",
+      "category": "armor",
+      "slot": "body",
+      "series": "inferno",
+      "base_add": {
+        "vit": 188,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 131,
+        "mdef": 31,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dragon_armor",
+      "name": "ドラゴンアーマー",
+      "category": "armor",
+      "slot": "body",
+      "series": "dragon",
+      "base_add": {
+        "vit": 750,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 650,
+        "mdef": 450,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "tyrant_jacket",
+      "name": "暴君ジャケット",
+      "category": "armor",
+      "slot": "body",
+      "series": "tyrant",
+      "base_add": {
+        "vit": 2500,
+        "spd": 0,
+        "atk": 800,
+        "int": 400,
+        "def": 950,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_armor",
+      "name": "悪魔の鎧",
+      "category": "armor",
+      "slot": "body",
+      "series": "demon",
+      "base_add": {
+        "vit": 7555,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 955,
+        "mdef": 0,
+        "luk": 955,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_armor",
+      "name": "勇者の鎧",
+      "category": "armor",
+      "slot": "body",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 9999,
+        "mdef": 9999,
+        "luk": 9999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "no_shield",
+      "name": "未装備",
+      "category": "armor",
+      "slot": "shield",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "leather_shield",
+      "name": "皮の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "leather",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 15,
+        "mdef": 14,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "iron_shield",
+      "name": "鉄の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "metal",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 70,
+        "mdef": 33,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "platinum_shield",
+      "name": "プラチナの盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "platinum",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 130,
+        "mdef": 109,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "mage_shield",
+      "name": "魔道士の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "mage",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 55,
+        "def": 25,
+        "mdef": 155,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "inferno_shield",
+      "name": "獄炎の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "inferno",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 155,
+        "int": 0,
+        "def": 155,
+        "mdef": 155,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dragon_shield",
+      "name": "ドラゴンの盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "dragon",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 850,
+        "int": 0,
+        "def": 550,
+        "mdef": 550,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "tyrant_shield",
+      "name": "暴君盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "tyrant",
+      "base_add": {
+        "vit": 990,
+        "spd": 0,
+        "atk": 1990,
+        "int": 0,
+        "def": 990,
+        "mdef": 990,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_shield",
+      "name": "悪魔の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "demon",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 6565,
+        "mdef": 2555,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_shield",
+      "name": "勇者の盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "hero",
+      "base_add": {
+        "vit": 0,
+        "spd": 9999,
+        "atk": 9999,
+        "int": 9999,
+        "def": 9999,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "no_gloves",
+      "name": "未装備",
+      "category": "armor",
+      "slot": "hands",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "leather_gloves",
+      "name": "皮の手袋",
+      "category": "armor",
+      "slot": "hands",
+      "series": "leather",
+      "base_add": {
+        "vit": 0,
+        "spd": 11,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 13,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "iron_gauntlets",
+      "name": "鉄の小手",
+      "category": "armor",
+      "slot": "hands",
+      "series": "metal",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 23,
+        "mdef": 23,
+        "luk": 23,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "platinum_arm",
+      "name": "プラチナアーム",
+      "category": "armor",
+      "slot": "hands",
+      "series": "platinum",
+      "base_add": {
+        "vit": 0,
+        "spd": 79,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 125,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "mage_gauntlet",
+      "name": "魔道士のガントレット",
+      "category": "armor",
+      "slot": "hands",
+      "series": "mage",
+      "base_add": {
+        "vit": 0,
+        "spd": 57,
+        "atk": 0,
+        "int": 57,
+        "def": 0,
+        "mdef": 45,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "inferno_arm",
+      "name": "獄炎アーム",
+      "category": "armor",
+      "slot": "hands",
+      "series": "inferno",
+      "base_add": {
+        "vit": 0,
+        "spd": 200,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 130,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dragon_bracer",
+      "name": "ドラゴンブレイサー",
+      "category": "armor",
+      "slot": "hands",
+      "series": "dragon",
+      "base_add": {
+        "vit": 0,
+        "spd": 1250,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 350,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "tyrant_arm",
+      "name": "暴君アーム",
+      "category": "armor",
+      "slot": "hands",
+      "series": "tyrant",
+      "base_add": {
+        "vit": 800,
+        "spd": 0,
+        "atk": 800,
+        "int": 800,
+        "def": 0,
+        "mdef": 800,
+        "luk": 400,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_gauntlets",
+      "name": "悪魔の小手",
+      "category": "armor",
+      "slot": "hands",
+      "series": "demon",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 2555,
+        "def": 0,
+        "mdef": 16556,
+        "luk": 4655,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_gauntlets",
+      "name": "勇者の小手",
+      "category": "armor",
+      "slot": "hands",
+      "series": "hero",
+      "base_add": {
+        "vit": 9999,
+        "spd": 9999,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 9999,
+        "luk": 9999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "basic_shoes",
+      "name": "ただのくつ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 5,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 4
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "leather_shoes",
+      "name": "皮のシューズ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "leather",
+      "base_add": {
+        "vit": 0,
+        "spd": 16,
+        "atk": 0,
+        "int": 0,
+        "def": 11,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "iron_boots",
+      "name": "鉄のブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "metal",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 41,
+        "mdef": 11,
+        "luk": 11,
+        "mov": 3
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "platinum_boots",
+      "name": "プラチナブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "platinum",
+      "base_add": {
+        "vit": 0,
+        "spd": 53,
+        "atk": 0,
+        "int": 0,
+        "def": 25,
+        "mdef": 75,
+        "luk": 0,
+        "mov": 6
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "mage_shoes",
+      "name": "魔道士の靴",
+      "category": "armor",
+      "slot": "feet",
+      "series": "mage",
+      "base_add": {
+        "vit": 0,
+        "spd": 70,
+        "atk": 0,
+        "int": 0,
+        "def": 50,
+        "mdef": 63,
+        "luk": 0,
+        "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "inferno_boots",
+      "name": "獄炎ブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "inferno",
+      "base_add": {
+        "vit": 0,
+        "spd": 140,
+        "atk": 170,
+        "int": 0,
+        "def": 90,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "dragon_leg",
+      "name": "ドラゴンレッグ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "dragon",
+      "base_add": {
+        "vit": 0,
+        "spd": 350,
+        "atk": 850,
+        "int": 0,
+        "def": 350,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 6
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "tyrant_shoes",
+      "name": "暴君シューズ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "tyrant",
+      "base_add": {
+        "vit": 0,
+        "spd": 1300,
+        "atk": 600,
+        "int": 0,
+        "def": 1200,
+        "mdef": 600,
+        "luk": 0,
+        "mov": 4
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "demon_shoes",
+      "name": "悪魔の靴",
+      "category": "armor",
+      "slot": "feet",
+      "series": "demon",
+      "base_add": {
+        "vit": 0,
+        "spd": 5515,
+        "atk": 0,
+        "int": 0,
+        "def": 3315,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 5
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "hero_boots",
+      "name": "勇者ブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "hero",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 9999,
+        "mdef": 9999,
+        "luk": 9999,
+        "mov": 7
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "unreleased",
+      "name": "未開放",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "max_level": 100000,
+      "display_effects": []
+    },
+    {
+      "id": "life_formula",
+      "name": "命脈の科学式(VIT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 155,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 100000,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "vit",
+          "initial": 155,
+          "max": 1550140
+        }
+      ]
+    },
+    {
+      "id": "heartbeat_core",
+      "name": "鼓動核(VIT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 15,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "vit",
+          "initial": "15%",
+          "max": "89.9%"
+        }
+      ]
+    },
+    {
+      "id": "sun_soul_ring_vit",
+      "name": "陽魂環(VIT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 30,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "vit",
+          "initial": "30%",
+          "max": "329.7%"
+        }
+      ]
+    },
+    {
+      "id": "enmei_gene",
+      "name": "延命の遺伝子(VIT・DEF・MDEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 300,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 150,
+        "mdef": 150,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "vit",
+          "initial": "300%",
+          "max": "327.0%"
+        },
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "150%",
+          "max": "163.5%"
+        },
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "150%",
+          "max": "163.5%"
+        }
+      ]
+    },
+    {
+      "id": "wind_crest",
+      "name": "ウィンドクレスト(SPD)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 135,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 100000,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "spd",
+          "initial": 135,
+          "max": 1350122
+        }
+      ]
+    },
+    {
+      "id": "sen_ga_star",
+      "name": "閃牙星(SPD)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 15,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "spd",
+          "initial": "15%",
+          "max": "89.9%"
+        }
+      ]
+    },
+    {
+      "id": "atk_spd_bottle",
+      "name": "風律瓶(ATK・SPD)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 200,
+        "atk": 200,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "200%",
+          "max": "218.0%"
+        },
+        {
+          "type": "rate",
+          "target": "spd",
+          "initial": "200%",
+          "max": "218.0%"
+        }
+      ]
+    },
+    {
+      "id": "blood_tonic",
+      "name": "ブラッドトニック(ATK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 90,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 5,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "atk",
+          "initial": 90,
+          "max": 981
+        },
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "5%",
+          "max": "9.9%"
+        }
+      ]
+    },
+    {
+      "id": "power_bottle",
+      "name": "力瓶(ATK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 20,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "20%",
+          "max": "119.8%"
+        }
+      ]
+    },
+    {
+      "id": "weapon_sync_atk",
+      "name": "武器照合(ATK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 30,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "30%",
+          "max": "329.7%"
+        }
+      ]
+    },
+    {
+      "id": "arc_grimoire",
+      "name": "アークグリモワール(INT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 30,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 25,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "int",
+          "initial": 30,
+          "max": 327
+        },
+        {
+          "type": "rate",
+          "target": "int",
+          "initial": "25%",
+          "max": "49.8%"
+        }
+      ]
+    },
+    {
+      "id": "creation_orb",
+      "name": "創胎珠(INT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 20,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "int",
+          "initial": "20%",
+          "max": "119.8%"
+        }
+      ]
+    },
+    {
+      "id": "mana_lantern_int",
+      "name": "マナランタン(INT)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 30,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "int",
+          "initial": "30%",
+          "max": "329.7%"
+        }
+      ]
+    },
+    {
+      "id": "force_module",
+      "name": "フォースモジュール(DEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 80,
+        "mdef": 90,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "def",
+          "initial": 80,
+          "max": 872
+        },
+        {
+          "type": "flat",
+          "target": "mdef",
+          "initial": 90,
+          "max": 981
+        }
+      ]
+    },
+    {
+      "id": "knights_mind",
+      "name": "騎士の心得(DEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 15,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "15%",
+          "max": "89.9%"
+        }
+      ]
+    },
+    {
+      "id": "meijin_jin",
+      "name": "迷盾陣(DEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 50,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "50%",
+          "max": "549.5%"
+        }
+      ]
+    },
+    {
+      "id": "dark_guard_crest",
+      "name": "冥護紋(DEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 500,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "500%",
+          "max": "995.0%"
+        }
+      ]
+    },
+    {
+      "id": "magi_bind",
+      "name": "マギバインド(MDEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 25,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "25%",
+          "max": "49.8%"
+        }
+      ]
+    },
+    {
+      "id": "barrier_storm",
+      "name": "結界嵐(MDEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 15,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "15%",
+          "max": "89.9%"
+        }
+      ]
+    },
+    {
+      "id": "hexa_skull",
+      "name": "ヘキサスカル(MDEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 50,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "50%",
+          "max": "549.5%"
+        }
+      ]
+    },
+    {
+      "id": "reflect_mirror",
+      "name": "反映鏡(MDEF)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 500,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "500%",
+          "max": "995.0%"
+        }
+      ]
+    },
+    {
+      "id": "lucky_trump",
+      "name": "ラッキートランプ(LUCK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 99,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 15,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "luk",
+          "initial": 99,
+          "max": 1079
+        },
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "15%",
+          "max": "29.9%"
+        }
+      ]
+    },
+    {
+      "id": "fate_eye",
+      "name": "運命眼(LUCK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 25,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 500,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "25%",
+          "max": "149.8%"
+        }
+      ]
+    },
+    {
+      "id": "lux_charm",
+      "name": "ルクスチャーム(LUCK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 300,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "300%",
+          "max": "327.0%"
+        }
+      ]
+    },
+    {
+      "id": "labyrinth_box",
+      "name": "ラビリンスボックス(LUCK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 1000,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 100000,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "luk",
+          "initial": 1000,
+          "max": 10000900
+        }
+      ]
+    },
+    {
+      "id": "shomei_rin",
+      "name": "照命輪(LUCK)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 500,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "500%",
+          "max": "500.0%"
+        }
+      ]
+    },
+    {
+      "id": "gallop_talisman",
+      "name": "ギャロップタリスマン(MOV)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 2
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 1,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "mov",
+          "initial": 2,
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "vortex_core",
+      "name": "ヴォルテクスコア(MOV)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 3
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.1,
+      "max_level": 1,
+      "display_effects": [
+        {
+          "type": "flat",
+          "target": "mov",
+          "initial": 3,
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": "jibakushin",
+      "name": "慈縛心(回復)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_add_step": 0.2,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "special",
+          "target": "recovery",
+          "initial": 100,
+          "max": 20080
+        }
+      ]
+    },
+    {
+      "id": "regene_core",
+      "name": "リジェネコア(回復)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "recovery",
+          "initial": "5%",
+          "max": "5.0%"
+        }
+      ]
+    },
+    {
+      "id": "memorial_page",
+      "name": "メモリアルページ(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "30%",
+          "max": "119.7%"
+        }
+      ]
+    },
+    {
+      "id": "sages_cup",
+      "name": "賢者の盃(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "50%",
+          "max": "199.5%"
+        }
+      ]
+    },
+    {
+      "id": "expedia_compass",
+      "name": "エクスペディアコンパス(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "100%",
+          "max": "399.0%"
+        }
+      ]
+    },
+    {
+      "id": "chiyou_hai",
+      "name": "知耀杯(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "180%",
+          "max": "1978.2%"
+        }
+      ]
+    },
+    {
+      "id": "arc_gate",
+      "name": "アークゲート(経験値・ドロップ)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "500%",
+          "max": "545.0%"
+        },
+        {
+          "type": "special_rate",
+          "target": "drop",
+          "initial": "500%",
+          "max": "545.0%"
+        }
+      ]
+    },
+    {
+      "id": "gakumei_sho",
+      "name": "学命書(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 100000,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "100%",
+          "max": "100099.0%"
+        }
+      ]
+    },
+    {
+      "id": "tame_mask",
+      "name": "テイムマスク(捕獲)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "capture",
+          "initial": "30%",
+          "max": "119.7%"
+        }
+      ]
+    },
+    {
+      "id": "miyuu_hai",
+      "name": "魅誘盃(捕獲)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "capture",
+          "initial": "50%",
+          "max": "199.5%"
+        }
+      ]
+    },
+    {
+      "id": "contact_letter",
+      "name": "コンタクトレター(捕獲)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "capture",
+          "initial": "80%",
+          "max": "319.2%"
+        }
+      ]
+    },
+    {
+      "id": "soul_chain",
+      "name": "拘魂鎖(捕獲)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "capture",
+          "initial": "100%",
+          "max": "1099.0%"
+        }
+      ]
+    },
+    {
+      "id": "dominus_throne",
+      "name": "ドミナススローン(経験値・捕獲)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "500%",
+          "max": "545.0%"
+        },
+        {
+          "type": "special_rate",
+          "target": "capture",
+          "initial": "500%",
+          "max": "545.0%"
+        }
+      ]
+    },
+    {
+      "id": "orbital_ring",
+      "name": "オービタルリング(ドロップ)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 300,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "drop",
+          "initial": "30%",
+          "max": "119.7%"
+        }
+      ]
+    },
+    {
+      "id": "search_unit",
+      "name": "収索機(ドロップ)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "drop",
+          "initial": "50%",
+          "max": "549.5%"
+        }
+      ]
+    },
+    {
+      "id": "fortune_pot",
+      "name": "フォーチュンポット(ドロップ)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 10,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "drop",
+          "initial": "1000%",
+          "max": "1090.0%"
+        }
+      ]
+    },
+    {
+      "id": "shichiri_houkan",
+      "name": "七理の宝環(全ステータス)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 50,
+        "spd": 50,
+        "atk": 50,
+        "int": 50,
+        "def": 50,
+        "mdef": 50,
+        "luk": 50,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 100,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "vit",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "spd",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "int",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "50%",
+          "max": "99.5%"
+        },
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "50%",
+          "max": "99.5%"
+        }
+      ]
+    }
+  ]
+}

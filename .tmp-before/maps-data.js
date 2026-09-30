@@ -1,0 +1,1 @@
+window.MAPS=[{id:"hometown",title:"ホームタウン",image:"hometown/hometown_kappa_map.png",lv_min:0,lv_max:0,monsters:[]}]

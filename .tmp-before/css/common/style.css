@@ -1,0 +1,472 @@
+:root{
+  /* ===== ベース ===== */
+  --fg:#111;
+  --border:#000;
+  --bg:#fff;
+  --muted:#666;
+
+  /* ===== 色ルール（意味が分かるように命名） ===== */
+  --link:#0a43ff;     /* サイト全体のリンク色（固定） */
+  --magic:#7a3cff;    /* 魔法モンスター名 */
+  --physical:#111;    /* 物理モンスター名（=通常文字色） */
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  color:var(--fg);
+  background:var(--bg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  line-height:1.5;
+}
+
+/* =========================================================
+   リンクの共通ルール（サイト全体）
+   - 訪問済みでも色を変えない（青固定）
+   ========================================================= */
+a,
+a:visited,
+a:hover,
+a:active{
+  color: var(--link);
+}
+
+a{
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* =========================================================
+   レイアウト
+   ========================================================= */
+main{
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+h1{
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+}
+
+/* =========================================================
+   図鑑一覧（カード）
+   - カードはリンクだが「カード全体の下線」は消す
+   - モンスター名だけ色分け（物理=黒 / 魔法=紫）
+   ========================================================= */
+.ref-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.ref-card{
+  display: block;
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 8px;
+
+  /* カード全体はリンク：下線は消すが色はリンク青を維持 */
+  text-decoration: none;
+  color: var(--link);
+}
+
+.ref-head{
+  margin: 0 0 6px 0;
+}
+
+.ref-name{
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+/* ▼ モンスター名の色ルール（ここに集約） */
+.ref-card[data-attack-type="物理"] .ref-name{
+  color: var(--physical);
+}
+
+.ref-card[data-attack-type="魔法"] .ref-name{
+  color: var(--magic);
+}
+
+.ref-img{
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/* =========================================================
+   ヘッダー（ow- 接頭辞）
+   - タイトルは「リンクでも黒」にする（例外）
+   ========================================================= */
+.ow-header{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--bg);
+
+  /* タイトルとサイト内部の仕切り */
+  border-bottom: 2px solid var(--border);
+
+  /* ドロップダウンや重なりの事故を減らす */
+  isolation: isolate;
+}
+
+.ow-header-inner{
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+}
+
+.ow-header-left{
+  width: 44px;
+  height: 36px;
+}
+
+.ow-header-right{
+  width: 44px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+}
+
+.ow-header-title{
+  text-align: center;
+  line-height: 1;
+}
+
+/* ▼ 例外：サイトタイトルは黒固定（visitedでも黒） */
+.ow-header-title a,
+.ow-header-title a:visited,
+.ow-header-title a:hover,
+.ow-header-title a:active{
+  color: var(--fg);
+  font-weight: 900;
+  text-decoration: none;
+  font-size: 1.05rem;
+  letter-spacing: .02em;
+}
+
+.ow-header-title a:hover{
+  text-decoration: underline;
+}
+
+/* ハンバーガーボタン（線は黒のまま） */
+.ow-hamburger{
+  width: 44px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.ow-hamburger:active{
+  transform: translateY(1px);
+}
+
+.ow-hamburger-bars{
+  position: relative;
+  width: 18px;
+  height: 2px;
+  background: var(--fg);
+  display: block;
+}
+
+.ow-hamburger-bars::before,
+.ow-hamburger-bars::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  background: var(--fg);
+}
+
+.ow-hamburger-bars::before{ top: -6px; }
+.ow-hamburger-bars::after{ top: 6px; }
+
+/* メニュー（保留でもOK：開いた時に崩れないよう定義だけ残す） */
+.ow-menu{
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: var(--bg);
+  box-shadow: 4px 0 24px rgba(0,0,0,.18);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform .25s ease;
+}
+
+.ow-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.ow-menu-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #333;
+}
+
+.ow-menu-section {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ow-menu-section-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #999;
+  letter-spacing: 0.08em;
+  padding: 8px 16px 4px;
+  text-transform: uppercase;
+}
+
+.ow-menu a{
+  display: block;
+  padding: 11px 16px;
+  text-decoration: none;
+  color: var(--link);
+  font-size: 14px;
+}
+
+.ow-menu a:hover{
+  background: #f6f6f6;
+}
+
+.ow-menu-open .ow-menu{
+  transform: translateX(0);
+}
+
+/* オーバーレイ */
+.ow-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.15);
+}
+
+/* メニュー中のスクロール抑制 */
+.ow-no-scroll{
+  overflow: hidden;
+}
+
+/* ヘッダー直下の余白（仕切り後に詰まりすぎる場合） */
+main{
+  padding-top: 14px;
+}
+
+/* =========================================================
+   レスポンシブ
+   ========================================================= */
+@media (max-width: 640px){
+  main{ padding: 10px; padding-top: 14px; }
+  .ref-grid{ grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+}
+
+/* 素材強化・G強化不可の装備 */
+input:disabled {
+  background: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---- ❓ヘルプボタン・ドロワー ---- */
+.ow-help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  font-size: 22px;
+  border: none;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ow-help-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+  z-index: 300;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .25s ease;
+  padding: 0 0 32px;
+}
+
+.ow-help-drawer.open {
+  transform: translateY(0);
+}
+
+.ow-help-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.ow-help-drawer-title {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.ow-help-drawer-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: #555;
+}
+
+.ow-help-drawer-body {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #333;
+}
+
+.ow-help-drawer-body h3 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 16px 0 6px;
+  padding-left: 8px;
+  border-left: 3px solid #333;
+}
+
+.ow-help-drawer-body h3:first-child {
+  margin-top: 0;
+}
+
+.ow-help-drawer-body p {
+  margin: 0 0 6px;
+  color: #444;
+}
+
+.ow-help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 299;
+}
+
+/* ============================================================
+   チップボタン（選択状態を持つトグル）※サイト標準
+   ------------------------------------------------------------
+   全ページ共通。aria-pressed="true" で「背景 + 内側の枠線」になる。
+   .spell-* の色付きボタンは同詳細度なので、必ずこのブロックより
+   後ろで上書きすること（下の「魔法ボタンカラー」参照）。
+   ============================================================ */
+.chip-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.chip-btn{
+  padding:10px 12px;
+  border:1px solid #000;
+  background:#fff;
+  border-radius:12px;
+  font-size:14px;
+  line-height:1.2;
+  cursor:pointer;
+}
+
+.chip-btn[aria-pressed="true"]{
+  background:rgba(0,0,0,0.08);
+  box-shadow:0 0 0 2px #000 inset;
+}
+
+/* ---- パンドラの箱など material-ui.js が生成するトグル行 ---- */
+.bs-point-limit-grid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+
+.bs-point-limit-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.bs-point-limit-label{
+  min-width:120px;
+  font-size:14px;
+  color:#555;
+  flex-shrink:0;
+}
+
+.bs-label-text{
+  font-size:13px;
+  color:#777;
+}
+
+.material-pandora-row{
+  border-bottom:1px dashed rgba(0,0,0,0.25);
+  padding-bottom:8px;
+  margin-bottom:8px;
+}
+
+/* ============================================================
+   魔法ボタンカラー
+   ============================================================ */
+.spell-fire    { background: #fff0f0; border-color: #e55; color: #c00; }
+.spell-water   { background: #f0f4ff; border-color: #55e; color: #00c; }
+.spell-wood    { background: #f0fff0; border-color: #5a5; color: #060; }
+.spell-light   { background: #fffde0; border-color: #bb0; color: #770; }
+.spell-dark    { background: #f5f0ff; border-color: #95c; color: #609; }
+.spell-shingan { background: #fff5e0; border-color: #d80; color: #850; }
+
+.spell-fire[aria-pressed="true"]    { background: #e55; border-color: #c00; color: #fff; box-shadow: 0 0 0 2px #c00 inset; }
+.spell-water[aria-pressed="true"]   { background: #55e; border-color: #00c; color: #fff; box-shadow: 0 0 0 2px #00c inset; }
+.spell-wood[aria-pressed="true"]    { background: #5a5; border-color: #060; color: #fff; box-shadow: 0 0 0 2px #060 inset; }
+.spell-light[aria-pressed="true"]   { background: #bb0; border-color: #770; color: #fff; box-shadow: 0 0 0 2px #770 inset; }
+.spell-dark[aria-pressed="true"]    { background: #95c; border-color: #609; color: #fff; box-shadow: 0 0 0 2px #609 inset; }
+.spell-shingan[aria-pressed="true"] { background: #d80; border-color: #850; color: #fff; box-shadow: 0 0 0 2px #850 inset; }
