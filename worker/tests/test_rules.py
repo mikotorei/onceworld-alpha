@@ -358,3 +358,10 @@ def test_完了のワークフローは既定の枝のプログラムで動く()
 def test_一日の上限の設定値をpickに渡す():
     step = next(s for s in workflow()["jobs"]["pick"]["steps"] if s.get("run") == "python -m worker pick")
     assert step["env"][rules.DAILY_LIMIT_VARIABLE] == "${{ vars.WORKER_DAILY_LIMIT }}"
+
+
+def test_予定どおりの停止でもfailの手順が動く():
+    step = next(s for s in workflow()["jobs"]["finish"]["steps"] if str(s.get("run", "")).startswith("python -m worker fail"))
+    condition = " ".join(step["if"].split())
+    assert "steps.finish.outputs.stopped == 'true'" in condition
+    assert "needs.work.result != 'success'" in condition and "steps.finish.outcome != 'success'" in condition
