@@ -161,13 +161,27 @@ def changed_paths(cwd: str) -> list[str]:
 
 def finish(gh: GitHub, number: int, branch: str, base: str) -> int:
     def refuse(reason: str) -> int:
+        """思わぬ形で提案を出せない時。実行を「失敗」にする（fail が「案」に戻すか、もう一度挑戦するかを決める）。"""
         WORK.mkdir(exist_ok=True)
         REASON_FILE.write_text(reason, encoding="utf-8")
         print(reason, file=sys.stderr)
         return 1
 
+    def stop(reason: str) -> int:
+        """予定どおりに止まった時（担当が完了できないと判断・変更が無い・日誌が無い・ワークフローの変更を含む）。
+
+        実行は「成功」で終え、stopped の印を出す。印があれば fail の手順が動く。
+        fail が読むもの（理由のファイル・完了できない理由のファイル）は refuse と同じなので、
+        「案」に戻すか、もう一度挑戦するかの決まりは変わらない。変わるのは実行の結果の色だけ。
+        """
+        WORK.mkdir(exist_ok=True)
+        REASON_FILE.write_text(reason, encoding="utf-8")
+        output(stopped="true")
+        print(f"予定どおり止まりました：{reason}")
+        return 0
+
     if CANNOT_FILE.exists():
-        return refuse("担当が完了できないと判断しました：" + rules.shorten(CANNOT_FILE.read_text(encoding="utf-8").strip()))
+        return stop("担当が完了できないと判断しました：" + rules.shorten(CANNOT_FILE.read_text(encoding="utf-8").strip()))
     if not PATCH_FILE.exists():
         return refuse("担当の変更を受け取れませんでした。実行ページで確かめてください。")
     if not rules.is_work_branch(branch):
@@ -182,7 +196,7 @@ def finish(gh: GitHub, number: int, branch: str, base: str) -> int:
         git("apply", "--index", "--binary", patch, cwd=place)
     problem = rules.check_changes(changed_paths(place))
     if problem:
-        return refuse(problem)
+        return stop(problem)
 
     title = gh.issue(number)["title"]
     git("config", "user.name", rules.BOT_LOGIN, cwd=place)

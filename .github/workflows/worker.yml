@@ -207,8 +207,12 @@ jobs:
           python -m worker finish --issue "${{ needs.pick.outputs.issue }}"
           --branch "${{ needs.pick.outputs.branch }}" --base "${{ github.sha }}"
 
-      - name: 失敗・時間切れなら「案」に戻して理由をコメントする
-        if: always() && (needs.work.result != 'success' || steps.finish.outcome != 'success')
+      - name: 失敗・時間切れ・予定どおりの停止なら、もう一度挑戦するか「案」に戻して理由をコメントする
+        # 予定どおりの停止（完了できない判断・変更が無い・日誌が無い など）は、finish が成功で終えて stopped の印を出す。
+        # 実行の結果の色が変わるだけで、もう一度挑戦するかの決まり（worker fail）は同じ
+        if: >-
+          always() && (needs.work.result != 'success' || steps.finish.outcome != 'success' ||
+          steps.finish.outputs.stopped == 'true')
         timeout-minutes: 1
         run: >-
           python -m worker fail --issue "${{ needs.pick.outputs.issue }}"

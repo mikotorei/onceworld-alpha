@@ -301,3 +301,85 @@ def test_完了できない判断と時間切れは1回目でも止める(tmp_pa
     assert gh.comments[-1][1].startswith("「案」に戻しました。") and "完了できないと判断" in gh.comments[-1][1]
     gh = fail_case(tmp_path, monkeypatch, attempts=1, elapsed=40 * 60)
     assert gh.relabeled[-1][2] == ("案",) and "作業時間の上限" in gh.comments[-1][1]
+
+
+# 予定どおりの停止は実行を「成功」で終える。もう一度挑戦するかの決まりは変えない（worker finish → worker fail）
+
+import subprocess
+
+
+def git_repo(tmp_path):
+    """作業場所（finish が動くリポジトリ）を作り、最初のコミットを返す。"""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    run = lambda *a: subprocess.run(["git", *a], cwd=repo, check=True, capture_output=True, text=True).stdout.strip()
+    run("init", "-q", "-b", "main")
+    run("config", "user.email", "t@example.com")
+    run("config", "user.name", "t")
+    (repo / ".gitignore").write_text(".worker/\n", encoding="utf-8")
+    (repo / "page.md").write_text("old\n", encoding="utf-8")
+    run("add", "-A")
+    run("commit", "-q", "-m", "base")
+    return repo, run("rev-parse", "HEAD"), run
+
+
+def make_patch(repo, run, base, files):
+    """担当の変更（files）を patch にして、作業場所を元に戻す（work ジョブの「変更をまとめる」と同じ作り方）。"""
+    for name, text in files.items():
+        path = repo / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    run("add", "-A")
+    patch = subprocess.run(["git", "diff", "--cached", "--binary", base], cwd=repo, check=True, capture_output=True).stdout
+    run("reset", "-q", "--hard", base)
+    run("clean", "-qfd", "-e", ".worker")
+    return patch
+
+
+# 場合 → (予定どおりの停止か, 1回目の失敗でもう一度挑戦するか)。上限の見直しで決めた再挑戦の決まり
+STOP_CASES = {
+    "変更が無い": ({}, None, True),
+    "日誌が無い": ({"page.md": "new\n"}, None, True),
+    "ワークフローの変更": ({".github/workflows/x.yml": "x\n", "journal/2026-10-01.md": "日誌\n"}, None, True),
+    "完了できない判断": ({}, "指示が曖昧です", False),
+}
+
+
+def test_予定どおりの停止は成功で終え_再挑戦の決まりは変わらない(tmp_path, monkeypatch):
+    for case, (files, cannot, retry_first) in STOP_CASES.items():
+        case_dir = tmp_path / case
+        case_dir.mkdir()
+        repo, base, run = git_repo(case_dir)
+        patch = make_patch(repo, run, base, files)
+        set_env(monkeypatch, repo)
+        monkeypatch.setenv("GITHUB_TOKEN", "t")
+        work = repo / ".worker"
+        work.mkdir()
+        (work / "changes.patch").write_bytes(patch)
+        if cannot:
+            (work / "cannot-complete.md").write_text(cannot, encoding="utf-8")
+
+        assert main.finish(None, 1, "claude/issue-1-5", base) == 0, case  # 実行の色は「成功」
+        assert "stopped=true\n" in (repo / "out").read_text(encoding="utf-8"), case
+        reason = (work / "reason.txt").read_text(encoding="utf-8")
+
+        # finish が残した理由で決める再挑戦の決まりは、今までの決まりと同じ
+        facts = dict(finish_reason=reason, cannot_complete=cannot, claude_outcome="success", elapsed_seconds=60)
+        kind = main.rules.failure_kind(**facts)
+        assert main.rules.retry_after_failure(kind, 1) is retry_first, case
+        assert main.rules.retry_after_failure(kind, 2) is False, case
+
+        # fail の手順を通しても同じ（1回目）
+        events = [labeled("着手可", "2026-10-01T00:00:00Z", OWNER),
+                  {"event": "labeled", "label": {"name": "作業中"}, "created_at": "2026-10-01T01:00:00Z", "actor": BOT_ACTOR}]
+        gh = LabelGitHub(issues=[issue(1, OWNER)], events={1: events})
+        main.fail(gh, 1, "success", "")
+        expected = ("着手可",) if retry_first else ("案",)
+        assert gh.relabeled[-1][2] == expected, case
+
+
+def test_変更を受け取れない時は今までどおり実行を失敗にする(tmp_path, monkeypatch):
+    repo, base, run = git_repo(tmp_path)
+    set_env(monkeypatch, repo)
+    assert main.finish(None, 1, "claude/issue-1-5", base) == 1  # .worker/changes.patch が無い
+    assert "stopped" not in (repo / "out").read_text(encoding="utf-8") if (repo / "out").exists() else True
