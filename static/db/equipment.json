@@ -1236,6 +1236,25 @@
       "base_rate": {}
     },
     {
+      "id": "aurum_shield",
+      "name": "アウルムの盾",
+      "category": "armor",
+      "slot": "shield",
+      "series": "aurum",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 100000000,
+        "mdef": 25000000,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
       "id": "no_gloves",
       "name": "未装備",
       "category": "armor",
@@ -1411,6 +1430,25 @@
         "def": 0,
         "mdef": 9999,
         "luk": 9999,
+        "mov": 0
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "aurum_guard",
+      "name": "アウルムガード",
+      "category": "armor",
+      "slot": "hands",
+      "series": "aurum",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 100000000,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 25000000,
         "mov": 0
       },
       "base_rate": {}
@@ -1592,6 +1630,25 @@
         "mdef": 9999,
         "luk": 9999,
         "mov": 7
+      },
+      "base_rate": {}
+    },
+    {
+      "id": "aurum_boots",
+      "name": "アウルムブーツ",
+      "category": "armor",
+      "slot": "feet",
+      "series": "aurum",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 0,
+        "spd": 100000000,
+        "atk": 0,
+        "int": 0,
+        "def": 25000000,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 5
       },
       "base_rate": {}
     },
