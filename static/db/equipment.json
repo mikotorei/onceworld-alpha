@@ -658,6 +658,25 @@
       "base_rate": {}
     },
     {
+      "id": "wakyu_tokugawa",
+      "name": "和弓トクガワ",
+      "category": "weapon",
+      "slot": "weapon",
+      "series": "",
+      "no_enhance": true,
+      "base_add": {
+        "vit": 1,
+        "spd": 1,
+        "atk": 1,
+        "int": 1,
+        "def": 1,
+        "mdef": 1,
+        "luk": 1,
+        "mov": 1
+      },
+      "base_rate": {}
+    },
+    {
       "id": "no_helmet",
       "name": "未装備",
       "category": "armor",
@@ -3436,6 +3455,116 @@
           "target": "luk",
           "initial": "50%",
           "max": "99.5%"
+        }
+      ]
+    },
+    {
+      "id": "supernova",
+      "name": "超新星爆発(経験値)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "special_rate",
+          "target": "exp",
+          "initial": "99999%",
+          "max": "1098989.01%"
+        }
+      ]
+    },
+    {
+      "id": "setting_change",
+      "name": "設定変更(全ステータス)",
+      "category": "accessory",
+      "slot": "accessory",
+      "series": "",
+      "base_add": {
+        "vit": 0,
+        "spd": 0,
+        "atk": 0,
+        "int": 0,
+        "def": 0,
+        "mdef": 0,
+        "luk": 0,
+        "mov": 0
+      },
+      "base_rate": {
+        "vit": 99,
+        "spd": 99,
+        "atk": 99,
+        "int": 99,
+        "def": 99,
+        "mdef": 99,
+        "luk": 99,
+        "mov": 0
+      },
+      "base_rate_step": 0.01,
+      "max_level": 1000,
+      "display_effects": [
+        {
+          "type": "rate",
+          "target": "vit",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "spd",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "atk",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "int",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "def",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "mdef",
+          "initial": "99%",
+          "max": "1088.01%"
+        },
+        {
+          "type": "rate",
+          "target": "luk",
+          "initial": "99%",
+          "max": "1088.01%"
         }
       ]
     }
