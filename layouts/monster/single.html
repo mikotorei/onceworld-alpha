@@ -82,7 +82,7 @@
   <p>
     {{ range $i, $v := . }}
       {{ if $i }}, {{ end }}
-      <a href="{{ (printf "item/%s/" ($v | urlize)) | relURL }}">{{ $v }}</a>
+      {{ if $.Params.drops_nolink }}{{ $v }}{{ else }}<a href="{{ (printf "item/%s/" ($v | urlize)) | relURL }}">{{ $v }}</a>{{ end }}
     {{ end }}
   </p>
   {{ end }}
