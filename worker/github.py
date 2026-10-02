@@ -115,10 +115,14 @@ class GitHub:
     # Actions
     def worker_minutes_since(self, since: datetime) -> int:
         """since 以降に作られた担当の実行が使った分（終わったジョブだけ。ジョブごとに切り上げ）。"""
+        return self.workflow_minutes_since(since, WORKFLOW_FILE)
+
+    def workflow_minutes_since(self, since: datetime, workflow_file: str) -> int:
+        """since 以降に作られた、あるワークフローの実行が使った分（担当と月の上限を共有するワークフローにも使う）。"""
         created = since.strftime("%Y-%m-%dT%H:%M:%S%z")
         created = created[:-2] + ":" + created[-2:]  # +0900 → +09:00
         total = 0
-        path = f"/repos/{self.repo}/actions/workflows/{WORKFLOW_FILE}/runs?created=%3E%3D{quote(created)}"
+        path = f"/repos/{self.repo}/actions/workflows/{quote(workflow_file)}/runs?created=%3E%3D{quote(created)}"
         for run in self._pages(path, key="workflow_runs"):
             if run.get("conclusion") == "skipped":
                 continue  # 条件に合わず何もしなかった実行（0分）

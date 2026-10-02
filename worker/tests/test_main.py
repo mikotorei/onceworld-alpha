@@ -383,3 +383,55 @@ def test_変更を受け取れない時は今までどおり実行を失敗に�
     set_env(monkeypatch, repo)
     assert main.finish(None, 1, "claude/issue-1-5", base) == 1  # .worker/changes.patch が無い
     assert "stopped" not in (repo / "out").read_text(encoding="utf-8") if (repo / "out").exists() else True
+
+
+class PrivateGitHub(LabelGitHub):
+    """非公開リポジトリ：担当と、月の上限を共有するワークフローの使用時間を返す偽物。"""
+
+    def __init__(self, issues, events, worker_minutes, shared):
+        super().__init__(issues, events)
+        self.private = True
+        self.worker_minutes = worker_minutes
+        self.shared = shared
+        self.asked = []
+
+    def worker_minutes_since(self, since):
+        return self.worker_minutes
+
+    def workflow_minutes_since(self, since, workflow_file):
+        self.asked.append(workflow_file)
+        return self.shared[workflow_file]
+
+
+def test_月の上限は共有するワークフローの使用と確保する分を先に差し引く(tmp_path, monkeypatch):
+    cases = (
+        # (担当, 共有の使用, 確保, 共有の設定, 着手するか)
+        (500, 100, 299, "shared.yml", True),
+        (500, 100, 300, "shared.yml", False),
+        (899, 0, 0, None, True),  # 共有しなければ今までどおり
+        (900, 0, 0, None, False),
+        (500, 100, 300, None, True),  # 共有の設定が無ければ数えない（確保は効く分だけ）
+    )
+    for worker, used, reserved, shared, picked in cases:
+        set_env(monkeypatch, tmp_path)
+        if shared is None:
+            monkeypatch.delenv("WORKER_SHARED_WORKFLOWS", raising=False)
+        else:
+            monkeypatch.setenv("WORKER_SHARED_WORKFLOWS", shared)
+        monkeypatch.setenv("WORKER_RESERVED_MINUTES", str(reserved) if shared else "0")
+        gh = PrivateGitHub([issue(1, OWNER)], {1: [labeled("着手可", "2026-10-01T00:00:00Z", OWNER)]},
+                           worker, {"shared.yml": used})
+        main.pick(gh)
+        assert ((1, ("着手可",), ("作業中",)) in gh.relabeled) is picked, (worker, used, reserved, shared)
+        if not picked:
+            assert any("900分" in b for _, b in gh.comments)
+        assert gh.asked == ([shared] if shared else [])
+
+
+def test_公開リポジトリは共有の設定があっても使用時間を数えない(tmp_path, monkeypatch):
+    set_env(monkeypatch, tmp_path)
+    monkeypatch.setenv("WORKER_SHARED_WORKFLOWS", "shared.yml")
+    monkeypatch.setenv("WORKER_RESERVED_MINUTES", "9999")
+    gh = LabelGitHub([issue(1, OWNER)], {1: [labeled("着手可", "2026-10-01T00:00:00Z", OWNER)]})
+    main.pick(gh)  # FakeGitHub.worker_minutes_since は呼ばれると失敗する
+    assert (1, ("着手可",), ("作業中",)) in gh.relabeled
