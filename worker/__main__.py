@@ -105,11 +105,23 @@ def pick(gh: GitHub) -> int:
     monthly = rules.monthly_limit(gh.info()["private"])
     minutes = gh.worker_minutes_since(rules.month_start(now)) if monthly is not None else None
     print(f"今日の着手：{started}件／今月の使用：{'数えない（公開リポジトリ）' if minutes is None else f'{minutes}分'}")
+    shared_minutes, reserved = 0, 0
+    if monthly is not None:
+        # 月の上限を共有するワークフロー（例：miko-hub の整理）の使用と、その残りの実行のために確保する分
+        for workflow_file in rules.shared_workflows(os.environ.get(rules.SHARED_WORKFLOWS_VARIABLE)):
+            used = gh.workflow_minutes_since(rules.month_start(now), workflow_file)
+            shared_minutes += used
+            print(f"共有する {workflow_file} の今月の使用：{used}分")
+        reserved, notice = rules.reserved_minutes(os.environ.get(rules.RESERVED_MINUTES_VARIABLE))
+        if notice:
+            print(f"::warning::{notice}")
+        if reserved:
+            print(f"共有するワークフローの残りの実行のために確保する分：{reserved}分")
     daily, notice = rules.daily_limit(os.environ.get(rules.DAILY_LIMIT_VARIABLE))
     if notice:
         print(f"::warning::{notice}")
     print(f"一日の上限：{daily}件")
-    reason = rules.limit_reason(started, minutes, monthly, daily)
+    reason = rules.limit_reason(started, minutes, monthly, daily, shared_minutes, reserved)
     if reason:
         for candidate in waiting:
             gh.relabel(candidate.number, remove=[rules.READY], add=[rules.IDEA])

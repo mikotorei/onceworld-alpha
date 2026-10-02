@@ -23,6 +23,10 @@ DONE = "完了"
 
 DEFAULT_DAILY_LIMIT = 20  # 1日（日本時間）に着手する件数の上限の既定値。最後の保険
 DAILY_LIMIT_VARIABLE = "WORKER_DAILY_LIMIT"  # 上限を変えるリポジトリの設定値（Actions の Variables）の名前
+# 月の上限を担当と共有するワークフロー（ファイル名をカンマ区切り）と、その残りの実行のために先に確保する分。
+# どちらもワークフローの pick の手順が環境変数で渡す（無ければ共有しない）。共有するワークフローは止めず、担当の分を先に止める
+SHARED_WORKFLOWS_VARIABLE = "WORKER_SHARED_WORKFLOWS"
+RESERVED_MINUTES_VARIABLE = "WORKER_RESERVED_MINUTES"
 MAX_ATTEMPTS = 2  # 1つの Issue につき、持ち主が「着手可」を付けてから自動で挑戦する回数の上限
 MONTHLY_MINUTES = 900  # 1か月（日本時間の暦月）に担当が使う Actions の分の上限。非公開リポジトリだけ（公開は実行時間が無料）
 WORK_MINUTES = 40  # 1回の作業時間の上限（ワークフローの手順の timeout-minutes と同じ値に保つ）
@@ -173,13 +177,45 @@ def daily_limit(raw: Optional[str]) -> tuple[int, Optional[str]]:
     return value, None
 
 
+def shared_workflows(raw: Optional[str]) -> list[str]:
+    """月の上限を担当と共有するワークフローのファイル名（設定値はカンマ区切り）。無ければ空。"""
+    return [name.strip() for name in (raw or "").split(",") if name.strip()]
+
+
+def reserved_minutes(raw: Optional[str]) -> tuple[int, Optional[str]]:
+    """共有するワークフローの残りの実行のために先に確保する分。(分, 注意書き) を返す。
+
+    無い・空欄なら0。0以上の整数ならその値。それ以外は書き間違いとみなし、0で動かして注意書きを返す。
+    """
+    text = (raw or "").strip()
+    if not text:
+        return 0, None
+    if text.isdigit():
+        return int(text), None
+    return 0, f"設定値 {RESERVED_MINUTES_VARIABLE} の値「{shorten(text, 20)}」は0以上の整数ではないため、確保する分を0として動かします。"
+
+
 def limit_reason(
     started_today: int,
     minutes_this_month: Optional[int],
     monthly: Optional[int] = MONTHLY_MINUTES,
     daily: int = DEFAULT_DAILY_LIMIT,
+    shared_minutes: int = 0,
+    reserved: int = 0,
 ) -> Optional[str]:
-    """上限に達していれば、その理由の文。達していなければ None。monthly が None なら月の上限は見ない。"""
+    """上限に達していれば、その理由の文。達していなければ None。monthly が None なら月の上限は見ない。
+
+    月の上限を共有するワークフローがあれば、その今月の使用（shared_minutes）と、残りの実行のために
+    確保する分（reserved）を先に差し引く（担当の分を先に止める）。
+    """
+    if (monthly is not None and minutes_this_month is not None
+            and (shared_minutes or reserved)
+            and minutes_this_month + shared_minutes + reserved >= monthly):
+        return (
+            f"今月の Actions の使用時間が、担当の上限（{monthly}分。同じ枠を使うほかの仕組みと共有）に達しました"
+            f"（担当 {minutes_this_month}分・ほかの仕組み {shared_minutes}分・ほかの仕組みの残りの見込み {reserved}分）。"
+            "ほかの仕組みの分を先に確保し、非公開リポジトリの Actions の無料枠（アカウント全体で共有）を見張りのために残すため、今月はもう着手しません。来月以降に、もう一度「着手可」を付けてください。"
+        )
     if monthly is not None and minutes_this_month is not None and minutes_this_month >= monthly:
         return (
             f"今月の担当の使用時間が上限（{monthly}分）に達しました（{minutes_this_month}分）。"

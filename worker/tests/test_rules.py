@@ -365,3 +365,14 @@ def test_予定どおりの停止でもfailの手順が動く():
     condition = " ".join(step["if"].split())
     assert "steps.finish.outputs.stopped == 'true'" in condition
     assert "needs.work.result != 'success'" in condition and "steps.finish.outcome != 'success'" in condition
+
+
+def test_月の上限を共有するワークフローと確保する分の設定():
+    assert rules.shared_workflows(None) == [] and rules.shared_workflows(" a.yml, ,b.yml ") == ["a.yml", "b.yml"]
+    assert rules.reserved_minutes(None) == (0, None) and rules.reserved_minutes(" 250 ") == (250, None)
+    value, notice = rules.reserved_minutes("-5")
+    assert value == 0 and "WORKER_RESERVED_MINUTES" in notice
+    assert rules.limit_reason(0, 600, shared_minutes=100, reserved=199) is None
+    reason = rules.limit_reason(0, 600, shared_minutes=100, reserved=200)
+    assert "上限（900分" in reason and "担当 600分" in reason and "200分" in reason
+    assert rules.limit_reason(0, 5000, None, shared_minutes=100, reserved=200) is None  # 公開は見ない
