@@ -6,6 +6,7 @@
   <title>{{ if .Title }}{{ .Title }} | {{ end }}{{ site.Title }}</title>
   <link rel="canonical" href="{{ .Permalink }}" />
   <link rel="stylesheet" href="{{ "css/common/style.css?v=3" | relURL }}" />
+  <link rel="stylesheet" href="{{ "css/common/maker-card.css?v=1" | relURL }}" />
   {{ if .IsHome }}
     <link rel="stylesheet" href="{{ "css/common/home.css?v=1" | relURL }}" />
   {{ end }}
@@ -33,6 +34,7 @@
   <main>
     {{ block "main" . }}{{ end }}
   </main>
+  {{ partial "maker-card.html" . }}
   <script src="{{ "js/common/header-nav.js?v=1" | relURL }}" defer></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
