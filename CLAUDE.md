@@ -254,7 +254,16 @@ content/
     ├── pet-sim.md                # ペットステシミュ
     ├── equipment-test.md         # equipment.json の読み込みテスト用
     └── guide/tenku-corridor/     # 天空回廊のノウハウ
+└── yomimono/                     # 読みもの（結び屋から移した。一覧は _index.md、型は layouts/yomimono/）
 ```
+
+### 読みもの（content/yomimono/）
+
+- 2026-11-20 に結び屋（musubiya-miko.com/yomimono/）から移した、みこが書いた OnceWorld の読みもの。結び屋の古いページは、ここへ自動で移る転送のページになっている。
+- 1本 = `content/yomimono/<URL の名前>.md`。フロントマターは title・description・layout = "guide"（guide.css を読むため）・date（最初に公開した日）・lastmod（更新した日）。本文は HTML のまま（行頭に字下げを入れない）。
+- 題の下に日付と、非公式の表記「このページは、OnceWorld を遊んだみこが書いた非公式の読みものです。ゲームの運営（合同会社PONIX）とは関係ありません。」を置く。
+- 応援（OFUSE）の入口は置かない。結び屋へは、全ページの作り手の札（maker-card）でつながる。
+- 本文は社長が書く。ほかのサイトや Wiki の文章と表は写さない。ゲームを下げるような内容は書かない。
 
 ### データ
 ```
