@@ -387,3 +387,13 @@
 .floor-tool__field + .floor-tool__field {
   margin-top: 14px;
 }
+
+/* ───── 読みもの（content/yomimono/。結び屋から移したもの） ───── */
+.yomi-meta { margin-bottom: 1.2em; }
+.yomi-date { font-size: 0.85em; opacity: 0.75; margin: 0 0 0.3em; }
+.yomi-hikoshiki { font-size: 0.8em; opacity: 0.75; margin: 0; line-height: 1.6; }
+.yomi-back { margin-top: 2em; }
+.guide-content .yomi-list { list-style: none; padding: 0; margin: 1em 0 0; }
+.yomi-list li { padding: 0.7em 0; border-bottom: 1px solid rgba(128, 128, 128, 0.25); }
+.yomi-list a { font-weight: 700; }
+.yomi-list__date { display: block; font-size: 0.8em; opacity: 0.7; margin-top: 0.2em; }

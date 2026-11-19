@@ -1,0 +1,20 @@
+{{ define "main" }}
+<div class="guide-wrap">
+  <header class="guide-header">
+    <h1 class="guide-header__title">{{ .Title }}</h1>
+  </header>
+  <div class="guide-body">
+    <article class="guide-content">
+      <p class="yomi-hikoshiki">このページは、OnceWorld を遊んだみこが書いた非公式の読みものです。ゲームの運営（合同会社PONIX）とは関係ありません。</p>
+      <ul class="yomi-list">
+        {{ range .Pages.ByDate.Reverse }}
+          <li>
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <span class="yomi-list__date">{{ .Date.Format "2006年1月2日" }}{{ if ne (.Lastmod.Format "2006-01-02") (.Date.Format "2006-01-02") }}（更新：{{ .Lastmod.Format "2006年1月2日" }}）{{ end }}</span>
+          </li>
+        {{ end }}
+      </ul>
+    </article>
+  </div>
+</div>
+{{ end }}
